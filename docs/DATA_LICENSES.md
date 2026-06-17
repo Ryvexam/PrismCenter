@@ -9,6 +9,8 @@ Ce document decrit les principales sources de donnees utilisees ou referencees p
 | Source | Usage dans PrismCenter | Licence / conditions identifiees | Attribution recommandee | Notes |
 | --- | --- | --- | --- | --- |
 | ODRE - Registre national des installations de production et de stockage d'electricite | Puissance installee bas carbone par departement | Licence Ouverte v2.0 Etalab, indiquee dans les metadonnees ODRE | ODRE, RTE, Enedis, EDF SEI, ELD | Jeu agrege au departement dans PrismCenter. |
+| Capareseau - Capacites d'accueil du reseau | Capacite reservee disponible, files d'attente et travaux par poste | Conditions de reutilisation a verifier aupres de RTE / Capareseau; donnees publiees pour consultation publique | RTE / Capareseau | Donnee embarquee apres generation par script; ne vaut pas engagement de raccordement. |
+| ODRE - Postes electriques RTE | Postes de transformation, departement et tension | Licence Ouverte v2.0 Etalab, indiquee dans les metadonnees ODRE | RTE / ODRE | Utilise pour rattacher les postes Capareseau aux departements. |
 | ODRE - Eco2mix national temps reel | Consommation, solaire, intensite CO2 nationale | Licence Ouverte v2.0 Etalab, indiquee dans les metadonnees ODRE | RTE / Eco2mix / ODRE | Les donnees temps reel peuvent etre remplacees par des donnees consolidees ulterieurement. |
 | Georisques | Risques naturels et technologiques au point | API publique referencee sur data.gouv.fr; conditions et licences a verifier selon les jeux sous-jacents | Georisques / BRGM | Ne pas presenter comme une etude de risque exhaustive. |
 | Open-Meteo | Temperature locale | API data sous Creative Commons Attribution 4.0 selon Open-Meteo | Open-Meteo | Respecter attribution et conditions d'usage de l'API. |
@@ -23,7 +25,7 @@ Ce document decrit les principales sources de donnees utilisees ou referencees p
 
 Pour une page publique ou une presentation:
 
-> Sources: ODRE/RTE, Enedis, EDF SEI, ELD; Eco2mix/RTE; Georisques/BRGM; Open-Meteo; OpenStreetMap contributors; Hub'Eau/Eaufrance; VigiEau; DVF/DGFiP; Base Adresse Nationale/IGN; france-geojson d'apres IGN Admin Express et INSEE COG.
+> Sources: ODRE/RTE, Enedis, EDF SEI, ELD; Capareseau/RTE; Eco2mix/RTE; Georisques/BRGM; Open-Meteo; OpenStreetMap contributors; Hub'Eau/Eaufrance; VigiEau; DVF/DGFiP; Base Adresse Nationale/IGN; france-geojson d'apres IGN Admin Express et INSEE COG.
 
 ## Precautions de reutilisation
 
@@ -36,6 +38,8 @@ Pour une page publique ou une presentation:
 ## Sources de verification
 
 - ODRE Registre national: https://odre.opendatasoft.com/explore/dataset/registre-national-installation-production-stockage-electricite-agrege/information/
+- Capareseau: https://www.services-rte.com/fr/decouvrez-nos-offres-de-services/consulter-les-capacites-d-accueil-du-reseau-capareseau.html
+- ODRE Postes electriques RTE: https://odre.opendatasoft.com/explore/dataset/postes-electriques-rte/information/
 - ODRE Eco2mix national temps reel: https://odre.opendatasoft.com/explore/dataset/eco2mix-national-tr/information/
 - Licence Ouverte Etalab: https://github.com/etalab/licence-ouverte
 - Georisques API: https://www.data.gouv.fr/dataservices/api-georisques

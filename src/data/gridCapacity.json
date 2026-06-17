@@ -1,0 +1,5628 @@
+{
+  "departments": {
+    "savoie": {
+      "availableMw": 200.6,
+      "highVoltageSites": 13,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 56,
+      "name": "Savoie",
+      "queueMw": 76,
+      "reservedMw": 202.9,
+      "serviceMw": 86.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 28,
+        "45kV": 15,
+        "400kV": 3,
+        "225kV": 10
+      },
+      "topStations": [
+        {
+          "availableMw": 18.6,
+          "code": "DRUME",
+          "name": "DRUMETTAZ",
+          "queueMw": 4,
+          "reservedMw": 14.3,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 18,
+          "code": "LONG6",
+          "name": "LONGEFAN",
+          "queueMw": 0,
+          "reservedMw": 9.9,
+          "tension": "225kV",
+          "works": [
+            "Création d'un automate d'effacement de la production"
+          ]
+        },
+        {
+          "availableMw": 15.8,
+          "code": "SSAL5",
+          "name": "ST-PIERRE-D ALBIGNY",
+          "queueMw": 11.2,
+          "reservedMw": 18.9,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 14.5,
+          "code": "BOZEL",
+          "name": "BOZEL",
+          "queueMw": 2.4,
+          "reservedMw": 12.9,
+          "tension": "63kV",
+          "works": [
+            "Augmentation de la capacité de transit de la liaison 225kV Passy Pressy"
+          ]
+        }
+      ],
+      "totalSites": 56,
+      "transformerMw": 1697,
+      "worksCount": 21
+    },
+    "pas de calais": {
+      "availableMw": 1026.8,
+      "highVoltageSites": 16,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 35,
+      "name": "Pas-de-Calais",
+      "queueMw": 364,
+      "reservedMw": 811.2,
+      "serviceMw": 131,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 11,
+        "90kV": 18,
+        "400kV": 5,
+        "63kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 200,
+          "code": "MANDA",
+          "name": "MANDARINS",
+          "queueMw": 0,
+          "reservedMw": 200,
+          "tension": "400kV",
+          "works": [
+            "Non"
+          ]
+        },
+        {
+          "availableMw": 177.8,
+          "code": "FRUGE",
+          "name": "FRUGES",
+          "queueMw": 0,
+          "reservedMw": 88.9,
+          "tension": "400kV",
+          "works": [
+            "Oui"
+          ]
+        },
+        {
+          "availableMw": 83.4,
+          "code": "A.COM",
+          "name": "AVESNES-LE-COMTE",
+          "queueMw": 3.6,
+          "reservedMw": 45.3,
+          "tension": "225kV",
+          "works": [
+            "Oui"
+          ]
+        },
+        {
+          "availableMw": 73,
+          "code": "BLARI",
+          "name": "BLARINGHEM",
+          "queueMw": 27,
+          "reservedMw": 50,
+          "tension": "90kV",
+          "works": [
+            "Oui"
+          ]
+        }
+      ],
+      "totalSites": 35,
+      "transformerMw": 2629,
+      "worksCount": 33
+    },
+    "rhone": {
+      "availableMw": 513.1,
+      "highVoltageSites": 18,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 49,
+      "name": "Rhône",
+      "queueMw": 227.6,
+      "reservedMw": 574.6,
+      "serviceMw": 349.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 31,
+        "225kV": 15,
+        "400kV": 3
+      },
+      "topStations": [
+        {
+          "availableMw": 98.8,
+          "code": "MIONS",
+          "name": "MIONS",
+          "queueMw": 8.6,
+          "reservedMw": 64.4,
+          "tension": "400kV",
+          "works": []
+        },
+        {
+          "availableMw": 46.8,
+          "code": "MOUCH",
+          "name": "MOUCHE (LA)",
+          "queueMw": 3.2,
+          "reservedMw": 29.3,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 33.9,
+          "code": "TARAR",
+          "name": "TARARE",
+          "queueMw": 53.6,
+          "reservedMw": 59.9,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 33,
+          "code": "VENIS",
+          "name": "VENISSIEUX",
+          "queueMw": 5.6,
+          "reservedMw": 28.5,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 49,
+      "transformerMw": 3268,
+      "worksCount": 2
+    },
+    "bouches du rhone": {
+      "availableMw": 1966.7,
+      "highVoltageSites": 22,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 54,
+      "name": "Bouches-du-Rhône",
+      "queueMw": 288,
+      "reservedMw": 1393,
+      "serviceMw": 287.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 19,
+        "63kV": 32,
+        "400kV": 3
+      },
+      "topStations": [
+        {
+          "availableMw": 194.2,
+          "code": "DURAN",
+          "name": "DURANNE(LA)",
+          "queueMw": 4,
+          "reservedMw": 102,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 141.2,
+          "code": "A.MOU",
+          "name": "AIX MOURET",
+          "queueMw": 0.6,
+          "reservedMw": 72,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 111.2,
+          "code": "SAUM6",
+          "name": "SAUMATY",
+          "queueMw": 1.8,
+          "reservedMw": 58,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 107,
+          "code": "REALT",
+          "name": "REALTOR",
+          "queueMw": 0,
+          "reservedMw": 107,
+          "tension": "400kV",
+          "works": []
+        }
+      ],
+      "totalSites": 54,
+      "transformerMw": 3420,
+      "worksCount": 1
+    },
+    "ariege": {
+      "availableMw": 49.1,
+      "highVoltageSites": 3,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 14,
+      "name": "Ariège",
+      "queueMw": 196.4,
+      "reservedMw": 211.6,
+      "serviceMw": 83.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 11,
+        "225kV": 3
+      },
+      "topStations": [
+        {
+          "availableMw": 32.5,
+          "code": "SAVE5",
+          "name": "SAVERDUN",
+          "queueMw": 0,
+          "reservedMw": 65,
+          "tension": "63kV",
+          "works": [
+            "Réhab de la liaison Mouillonne-Muret et Boulbonne 225 kV",
+            "Ajout nouvelle travée avec transformateur 36 MVA"
+          ]
+        },
+        {
+          "availableMw": 13.2,
+          "code": "MIREP",
+          "name": "MIREPOIX",
+          "queueMw": 8.8,
+          "reservedMw": 22,
+          "tension": "63kV",
+          "works": [
+            "Réhab de la liaison Mouillonne-Muret et Boulbonne 225 kV"
+          ]
+        },
+        {
+          "availableMw": 1.3,
+          "code": "BELEM",
+          "name": "BELEM",
+          "queueMw": 14.6,
+          "reservedMw": 16,
+          "tension": "63kV",
+          "works": [
+            "Réhab de la liaison Mouillonne-Muret et Boulbonne 225 kV"
+          ]
+        },
+        {
+          "availableMw": 1.2,
+          "code": "TEICH",
+          "name": "LE TEICH",
+          "queueMw": 0,
+          "reservedMw": 1,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 14,
+      "transformerMw": 330,
+      "worksCount": 5
+    },
+    "haute savoie": {
+      "availableMw": 258.7,
+      "highVoltageSites": 5,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 31,
+      "name": "Haute-Savoie",
+      "queueMw": 44.2,
+      "reservedMw": 207.6,
+      "serviceMw": 89.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "45kV": 2,
+        "63kV": 24,
+        "225kV": 4,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 24.8,
+          "code": "VNERE",
+          "name": "VIGNERES",
+          "queueMw": 1,
+          "reservedMw": 16,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 21.4,
+          "code": "FAVER",
+          "name": "FAVERGES",
+          "queueMw": 4,
+          "reservedMw": 15.5,
+          "tension": "63kV",
+          "works": [
+            "Création d'un automate d'effacement de la production"
+          ]
+        },
+        {
+          "availableMw": 19.8,
+          "code": "TANIN",
+          "name": "TANINGES",
+          "queueMw": 1,
+          "reservedMw": 11.8,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 18.8,
+          "code": "CLUSE",
+          "name": "CLUSES",
+          "queueMw": 2,
+          "reservedMw": 12.2,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 31,
+      "transformerMw": 1252,
+      "worksCount": 5
+    },
+    "doubs": {
+      "availableMw": 115.7,
+      "highVoltageSites": 6,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 23,
+      "name": "Doubs",
+      "queueMw": 292.2,
+      "reservedMw": 246.8,
+      "serviceMw": 140.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 17,
+        "225kV": 5,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 57,
+          "code": "VAROI",
+          "name": "LES VAROILLES",
+          "queueMw": 52,
+          "reservedMw": 65,
+          "tension": "225kV",
+          "works": [
+            "Raccordement d’un transformateur 225/20 kV et de 2 demi-rames HTA"
+          ]
+        },
+        {
+          "availableMw": 36.8,
+          "code": "B.DAM",
+          "name": "BAUME-LES-DAMES",
+          "queueMw": 21.2,
+          "reservedMw": 47.3,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 19.5,
+          "code": "FRASN",
+          "name": "FRASNE",
+          "queueMw": 1,
+          "reservedMw": 28,
+          "tension": "400kV",
+          "works": []
+        },
+        {
+          "availableMw": 2.4,
+          "code": "MTBOU",
+          "name": "MONTBOUCONS",
+          "queueMw": 1.2,
+          "reservedMw": 3,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 23,
+      "transformerMw": 1332,
+      "worksCount": 3
+    },
+    "finistere": {
+      "availableMw": 832.4,
+      "highVoltageSites": 6,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 37,
+      "name": "Finistère",
+      "queueMw": 325.8,
+      "reservedMw": 778,
+      "serviceMw": 66.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 31,
+        "225kV": 6
+      },
+      "topStations": [
+        {
+          "availableMw": 130.2,
+          "code": "CARHA",
+          "name": "CARHAIX",
+          "queueMw": 7.8,
+          "reservedMw": 79,
+          "tension": "63kV",
+          "works": [
+            "Renforcement liaison CARHAIX PLUSQUELLEC 63kV, MUR-ST NICOLAS DU PELEM 63kV, BRENNILIS – ST HERBOT 63kV, LANGONNET-ROSTRENEN 63kV, Création poste EST FINISTERE 225/63 kV"
+          ]
+        },
+        {
+          "availableMw": 63.7,
+          "code": "KERBI",
+          "name": "KERBILIGUET",
+          "queueMw": 3.8,
+          "reservedMw": 86,
+          "tension": "63kV",
+          "works": [
+            "Renforcement liaison BRENNILIS – ST HERBOT 63kV, CARHAIX PLUSQUELLEC 63kV, LANGONNET-ROSTRENEN 63kV, Création poste EST FINISTERE 225/63 kV"
+          ]
+        },
+        {
+          "availableMw": 60.5,
+          "code": "SSHER",
+          "name": "ST-HERBOT",
+          "queueMw": 21.4,
+          "reservedMw": 54,
+          "tension": "63kV",
+          "works": [
+            "Renforcement liaison BRENNILIS – ST HERBOT 63kV, LANGONNET-ROSTRENEN 63kV, CARHAIX PLUSQUELLEC 63kV, Création poste EST FINISTERE 225/63 kV"
+          ]
+        },
+        {
+          "availableMw": 59.8,
+          "code": "SCAER",
+          "name": "SCAER",
+          "queueMw": 3,
+          "reservedMw": 32,
+          "tension": "63kV",
+          "works": [
+            "Renforcement liaison  MUR-ST NICOLAS DU PELEM 63kV, CARHAIX PLUSQUELLEC 63kV, Création poste EST FINISTERE 225/63 kV"
+          ]
+        }
+      ],
+      "totalSites": 37,
+      "transformerMw": 1872,
+      "worksCount": 4
+    },
+    "aveyron": {
+      "availableMw": 109.8,
+      "highVoltageSites": 9,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 25,
+      "name": "Aveyron",
+      "queueMw": 603.4,
+      "reservedMw": 532.3,
+      "serviceMw": 346.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 16,
+        "400kV": 3,
+        "225kV": 6
+      },
+      "topStations": [
+        {
+          "availableMw": 21,
+          "code": "COUFF",
+          "name": "COUFFRAU",
+          "queueMw": 0.2,
+          "reservedMw": 39,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 15.6,
+          "code": "B.AIR",
+          "name": "BEL-AIR",
+          "queueMw": 26.6,
+          "reservedMw": 32,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 10.5,
+          "code": "FONDA",
+          "name": "FONDAMENTE",
+          "queueMw": 0,
+          "reservedMw": 11,
+          "tension": "63kV",
+          "works": [
+            "Réhabilitation des lignes AGUESSAC – SEVERAC"
+          ]
+        },
+        {
+          "availableMw": 10.2,
+          "code": "V.ROU",
+          "name": "VILLEFRANCHE-DE-ROUERGUE",
+          "queueMw": 40.2,
+          "reservedMw": 38,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 25,
+      "transformerMw": 1208,
+      "worksCount": 8
+    },
+    "indre": {
+      "availableMw": 306.1,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 16,
+      "name": "Indre",
+      "queueMw": 1297.8,
+      "reservedMw": 807,
+      "serviceMw": 229,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 12,
+        "400kV": 1,
+        "225kV": 3
+      },
+      "topStations": [
+        {
+          "availableMw": 152.8,
+          "code": "PAUDY",
+          "name": "PAUDY",
+          "queueMw": 276.2,
+          "reservedMw": 171.5,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 99.7,
+          "code": "VLEME",
+          "name": "VILLEMENT",
+          "queueMw": 203.2,
+          "reservedMw": 109.5,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 31.1,
+          "code": "ROUS6",
+          "name": "ROUSSINES",
+          "queueMw": 60.8,
+          "reservedMw": 64,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 17.1,
+          "code": "DEOLS",
+          "name": "DEOLS",
+          "queueMw": 32.2,
+          "reservedMw": 35,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 16,
+      "transformerMw": 1036,
+      "worksCount": 0
+    },
+    "somme": {
+      "availableMw": 305.8,
+      "highVoltageSites": 6,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 16,
+      "name": "Somme",
+      "queueMw": 133.8,
+      "reservedMw": 255.1,
+      "serviceMw": 43.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 5,
+        "225kV": 4,
+        "400kV": 2,
+        "63kV": 5
+      },
+      "topStations": [
+        {
+          "availableMw": 144,
+          "code": "VICOG",
+          "name": "LA VICOGNE",
+          "queueMw": 0,
+          "reservedMw": 72,
+          "tension": "225kV",
+          "works": [
+            "Oui"
+          ]
+        },
+        {
+          "availableMw": 72,
+          "code": "LIMEU",
+          "name": "LIMEUX",
+          "queueMw": 0,
+          "reservedMw": 72,
+          "tension": "400kV",
+          "works": [
+            "Oui"
+          ]
+        },
+        {
+          "availableMw": 54,
+          "code": "PERON",
+          "name": "PERONNE",
+          "queueMw": 19.2,
+          "reservedMw": 36.6,
+          "tension": "63kV",
+          "works": [
+            "Oui"
+          ]
+        },
+        {
+          "availableMw": 29.6,
+          "code": "PERTA",
+          "name": "PERTAIN - BERSAUCOURT",
+          "queueMw": 0,
+          "reservedMw": 14.8,
+          "tension": "225kV",
+          "works": [
+            "Non",
+            "Création d'un poste source 225/20 kV"
+          ]
+        }
+      ],
+      "totalSites": 16,
+      "transformerMw": 1536,
+      "worksCount": 17
+    },
+    "deux sevres": {
+      "availableMw": 224.6,
+      "highVoltageSites": 7,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 20,
+      "name": "Deux-Sèvres",
+      "queueMw": 459.6,
+      "reservedMw": 441.5,
+      "serviceMw": 655.9,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 5,
+        "90kV": 13,
+        "400kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 75.8,
+          "code": "PARTH",
+          "name": "PARTHENAY",
+          "queueMw": 29.4,
+          "reservedMw": 62,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 53.9,
+          "code": "THOUA",
+          "name": "THOUARS",
+          "queueMw": 27,
+          "reservedMw": 39.5,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 30.3,
+          "code": "SSFLO",
+          "name": "ST-FLORENT",
+          "queueMw": 13.2,
+          "reservedMw": 21,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 30.1,
+          "code": "CIVRA",
+          "name": "CIVRAY",
+          "queueMw": 41.6,
+          "reservedMw": 34.6,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 20,
+      "transformerMw": 1096,
+      "worksCount": 2
+    },
+    "orne": {
+      "availableMw": 69.7,
+      "highVoltageSites": 2,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 12,
+      "name": "Orne",
+      "queueMw": 203.8,
+      "reservedMw": 135.6,
+      "serviceMw": 147.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 10,
+        "225kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 52.6,
+          "code": "CHEV6",
+          "name": "CHEVAIN",
+          "queueMw": 37.4,
+          "reservedMw": 47,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 16.7,
+          "code": "VIMOU",
+          "name": "VIMOUTIERS",
+          "queueMw": 54.8,
+          "reservedMw": 28.5,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.4,
+          "code": "LOUPE",
+          "name": "LA LOUPE",
+          "queueMw": 4.8,
+          "reservedMw": 8.5,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "ALENC",
+          "name": "ALENCON",
+          "queueMw": 7.4,
+          "reservedMw": 3.3,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 12,
+      "transformerMw": 686,
+      "worksCount": 0
+    },
+    "manche": {
+      "availableMw": 13.9,
+      "highVoltageSites": 2,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 20,
+      "name": "Manche",
+      "queueMw": 87,
+      "reservedMw": 94.3,
+      "serviceMw": 181.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 18,
+        "400kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 13.9,
+          "code": "GERR5",
+          "name": "GER",
+          "queueMw": 2,
+          "reservedMw": 16.6,
+          "tension": "90kV",
+          "works": [
+            "Creation poste"
+          ]
+        },
+        {
+          "availableMw": 0,
+          "code": "ALERI",
+          "name": "ALERIE",
+          "queueMw": 5.6,
+          "reservedMw": 2.4,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "AVRAN",
+          "name": "AVRANCHES",
+          "queueMw": 8.2,
+          "reservedMw": 5.4,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "CARP5",
+          "name": "CARPENTIER (SNCF)",
+          "queueMw": 0,
+          "reservedMw": 0,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 20,
+      "transformerMw": 1146,
+      "worksCount": 3
+    },
+    "paris": {
+      "availableMw": 0.7,
+      "highVoltageSites": 19,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 20,
+      "name": "Paris",
+      "queueMw": 1,
+      "reservedMw": 2.3,
+      "serviceMw": 2.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 19,
+        "63kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 0.2,
+          "code": "TOLBI",
+          "name": "TOLBIAC",
+          "queueMw": 0,
+          "reservedMw": 0.2,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.1,
+          "code": "AUSTE",
+          "name": "AUSTERLITZ",
+          "queueMw": 0,
+          "reservedMw": 0.1,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.1,
+          "code": "BXBOU",
+          "name": "BEAUBOURG",
+          "queueMw": 0,
+          "reservedMw": 0.1,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.1,
+          "code": "CORIO",
+          "name": "CORIOLIS",
+          "queueMw": 0,
+          "reservedMw": 0.2,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 20,
+      "transformerMw": 4290,
+      "worksCount": 0
+    },
+    "moselle": {
+      "availableMw": 108.7,
+      "highVoltageSites": 6,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 37,
+      "name": "Moselle",
+      "queueMw": 538.4,
+      "reservedMw": 481.8,
+      "serviceMw": 270.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 31,
+        "225kV": 5,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 22.5,
+          "code": "AMELE",
+          "name": "AMELECOURT (CHATEAU-SALINS)",
+          "queueMw": 1.2,
+          "reservedMw": 29.7,
+          "tension": "63kV",
+          "works": [
+            "Schéma GE: raccordement d'un transformateur 63/20 kV - 36 MVA"
+          ]
+        },
+        {
+          "availableMw": 18,
+          "code": "AMNEV",
+          "name": "AMNEVILLE",
+          "queueMw": 34,
+          "reservedMw": 61,
+          "tension": "225kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 11.3,
+          "code": "SSAVO",
+          "name": "ST-AVOLD",
+          "queueMw": 19.4,
+          "reservedMw": 20.3,
+          "tension": "400kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 10.4,
+          "code": "DIEUZ",
+          "name": "DIEUZE",
+          "queueMw": 6.6,
+          "reservedMw": 19.1,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        }
+      ],
+      "totalSites": 37,
+      "transformerMw": 2033,
+      "worksCount": 42
+    },
+    "oise": {
+      "availableMw": 310.7,
+      "highVoltageSites": 6,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 29,
+      "name": "Oise",
+      "queueMw": 271.6,
+      "reservedMw": 408.2,
+      "serviceMw": 304.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 1,
+        "63kV": 22,
+        "225kV": 4,
+        "400kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 114.8,
+          "code": "SANDR",
+          "name": "SANDRICOURT",
+          "queueMw": 10,
+          "reservedMw": 65,
+          "tension": "63kV",
+          "works": [
+            "Non"
+          ]
+        },
+        {
+          "availableMw": 59,
+          "code": "V.COT",
+          "name": "VILLERS-COTTERET",
+          "queueMw": 1.8,
+          "reservedMw": 30.8,
+          "tension": "63kV",
+          "works": [
+            "Oui"
+          ]
+        },
+        {
+          "availableMw": 45.2,
+          "code": "COMPI",
+          "name": "COMPIEGNE",
+          "queueMw": 18.4,
+          "reservedMw": 32.2,
+          "tension": "225kV",
+          "works": [
+            "Non"
+          ]
+        },
+        {
+          "availableMw": 25.8,
+          "code": "SAUTI",
+          "name": "SAUTILLET",
+          "queueMw": 51.4,
+          "reservedMw": 39.7,
+          "tension": "63kV",
+          "works": [
+            "Non"
+          ]
+        }
+      ],
+      "totalSites": 29,
+      "transformerMw": 2294,
+      "worksCount": 34
+    },
+    "seine saint denis": {
+      "availableMw": 0,
+      "highVoltageSites": 11,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 13,
+      "name": "Seine-Saint-Denis",
+      "queueMw": 9.6,
+      "reservedMw": 13.1,
+      "serviceMw": 20,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 11,
+        "63kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 0,
+          "code": "ALOUE",
+          "name": "ALOUETTES(LES)",
+          "queueMw": 0,
+          "reservedMw": 0.3,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "AVENI",
+          "name": "AVENIR",
+          "queueMw": 0.2,
+          "reservedMw": 0.6,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "BONDY",
+          "name": "BONDY",
+          "queueMw": 0,
+          "reservedMw": 0.8,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "BZGET",
+          "name": "BOURGET(LE)",
+          "queueMw": 0,
+          "reservedMw": 0.6,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 13,
+      "transformerMw": 2737,
+      "worksCount": 0
+    },
+    "bas rhin": {
+      "availableMw": 26.8,
+      "highVoltageSites": 10,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 36,
+      "name": "Bas-Rhin",
+      "queueMw": 193.8,
+      "reservedMw": 186,
+      "serviceMw": 179.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 26,
+        "225kV": 10
+      },
+      "topStations": [
+        {
+          "availableMw": 6.2,
+          "code": "ILLKI",
+          "name": "ILLKIRCH",
+          "queueMw": 1,
+          "reservedMw": 2.8,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 4.8,
+          "code": "S.UNI",
+          "name": "SARRE-UNION",
+          "queueMw": 2,
+          "reservedMw": 4.3,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 2.1,
+          "code": "MOLSH",
+          "name": "MOLSHEIM",
+          "queueMw": 2.8,
+          "reservedMw": 4,
+          "tension": "225kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 1.5,
+          "code": "CRONE",
+          "name": "CRONENBOURG",
+          "queueMw": 3.6,
+          "reservedMw": 2.7,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        }
+      ],
+      "totalSites": 36,
+      "transformerMw": 2672,
+      "worksCount": 34
+    },
+    "haut rhin": {
+      "availableMw": 24.9,
+      "highVoltageSites": 7,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 26,
+      "name": "Haut-Rhin",
+      "queueMw": 63.8,
+      "reservedMw": 78.5,
+      "serviceMw": 133.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 19,
+        "225kV": 7
+      },
+      "topStations": [
+        {
+          "availableMw": 8.3,
+          "code": "MASEV",
+          "name": "MASEVAUX",
+          "queueMw": 1.4,
+          "reservedMw": 8.2,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 4,
+          "code": "COL.N",
+          "name": "COLMAR-NORD",
+          "queueMw": 0,
+          "reservedMw": 2,
+          "tension": "63kV",
+          "works": [
+            ".",
+            "/"
+          ]
+        },
+        {
+          "availableMw": 3.8,
+          "code": "C.CAN",
+          "name": "COLMAR-CANAL",
+          "queueMw": 0.2,
+          "reservedMw": 2,
+          "tension": "63kV",
+          "works": [
+            ".",
+            "/"
+          ]
+        },
+        {
+          "availableMw": 2,
+          "code": "HESIN",
+          "name": "HESINGUE",
+          "queueMw": 0,
+          "reservedMw": 2,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        }
+      ],
+      "totalSites": 26,
+      "transformerMw": 1424,
+      "worksCount": 30
+    },
+    "puy de dome": {
+      "availableMw": 258.5,
+      "highVoltageSites": 7,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 30,
+      "name": "Puy-de-Dôme",
+      "queueMw": 653.2,
+      "reservedMw": 646.1,
+      "serviceMw": 295.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 22,
+        "225kV": 6,
+        "400kV": 1,
+        "90kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 78.3,
+          "code": "SSRO5",
+          "name": "ST PIERRE ROCHE",
+          "queueMw": 10.6,
+          "reservedMw": 88.2,
+          "tension": "63kV",
+          "works": [
+            "Création du nouveau poste 225/20kV de St Pierre Roche et augmentation des capacité de transit de la liaison 63kV ENVAL ST PIERRE ROCHE ST SAUVES"
+          ]
+        },
+        {
+          "availableMw": 23,
+          "code": "SSSAU",
+          "name": "ST-SAUVES",
+          "queueMw": 30.8,
+          "reservedMw": 36.3,
+          "tension": "63kV",
+          "works": [
+            "Création du nouveau poste 225/20kV de St Pierre Roche et augmentation des capacité de transit de la liaison 63kV ENVAL ST PIERRE ROCHE ST SAUVES"
+          ]
+        },
+        {
+          "availableMw": 16.2,
+          "code": "CZPIE",
+          "name": "COURPIERE",
+          "queueMw": 86.4,
+          "reservedMw": 48.4,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 15.7,
+          "code": "ANCIZ",
+          "name": "LES ANCIZES",
+          "queueMw": 26.8,
+          "reservedMw": 38.8,
+          "tension": "63kV",
+          "works": [
+            "Création du poste 225/63 kV des ANCIZES"
+          ]
+        }
+      ],
+      "totalSites": 30,
+      "transformerMw": 1628,
+      "worksCount": 6
+    },
+    "ain": {
+      "availableMw": 234.3,
+      "highVoltageSites": 9,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 33,
+      "name": "Ain",
+      "queueMw": 232.4,
+      "reservedMw": 372.4,
+      "serviceMw": 205.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 23,
+        "225kV": 6,
+        "400kV": 3,
+        "150kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 29,
+          "code": "CLUS5",
+          "name": "LA CLUSE",
+          "queueMw": 16.8,
+          "reservedMw": 28.8,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 25,
+          "code": "BOISS",
+          "name": "LA BOISSE",
+          "queueMw": 0,
+          "reservedMw": 25,
+          "tension": "400kV",
+          "works": []
+        },
+        {
+          "availableMw": 23.6,
+          "code": "BELLI",
+          "name": "BELLIGNAT",
+          "queueMw": 0.2,
+          "reservedMw": 13.9,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 23.6,
+          "code": "SSPOU",
+          "name": "ST-GENIS-POUILLY",
+          "queueMw": 1.4,
+          "reservedMw": 15.6,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 33,
+      "transformerMw": 982,
+      "worksCount": 2
+    },
+    "val d oise": {
+      "availableMw": 14.7,
+      "highVoltageSites": 13,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 16,
+      "name": "Val-d'Oise",
+      "queueMw": 24.6,
+      "reservedMw": 57.4,
+      "serviceMw": 78.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 11,
+        "63kV": 3,
+        "400kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 12.8,
+          "code": "H.BOR",
+          "name": "HAUTE-BORNE",
+          "queueMw": 1.2,
+          "reservedMw": 8.7,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.9,
+          "code": "SAUS5",
+          "name": "SAUSSET",
+          "queueMw": 1.8,
+          "reservedMw": 4,
+          "tension": "400kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.5,
+          "code": "BRICH",
+          "name": "BRICHE (LA)",
+          "queueMw": 0.4,
+          "reservedMw": 1.1,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.3,
+          "code": "MOIMO",
+          "name": "MOIMONT",
+          "queueMw": 12.4,
+          "reservedMw": 25.3,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 16,
+      "transformerMw": 2314,
+      "worksCount": 0
+    },
+    "loiret": {
+      "availableMw": 110.6,
+      "highVoltageSites": 5,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 36,
+      "name": "Loiret",
+      "queueMw": 1548.6,
+      "reservedMw": 975.5,
+      "serviceMw": 675.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 27,
+        "400kV": 3,
+        "63kV": 4,
+        "225kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 64.4,
+          "code": "VLEMA",
+          "name": "VILLEMANDEUR",
+          "queueMw": 293,
+          "reservedMw": 150.5,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 15.4,
+          "code": "PAYOL",
+          "name": "LES PAYOLLES",
+          "queueMw": 239,
+          "reservedMw": 129.5,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 14.1,
+          "code": "MERIE",
+          "name": "MERIE",
+          "queueMw": 63,
+          "reservedMw": 75,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 4.8,
+          "code": "PITHI",
+          "name": "PITHIVIERS",
+          "queueMw": 18.4,
+          "reservedMw": 5,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 36,
+      "transformerMw": 2052,
+      "worksCount": 0
+    },
+    "lozere": {
+      "availableMw": 31.6,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 12,
+      "name": "Lozère",
+      "queueMw": 247.4,
+      "reservedMw": 260,
+      "serviceMw": 89.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 8,
+        "225kV": 4
+      },
+      "topStations": [
+        {
+          "availableMw": 20.6,
+          "code": "PANO5",
+          "name": "LA PANOUSE",
+          "queueMw": 0,
+          "reservedMw": 30,
+          "tension": "63kV",
+          "works": [
+            "Création PS La Panouse"
+          ]
+        },
+        {
+          "availableMw": 4.7,
+          "code": "MENDE",
+          "name": "MENDE",
+          "queueMw": 61,
+          "reservedMw": 40,
+          "tension": "63kV",
+          "works": [
+            "doublement Margeride - Mende"
+          ]
+        },
+        {
+          "availableMw": 2.9,
+          "code": "SSAPC",
+          "name": "ST-CHELY-D",
+          "queueMw": 54.6,
+          "reservedMw": 36,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 1.8,
+          "code": "MONAS",
+          "name": "LE MONASTIER",
+          "queueMw": 18.2,
+          "reservedMw": 20,
+          "tension": "63kV",
+          "works": [
+            "doublement Margeride - Mende"
+          ]
+        }
+      ],
+      "totalSites": 12,
+      "transformerMw": 392,
+      "worksCount": 6
+    },
+    "gard": {
+      "availableMw": 468.3,
+      "highVoltageSites": 10,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 38,
+      "name": "Gard",
+      "queueMw": 245.4,
+      "reservedMw": 663,
+      "serviceMw": 288.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 28,
+        "225kV": 8,
+        "400kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 84.8,
+          "code": "CZTIN",
+          "name": "COURTINE",
+          "queueMw": 22.6,
+          "reservedMw": 78,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 49.4,
+          "code": "B.CEZ",
+          "name": "BAGNOLS-SUR-CEZE",
+          "queueMw": 24.6,
+          "reservedMw": 42,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 40.8,
+          "code": "COLO6",
+          "name": "COLOMB",
+          "queueMw": 4.4,
+          "reservedMw": 26,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 34.5,
+          "code": "BESSE",
+          "name": "BESSEGES",
+          "queueMw": 5.8,
+          "reservedMw": 26,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 38,
+      "transformerMw": 1970,
+      "worksCount": 1
+    },
+    "maine et loire": {
+      "availableMw": 1200.4,
+      "highVoltageSites": 5,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 30,
+      "name": "Maine-et-Loire",
+      "queueMw": 589.4,
+      "reservedMw": 1213,
+      "serviceMw": 277.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 25,
+        "225kV": 4,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 93.7,
+          "code": "SAUMU",
+          "name": "SAUMUR",
+          "queueMw": 8.2,
+          "reservedMw": 82,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 90,
+          "code": "CHOLE",
+          "name": "CHOLET",
+          "queueMw": 28.4,
+          "reservedMw": 74,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 85.6,
+          "code": "J.LOI",
+          "name": "JUIGNE-SUR-LOIRE",
+          "queueMw": 5.8,
+          "reservedMw": 51,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 80,
+          "code": "DISTR",
+          "name": "DISTRE",
+          "queueMw": 20,
+          "reservedMw": 90,
+          "tension": "400kV",
+          "works": []
+        }
+      ],
+      "totalSites": 30,
+      "transformerMw": 1877,
+      "worksCount": 0
+    },
+    "yonne": {
+      "availableMw": 70.9,
+      "highVoltageSites": 7,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 18,
+      "name": "Yonne",
+      "queueMw": 1516.4,
+      "reservedMw": 807.7,
+      "serviceMw": 207.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 11,
+        "225kV": 6,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 31.5,
+          "code": "TONNE",
+          "name": "TONNERRE",
+          "queueMw": 411.8,
+          "reservedMw": 241.6,
+          "tension": "225kV",
+          "works": [
+            "Restructuration du réseau 225 kV entre La Vigne et Tonnerre : travaux liaison. travaux postes."
+          ]
+        },
+        {
+          "availableMw": 20.1,
+          "code": "SAUIL",
+          "name": "SAUILLY",
+          "queueMw": 18.8,
+          "reservedMw": 36,
+          "tension": "63kV",
+          "works": [
+            "Raccordement d’un transformateur 63/20 kV"
+          ]
+        },
+        {
+          "availableMw": 14.8,
+          "code": "ROUSS",
+          "name": "ROUSSON",
+          "queueMw": 44,
+          "reservedMw": 32.4,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 4.5,
+          "code": "VIGNE",
+          "name": "LA VIGNE",
+          "queueMw": 185,
+          "reservedMw": 97,
+          "tension": "225kV",
+          "works": [
+            "Restructuration du réseau 225 kV entre La Vigne et Tonnerre : travaux liaison. travaux postes et mise à disposition de capacité HTB au poste de Tonnerre. Raccordement d’un (troisième) transformateur 225/20 kV"
+          ]
+        }
+      ],
+      "totalSites": 18,
+      "transformerMw": 1087,
+      "worksCount": 9
+    },
+    "ardeche": {
+      "availableMw": 208.8,
+      "highVoltageSites": 7,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 36,
+      "name": "Ardèche",
+      "queueMw": 211.4,
+      "reservedMw": 372.9,
+      "serviceMw": 215.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 29,
+        "225kV": 6,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 29.9,
+          "code": "CHEYL",
+          "name": "LE CHEYLARD",
+          "queueMw": 1.4,
+          "reservedMw": 29,
+          "tension": "63kV",
+          "works": [
+            "Création d'un nouveau transformateur 225/63kV au poste de LogisNeuf, Création d'un poste 400/225kV à Logisneuf"
+          ]
+        },
+        {
+          "availableMw": 26.9,
+          "code": "VOULT",
+          "name": "LA VOULTE",
+          "queueMw": 2,
+          "reservedMw": 20,
+          "tension": "63kV",
+          "works": [
+            "Création d'un nouveau transformateur 225/63kV au poste de LogisNeuf, Création d'un poste 400/225kV à Logisneuf"
+          ]
+        },
+        {
+          "availableMw": 23.8,
+          "code": "LAMAS",
+          "name": "LAMASTRE",
+          "queueMw": 7.2,
+          "reservedMw": 21.1,
+          "tension": "63kV",
+          "works": [
+            "Création d'un nouveau transformateur 225/63kV au poste de LogisNeuf, Création d'un poste 400/225kV à Logisneuf"
+          ]
+        },
+        {
+          "availableMw": 17.4,
+          "code": "PALIS",
+          "name": "LA PALISSE",
+          "queueMw": 6.8,
+          "reservedMw": 22.9,
+          "tension": "63kV",
+          "works": [
+            "Création du transformateur déphaseur de Montgros et augmentation des capacités de transit de la boucle 225kV Sud Ardèche, Création d'un poste 400/225kV à Logisneuf"
+          ]
+        }
+      ],
+      "totalSites": 36,
+      "transformerMw": 1190,
+      "worksCount": 17
+    },
+    "vosges": {
+      "availableMw": 7.1,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 19,
+      "name": "Vosges",
+      "queueMw": 110.6,
+      "reservedMw": 103.6,
+      "serviceMw": 140.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 3,
+        "63kV": 15,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 5.9,
+          "code": "REBEU",
+          "name": "REBEUVILLE",
+          "queueMw": 11,
+          "reservedMw": 19.7,
+          "tension": "63kV",
+          "works": [
+            "Schéma GE: renforcement de la liaison à 63 kV Reubeuville - Vesaignes"
+          ]
+        },
+        {
+          "availableMw": 0.8,
+          "code": "SSMEU",
+          "name": "ST MICHEL SUR MEURTHE",
+          "queueMw": 0.2,
+          "reservedMw": 1.7,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 0.2,
+          "code": "SSBLA",
+          "name": "ST-BLAISE",
+          "queueMw": 0.4,
+          "reservedMw": 1.3,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 0.2,
+          "code": "VINCE",
+          "name": "VINCEY",
+          "queueMw": 2.6,
+          "reservedMw": 4.2,
+          "tension": "400kV",
+          "works": [
+            "."
+          ]
+        }
+      ],
+      "totalSites": 19,
+      "transformerMw": 1138,
+      "worksCount": 19
+    },
+    "nord": {
+      "availableMw": 929.8,
+      "highVoltageSites": 28,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 50,
+      "name": "Nord",
+      "queueMw": 381.4,
+      "reservedMw": 707,
+      "serviceMw": 189.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 27,
+        "90kV": 13,
+        "63kV": 9,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 115.2,
+          "code": "VALEN",
+          "name": "VALENCIENNES",
+          "queueMw": 12,
+          "reservedMw": 65.6,
+          "tension": "225kV",
+          "works": [
+            "Oui"
+          ]
+        },
+        {
+          "availableMw": 89.8,
+          "code": "ORCHI",
+          "name": "ORCHIES",
+          "queueMw": 2.6,
+          "reservedMw": 49.9,
+          "tension": "90kV",
+          "works": [
+            "Oui"
+          ]
+        },
+        {
+          "availableMw": 67.4,
+          "code": "TRAIS",
+          "name": "TRAISNEL",
+          "queueMw": 22.4,
+          "reservedMw": 47.2,
+          "tension": "90kV",
+          "works": [
+            "Oui"
+          ]
+        },
+        {
+          "availableMw": 63.4,
+          "code": "DENAI",
+          "name": "DENAIN",
+          "queueMw": 11.4,
+          "reservedMw": 38.6,
+          "tension": "63kV",
+          "works": [
+            "Oui"
+          ]
+        }
+      ],
+      "totalSites": 50,
+      "transformerMw": 4902,
+      "worksCount": 48
+    },
+    "alpes maritimes": {
+      "availableMw": 800.5,
+      "highVoltageSites": 10,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 33,
+      "name": "Alpes-Maritimes",
+      "queueMw": 16.8,
+      "reservedMw": 481,
+      "serviceMw": 93,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 9,
+        "400kV": 1,
+        "63kV": 18,
+        "150kV": 5
+      },
+      "topStations": [
+        {
+          "availableMw": 172.4,
+          "code": "D.FRA",
+          "name": "DIGUE-DES-FRANCAIS",
+          "queueMw": 1.6,
+          "reservedMw": 99,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 79.6,
+          "code": "B.CAR",
+          "name": "BROC-CARROS(LE)",
+          "queueMw": 1.4,
+          "reservedMw": 41,
+          "tension": "400kV",
+          "works": []
+        },
+        {
+          "availableMw": 57.2,
+          "code": "RISSO",
+          "name": "RISSO",
+          "queueMw": 0.2,
+          "reservedMw": 33,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 43.7,
+          "code": "C.MER",
+          "name": "CAGNES-SUR-MER",
+          "queueMw": 1,
+          "reservedMw": 27,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 33,
+      "transformerMw": 2420,
+      "worksCount": 7
+    },
+    "isere": {
+      "availableMw": 351.3,
+      "highVoltageSites": 17,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 56,
+      "name": "Isère",
+      "queueMw": 440.2,
+      "reservedMw": 650.7,
+      "serviceMw": 398.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 15,
+        "63kV": 39,
+        "400kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 21.7,
+          "code": "C.AND",
+          "name": "LA COTE-ST-ANDRE",
+          "queueMw": 15.8,
+          "reservedMw": 37.1,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 19.5,
+          "code": "SSLAC",
+          "name": "STE-HELENE-DU-LAC",
+          "queueMw": 70,
+          "reservedMw": 60.8,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 19.2,
+          "code": "VERN7",
+          "name": "LE VERNEY",
+          "queueMw": 2.2,
+          "reservedMw": 20.4,
+          "tension": "63kV",
+          "works": [
+            "Création d'un poste 400/63kV en Romanche et augmentation de la capacité de transit de la liaison 63kV EYBENS - PEAGE DE VIZILLE"
+          ]
+        },
+        {
+          "availableMw": 16.6,
+          "code": "SAUTE",
+          "name": "SAUTET (LE)",
+          "queueMw": 3.2,
+          "reservedMw": 17.5,
+          "tension": "225kV",
+          "works": [
+            "Réhabilitation des liaisons 225kV Champagnier Cordeac Les Sables et Champagnier St Pierre de Cognet"
+          ]
+        }
+      ],
+      "totalSites": 56,
+      "transformerMw": 2374,
+      "worksCount": 15
+    },
+    "jura": {
+      "availableMw": 7.7,
+      "highVoltageSites": 2,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 12,
+      "name": "Jura",
+      "queueMw": 127.4,
+      "reservedMw": 89.5,
+      "serviceMw": 113.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 10,
+        "225kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 7.7,
+          "code": "CPNOL",
+          "name": "CHAMPAGNOLE",
+          "queueMw": 27.6,
+          "reservedMw": 25,
+          "tension": "225kV",
+          "works": [
+            "Raccordement d’un transformateur 63/20 kV"
+          ]
+        },
+        {
+          "availableMw": 0,
+          "code": "ARBOI",
+          "name": "ARBOIS",
+          "queueMw": 5.8,
+          "reservedMw": 4.5,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "CHANC",
+          "name": "CHANCIA",
+          "queueMw": 5.4,
+          "reservedMw": 4.1,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "CPDIV",
+          "name": "CHAMPDIVERS",
+          "queueMw": 5,
+          "reservedMw": 7.2,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 12,
+      "transformerMw": 602,
+      "worksCount": 1
+    },
+    "charente maritime": {
+      "availableMw": 230.7,
+      "highVoltageSites": 5,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 20,
+      "name": "Charente-Maritime",
+      "queueMw": 869.4,
+      "reservedMw": 640.4,
+      "serviceMw": 409.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 15,
+        "225kV": 5
+      },
+      "topStations": [
+        {
+          "availableMw": 85.7,
+          "code": "MTGUY",
+          "name": "MONTGUYON",
+          "queueMw": 270.2,
+          "reservedMw": 152.9,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 69.1,
+          "code": "BOIS5",
+          "name": "BOISSEUIL",
+          "queueMw": 140.8,
+          "reservedMw": 112,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 40.4,
+          "code": "MTEND",
+          "name": "MONTENDRE",
+          "queueMw": 12,
+          "reservedMw": 42,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 25.7,
+          "code": "AULN5",
+          "name": "AULNAY",
+          "queueMw": 94.6,
+          "reservedMw": 77.9,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 20,
+      "transformerMw": 1432,
+      "worksCount": 0
+    },
+    "aube": {
+      "availableMw": 118.7,
+      "highVoltageSites": 3,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 14,
+      "name": "Aube",
+      "queueMw": 1492.4,
+      "reservedMw": 818.5,
+      "serviceMw": 288.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 9,
+        "225kV": 3,
+        "90kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 107.5,
+          "code": "CRENE",
+          "name": "CRENEY",
+          "queueMw": 743.4,
+          "reservedMw": 348.7,
+          "tension": "225kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 9.8,
+          "code": "BARBU",
+          "name": "BARBUISE",
+          "queueMw": 123,
+          "reservedMw": 72.9,
+          "tension": "225kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 1.4,
+          "code": "N.SEI",
+          "name": "NOGENT-SUR-SEINE",
+          "queueMw": 48.6,
+          "reservedMw": 56.8,
+          "tension": "63kV",
+          "works": [
+            "Schéma GE: raccordement d'un transformateur 63/20 kV - 36 MVA et renforcement de la liaison à 63 kV Barbuise - Nogent"
+          ]
+        },
+        {
+          "availableMw": 0,
+          "code": "ARCIS",
+          "name": "ARCIS-SUR-AUBE",
+          "queueMw": 8.8,
+          "reservedMw": 23.5,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        }
+      ],
+      "totalSites": 14,
+      "transformerMw": 1293,
+      "worksCount": 14
+    },
+    "cantal": {
+      "availableMw": 120.9,
+      "highVoltageSites": 3,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 17,
+      "name": "Cantal",
+      "queueMw": 377.6,
+      "reservedMw": 440.1,
+      "serviceMw": 303.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 8,
+        "90kV": 6,
+        "225kV": 3
+      },
+      "topStations": [
+        {
+          "availableMw": 24,
+          "code": "MAURI",
+          "name": "MAURIAC",
+          "queueMw": 37.4,
+          "reservedMw": 47.3,
+          "tension": "90kV",
+          "works": [
+            "Augmentation de la capacité de transit de la liaison 90kV entre MAURIAC et LA MOLE"
+          ]
+        },
+        {
+          "availableMw": 22.8,
+          "code": "SAVIG",
+          "name": "SAVIGNAC",
+          "queueMw": 11.6,
+          "reservedMw": 19,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 18.6,
+          "code": "MAURS",
+          "name": "MAURS",
+          "queueMw": 19.4,
+          "reservedMw": 38.6,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 17,
+          "code": "COIND",
+          "name": "COINDRE",
+          "queueMw": 21.8,
+          "reservedMw": 22.8,
+          "tension": "90kV",
+          "works": [
+            "Augmentation de la capacité de transit des liaisons 90kV entre LANOBRE et LA MOLE, COINDRE et LANOBRE, LA MOLE et YDES"
+          ]
+        }
+      ],
+      "totalSites": 17,
+      "transformerMw": 667,
+      "worksCount": 11
+    },
+    "val de marne": {
+      "availableMw": 9.6,
+      "highVoltageSites": 7,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 14,
+      "name": "Val-de-Marne",
+      "queueMw": 27.4,
+      "reservedMw": 20.1,
+      "serviceMw": 14.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 7,
+        "225kV": 6,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 9.6,
+          "code": "V.GEO",
+          "name": "VILLENEUVE-ST-GEORGES",
+          "queueMw": 21.8,
+          "reservedMw": 12.5,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "ARDO5",
+          "name": "ARDOINES (SNCF)",
+          "queueMw": 0,
+          "reservedMw": 0,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "ARRIG",
+          "name": "ARRIGHI",
+          "queueMw": 0,
+          "reservedMw": 0,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "BERLI",
+          "name": "BERLIOZ (SNCF)",
+          "queueMw": 0,
+          "reservedMw": 0,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 14,
+      "transformerMw": 1256,
+      "worksCount": 0
+    },
+    "correze": {
+      "availableMw": 96.3,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 28,
+      "name": "Corrèze",
+      "queueMw": 322.8,
+      "reservedMw": 306.4,
+      "serviceMw": 261.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 19,
+        "400kV": 1,
+        "225kV": 3,
+        "63kV": 5
+      },
+      "topStations": [
+        {
+          "availableMw": 28.2,
+          "code": "LANOB",
+          "name": "LANOBRE",
+          "queueMw": 16,
+          "reservedMw": 31.5,
+          "tension": "90kV",
+          "works": [
+            "Augmentation de la capacité de transit des liaisons 90kV entre LANOBRE et LA MOLE, COINDRE et LANOBRE, LA MOLE et YDES"
+          ]
+        },
+        {
+          "availableMw": 19.4,
+          "code": "LUBER",
+          "name": "LUBERSAC",
+          "queueMw": 15,
+          "reservedMw": 28.1,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 19.4,
+          "code": "USSEL",
+          "name": "USSEL",
+          "queueMw": 25.6,
+          "reservedMw": 37.7,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 17,
+          "code": "EGLET",
+          "name": "EGLETONS",
+          "queueMw": 36,
+          "reservedMw": 35.7,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 28,
+      "transformerMw": 1003,
+      "worksCount": 1
+    },
+    "yvelines": {
+      "availableMw": 2.5,
+      "highVoltageSites": 17,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 33,
+      "name": "Yvelines",
+      "queueMw": 23,
+      "reservedMw": 88.7,
+      "serviceMw": 162.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 16,
+        "63kV": 13,
+        "90kV": 3,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 2.3,
+          "code": "LIMAY",
+          "name": "LIMAY",
+          "queueMw": 2.8,
+          "reservedMw": 26.7,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.1,
+          "code": "BUZEN",
+          "name": "BUZENVAL",
+          "queueMw": 0,
+          "reservedMw": 0.5,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.1,
+          "code": "MERAN",
+          "name": "MERANTAIS",
+          "queueMw": 0,
+          "reservedMw": 0.3,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "ARGE6",
+          "name": "ARGENTEUIL",
+          "queueMw": 1,
+          "reservedMw": 1.3,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 33,
+      "transformerMw": 4583,
+      "worksCount": 2
+    },
+    "hautes alpes": {
+      "availableMw": 206.9,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 15,
+      "name": "Hautes-Alpes",
+      "queueMw": 65.8,
+      "reservedMw": 299,
+      "serviceMw": 88.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "150kV": 3,
+        "63kV": 8,
+        "225kV": 4
+      },
+      "topStations": [
+        {
+          "availableMw": 34.3,
+          "code": "SISTE",
+          "name": "SISTERON",
+          "queueMw": 7.4,
+          "reservedMw": 58,
+          "tension": "225kV",
+          "works": [
+            "travaux poste de Champagnier"
+          ]
+        },
+        {
+          "availableMw": 29.1,
+          "code": "TRESC",
+          "name": "TRESCLEOUX",
+          "queueMw": 12.6,
+          "reservedMw": 40,
+          "tension": "63kV",
+          "works": [
+            "création d'une liaison Sisteron - Lazer 63 kV + travaux poste de Champagnier"
+          ]
+        },
+        {
+          "availableMw": 28.8,
+          "code": "VENTA",
+          "name": "VENTAVON",
+          "queueMw": 12.2,
+          "reservedMw": 46,
+          "tension": "63kV",
+          "works": [
+            "création d'une liaison Sisteron - Lazer 63 kV + travaux poste de Champagnier"
+          ]
+        },
+        {
+          "availableMw": 28.2,
+          "code": "S.PON",
+          "name": "SERRE-PONCON",
+          "queueMw": 13.8,
+          "reservedMw": 38,
+          "tension": "225kV",
+          "works": [
+            "travaux poste de Champagnier"
+          ]
+        }
+      ],
+      "totalSites": 15,
+      "transformerMw": 630,
+      "worksCount": 15
+    },
+    "pyrenees atlantiques": {
+      "availableMw": 17.8,
+      "highVoltageSites": 6,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 25,
+      "name": "Pyrénées-Atlantiques",
+      "queueMw": 259.4,
+      "reservedMw": 260.2,
+      "serviceMw": 458.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "400kV": 2,
+        "63kV": 19,
+        "225kV": 4
+      },
+      "topStations": [
+        {
+          "availableMw": 11,
+          "code": "MARSI",
+          "name": "MARSILLON",
+          "queueMw": 33.6,
+          "reservedMw": 58.8,
+          "tension": "400kV",
+          "works": []
+        },
+        {
+          "availableMw": 4,
+          "code": "ARTOU",
+          "name": "ARTOUSTE",
+          "queueMw": 0,
+          "reservedMw": 2,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 1.4,
+          "code": "HOURA",
+          "name": "LE  HOURAT",
+          "queueMw": 0,
+          "reservedMw": 1,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 1.2,
+          "code": "E.LES",
+          "name": "EYGUN-LESCUN",
+          "queueMw": 0.6,
+          "reservedMw": 1.1,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 25,
+      "transformerMw": 1102,
+      "worksCount": 1
+    },
+    "haute saone": {
+      "availableMw": 23.5,
+      "highVoltageSites": 1,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 11,
+      "name": "Haute-Saône",
+      "queueMw": 156,
+      "reservedMw": 117.4,
+      "serviceMw": 78.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 1,
+        "63kV": 10
+      },
+      "topStations": [
+        {
+          "availableMw": 20.9,
+          "code": "DANCE",
+          "name": "LA DANCE",
+          "queueMw": 19.4,
+          "reservedMw": 30,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 2.6,
+          "code": "VESOU",
+          "name": "VESOUL",
+          "queueMw": 60.8,
+          "reservedMw": 34.3,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "ARGIE",
+          "name": "ARGIESANS",
+          "queueMw": 2.8,
+          "reservedMw": 1,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "CHARI",
+          "name": "CHARIEZ",
+          "queueMw": 3.2,
+          "reservedMw": 5.6,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 11,
+      "transformerMw": 392,
+      "worksCount": 1
+    },
+    "sarthe": {
+      "availableMw": 640.4,
+      "highVoltageSites": 5,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 23,
+      "name": "Sarthe",
+      "queueMw": 251.8,
+      "reservedMw": 728.5,
+      "serviceMw": 160.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 4,
+        "90kV": 18,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 114.1,
+          "code": "BONN9",
+          "name": "BONNETABLE",
+          "queueMw": 2.8,
+          "reservedMw": 84,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 98.6,
+          "code": "G.LUC",
+          "name": "GRAND LUCE",
+          "queueMw": 2.4,
+          "reservedMw": 83,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 93.6,
+          "code": "FOURA",
+          "name": "FOURAUDERIE",
+          "queueMw": 15.2,
+          "reservedMw": 74,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 67.8,
+          "code": "C.LO5",
+          "name": "CHATEAU-DU-LOIR",
+          "queueMw": 5,
+          "reservedMw": 40,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 23,
+      "transformerMw": 1413,
+      "worksCount": 0
+    },
+    "essonne": {
+      "availableMw": 17.6,
+      "highVoltageSites": 10,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 27,
+      "name": "Essonne",
+      "queueMw": 96.4,
+      "reservedMw": 140.3,
+      "serviceMw": 170.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 9,
+        "63kV": 8,
+        "225kV": 8,
+        "400kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 12,
+          "code": "MORIG",
+          "name": "MORIGNY",
+          "queueMw": 2.6,
+          "reservedMw": 25.9,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 5.2,
+          "code": "LIERS",
+          "name": "LIERS",
+          "queueMw": 72.4,
+          "reservedMw": 57.3,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.2,
+          "code": "JUINE",
+          "name": "JUINE",
+          "queueMw": 9,
+          "reservedMw": 9.7,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.1,
+          "code": "ARPAJ",
+          "name": "ARPAJON",
+          "queueMw": 0.8,
+          "reservedMw": 3.7,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 27,
+      "transformerMw": 2624,
+      "worksCount": 1
+    },
+    "eure et loir": {
+      "availableMw": 92.7,
+      "highVoltageSites": 7,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 21,
+      "name": "Eure-et-Loir",
+      "queueMw": 691,
+      "reservedMw": 476.5,
+      "serviceMw": 383,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 6,
+        "90kV": 14,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 40,
+          "code": "CTAUD",
+          "name": "CHATEAUDUN",
+          "queueMw": 130.6,
+          "reservedMw": 88.5,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 38.3,
+          "code": "BROU5",
+          "name": "BROU",
+          "queueMw": 19.8,
+          "reservedMw": 51.5,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 4.8,
+          "code": "BONN7",
+          "name": "BONNEVAL",
+          "queueMw": 27.8,
+          "reservedMw": 25,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 2.5,
+          "code": "CHA.S",
+          "name": "CHARTRES SUD",
+          "queueMw": 0,
+          "reservedMw": 12.5,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 21,
+      "transformerMw": 1378,
+      "worksCount": 0
+    },
+    "hautes pyrenees": {
+      "availableMw": 89.6,
+      "highVoltageSites": 5,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 26,
+      "name": "Hautes-Pyrénées",
+      "queueMw": 180.8,
+      "reservedMw": 199.5,
+      "serviceMw": 103.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "150kV": 4,
+        "63kV": 17,
+        "225kV": 4,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 28,
+          "code": "LANNE",
+          "name": "LANNEMEZAN",
+          "queueMw": 32.8,
+          "reservedMw": 35,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 14.6,
+          "code": "BASTI",
+          "name": "BASTILLAC",
+          "queueMw": 15.8,
+          "reservedMw": 23,
+          "tension": "225kV",
+          "works": [
+            "Renforcement du TR 225/63 kV de BASTILLAC"
+          ]
+        },
+        {
+          "availableMw": 8,
+          "code": "V.BIG",
+          "name": "VIC-EN-BIGORRE",
+          "queueMw": 24.4,
+          "reservedMw": 24,
+          "tension": "63kV",
+          "works": [
+            "Renforcement du TR 225/63 kV de BASTILLAC"
+          ]
+        },
+        {
+          "availableMw": 6.8,
+          "code": "SOULO",
+          "name": "SOULOM",
+          "queueMw": 0.8,
+          "reservedMw": 5,
+          "tension": "150kV",
+          "works": [
+            "En attente EI : réhab 150 kV des Pyrénées"
+          ]
+        }
+      ],
+      "totalSites": 26,
+      "transformerMw": 662,
+      "worksCount": 8
+    },
+    "landes": {
+      "availableMw": 147.1,
+      "highVoltageSites": 3,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 22,
+      "name": "Landes",
+      "queueMw": 1195,
+      "reservedMw": 980.1,
+      "serviceMw": 989.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 19,
+        "225kV": 2,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 54.1,
+          "code": "PAREN",
+          "name": "PARENTIS",
+          "queueMw": 102.4,
+          "reservedMw": 94,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 33,
+          "code": "NAOUT",
+          "name": "NAOUTOT",
+          "queueMw": 611,
+          "reservedMw": 341.9,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 26.6,
+          "code": "SOUST",
+          "name": "SOUSTONS",
+          "queueMw": 12.8,
+          "reservedMw": 34.5,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 19.2,
+          "code": "LINXE",
+          "name": "LINXE",
+          "queueMw": 27.8,
+          "reservedMw": 36.7,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 22,
+      "transformerMw": 1282,
+      "worksCount": 0
+    },
+    "saone et loire": {
+      "availableMw": 23.8,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 25,
+      "name": "Saône-et-Loire",
+      "queueMw": 712.6,
+      "reservedMw": 390.7,
+      "serviceMw": 289.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 21,
+        "225kV": 2,
+        "400kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 9.7,
+          "code": "MARCI",
+          "name": "MARCIGNY",
+          "queueMw": 23,
+          "reservedMw": 26,
+          "tension": "63kV",
+          "works": [
+            "-"
+          ]
+        },
+        {
+          "availableMw": 7.2,
+          "code": "P.MON",
+          "name": "PARAY-LE-MONIAL",
+          "queueMw": 10.8,
+          "reservedMw": 14,
+          "tension": "63kV",
+          "works": [
+            "Installation d’un dispositif de maitrise de la tension (self) au poste de Paray-le-Monial."
+          ]
+        },
+        {
+          "availableMw": 4,
+          "code": "EPINA",
+          "name": "EPINAC",
+          "queueMw": 13.8,
+          "reservedMw": 13,
+          "tension": "63kV",
+          "works": [
+            "-"
+          ]
+        },
+        {
+          "availableMw": 1.8,
+          "code": "CUISE",
+          "name": "CUISEAUX",
+          "queueMw": 41,
+          "reservedMw": 25.2,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 25,
+      "transformerMw": 1256,
+      "worksCount": 4
+    },
+    "territoire de belfort": {
+      "availableMw": 0,
+      "highVoltageSites": 0,
+      "maxVoltageKv": 63,
+      "matchedCapareseauSites": 3,
+      "name": "Territoire de Belfort",
+      "queueMw": 3.6,
+      "reservedMw": 10.6,
+      "serviceMw": 21,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 3
+      },
+      "topStations": [
+        {
+          "availableMw": 0,
+          "code": "ARSOT",
+          "name": "ARSOT",
+          "queueMw": 2.8,
+          "reservedMw": 3.9,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "GIROM",
+          "name": "GIROMAGNY",
+          "queueMw": 0.8,
+          "reservedMw": 0.3,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "L.ROU",
+          "name": "La Chapelle Sous Rougemont",
+          "queueMw": 0,
+          "reservedMw": 6.4,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 3,
+      "transformerMw": 92,
+      "worksCount": 0
+    },
+    "hauts de seine": {
+      "availableMw": 1.2,
+      "highVoltageSites": 27,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 31,
+      "name": "Hauts-de-Seine",
+      "queueMw": 5.6,
+      "reservedMw": 11.7,
+      "serviceMw": 16.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 4,
+        "225kV": 27
+      },
+      "topStations": [
+        {
+          "availableMw": 0.3,
+          "code": "CHEVI",
+          "name": "CHEVILLY",
+          "queueMw": 1,
+          "reservedMw": 4.5,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.2,
+          "code": "BATIG",
+          "name": "BATIGNOLLES",
+          "queueMw": 0,
+          "reservedMw": 0.6,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.1,
+          "code": "BAUDR",
+          "name": "BAUDRY",
+          "queueMw": 0,
+          "reservedMw": 0.1,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 0.1,
+          "code": "CAULA",
+          "name": "CAULAINCOURT",
+          "queueMw": 0,
+          "reservedMw": 0.1,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 31,
+      "transformerMw": 5630,
+      "worksCount": 0
+    },
+    "pyrenees orientales": {
+      "availableMw": 175.3,
+      "highVoltageSites": 1,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 17,
+      "name": "Pyrénées-Orientales",
+      "queueMw": 297.2,
+      "reservedMw": 313,
+      "serviceMw": 154.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 16,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 50.2,
+          "code": "H.VER",
+          "name": "LE HAUT-VERNET",
+          "queueMw": 129.4,
+          "reservedMw": 75,
+          "tension": "63kV",
+          "works": [
+            "Travaux à Baixas"
+          ]
+        },
+        {
+          "availableMw": 42.5,
+          "code": "I.TET",
+          "name": "ILLE-SUR-TET",
+          "queueMw": 10.6,
+          "reservedMw": 47,
+          "tension": "63kV",
+          "works": [
+            "Impact rehausse IST V.CO5 - I.TET et TR Baixas (S3REnR Occitanie)"
+          ]
+        },
+        {
+          "availableMw": 21.5,
+          "code": "SSFEN",
+          "name": "ST-PAUL-DE-FENOUILLET",
+          "queueMw": 25.6,
+          "reservedMw": 35,
+          "tension": "63kV",
+          "works": [
+            "TD Esperaza (S3REnR Occitanie) + réhab ESPER-USSON + Cerdagne"
+          ]
+        },
+        {
+          "availableMw": 21,
+          "code": "ASPR5",
+          "name": "ASPRES",
+          "queueMw": 22.2,
+          "reservedMw": 31,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 17,
+      "transformerMw": 1068,
+      "worksCount": 9
+    },
+    "lot": {
+      "availableMw": 20.9,
+      "highVoltageSites": 0,
+      "maxVoltageKv": 63,
+      "matchedCapareseauSites": 15,
+      "name": "Lot",
+      "queueMw": 343,
+      "reservedMw": 228,
+      "serviceMw": 125.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 15
+      },
+      "topStations": [
+        {
+          "availableMw": 13,
+          "code": "SSCER",
+          "name": "ST-CERE",
+          "queueMw": 48.2,
+          "reservedMw": 37,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 2.4,
+          "code": "DEGA5",
+          "name": "DEGAGNAC",
+          "queueMw": 26,
+          "reservedMw": 15,
+          "tension": "63kV",
+          "works": [
+            "En attente travaux EI réhabilitation ligne MEYMES - MARTILOQUE"
+          ]
+        },
+        {
+          "availableMw": 2.2,
+          "code": "CAHOR",
+          "name": "CAHORS",
+          "queueMw": 2.4,
+          "reservedMw": 6,
+          "tension": "63kV",
+          "works": [
+            "En attente travaux EI réhabilitation ligne MEYMES - MARTILOQUE"
+          ]
+        },
+        {
+          "availableMw": 2,
+          "code": "ASSIE",
+          "name": "ASSIER",
+          "queueMw": 21.4,
+          "reservedMw": 21,
+          "tension": "63kV",
+          "works": [
+            "En attente renforcement  ASSIE-FIGEAC  et TR de GODIN"
+          ]
+        }
+      ],
+      "totalSites": 15,
+      "transformerMw": 424,
+      "worksCount": 8
+    },
+    "mayenne": {
+      "availableMw": 320.9,
+      "highVoltageSites": 3,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 17,
+      "name": "Mayenne",
+      "queueMw": 422,
+      "reservedMw": 445.5,
+      "serviceMw": 139,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 14,
+        "225kV": 2,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 80,
+          "code": "C.GON",
+          "name": "CHATEAU-GONTIER",
+          "queueMw": 32.2,
+          "reservedMw": 64,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 69.7,
+          "code": "EVRO2",
+          "name": "EVRON 2",
+          "queueMw": 214.4,
+          "reservedMw": 109,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 64.2,
+          "code": "LAVAL",
+          "name": "LAVAL",
+          "queueMw": 6.4,
+          "reservedMw": 41,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 31.4,
+          "code": "LASSA",
+          "name": "LASSAY",
+          "queueMw": 5.6,
+          "reservedMw": 33,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 17,
+      "transformerMw": 824,
+      "worksCount": 0
+    },
+    "seine maritime": {
+      "availableMw": 177.5,
+      "highVoltageSites": 15,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 41,
+      "name": "Seine-Maritime",
+      "queueMw": 826.2,
+      "reservedMw": 760.1,
+      "serviceMw": 709.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 25,
+        "225kV": 15,
+        "63kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 71.6,
+          "code": "ENVER",
+          "name": "ENVERMEU",
+          "queueMw": 152.8,
+          "reservedMw": 120.5,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 35.3,
+          "code": "NEUF5",
+          "name": "NEUFCHATEL",
+          "queueMw": 173,
+          "reservedMw": 90,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 35,
+          "code": "BLOCA",
+          "name": "BLOCAUX - GAUVILLE",
+          "queueMw": 0,
+          "reservedMw": 17.5,
+          "tension": "225kV",
+          "works": [
+            "Non"
+          ]
+        },
+        {
+          "availableMw": 4.5,
+          "code": "SANDO",
+          "name": "SANDOUVILLE",
+          "queueMw": 0.8,
+          "reservedMw": 17,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 41,
+      "transformerMw": 3318,
+      "worksCount": 5
+    },
+    "cher": {
+      "availableMw": 132.7,
+      "highVoltageSites": 2,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 16,
+      "name": "Cher",
+      "queueMw": 967.6,
+      "reservedMw": 622.4,
+      "serviceMw": 288,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 6,
+        "225kV": 1,
+        "400kV": 1,
+        "90kV": 8
+      },
+      "topStations": [
+        {
+          "availableMw": 63,
+          "code": "SSDOU",
+          "name": "ST-DOULCHARD",
+          "queueMw": 144.2,
+          "reservedMw": 77,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 35,
+          "code": "MAZIE",
+          "name": "MAZIERES",
+          "queueMw": 1.2,
+          "reservedMw": 36.5,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 20.3,
+          "code": "NERON",
+          "name": "NERONDES",
+          "queueMw": 134,
+          "reservedMw": 87.5,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 6.4,
+          "code": "C.LO6",
+          "name": "LA CHARITE-SUR-LOIRE",
+          "queueMw": 114.8,
+          "reservedMw": 62.4,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 16,
+      "transformerMw": 1182,
+      "worksCount": 2
+    },
+    "charente": {
+      "availableMw": 48.1,
+      "highVoltageSites": 1,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 25,
+      "name": "Charente",
+      "queueMw": 1000.6,
+      "reservedMw": 641.1,
+      "serviceMw": 497.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 24,
+        "225kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 27.3,
+          "code": "CONF6",
+          "name": "CONFOLENS",
+          "queueMw": 76.4,
+          "reservedMw": 75.7,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 5.6,
+          "code": "LONGC",
+          "name": "LONGCHAMP",
+          "queueMw": 25,
+          "reservedMw": 27.9,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 5.4,
+          "code": "VLEGA",
+          "name": "VILLEGATS",
+          "queueMw": 0.6,
+          "reservedMw": 15,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 5,
+          "code": "MANSL",
+          "name": "MANSLE",
+          "queueMw": 18.4,
+          "reservedMw": 71.5,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 25,
+      "transformerMw": 1406,
+      "worksCount": 0
+    },
+    "meurthe et moselle": {
+      "availableMw": 64.6,
+      "highVoltageSites": 5,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 27,
+      "name": "Meurthe-et-Moselle",
+      "queueMw": 469.6,
+      "reservedMw": 298.6,
+      "serviceMw": 189,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 22,
+        "400kV": 1,
+        "225kV": 4
+      },
+      "topStations": [
+        {
+          "availableMw": 25.8,
+          "code": "C.MET",
+          "name": "CROIX-DE-METZ",
+          "queueMw": 7.6,
+          "reservedMw": 22.7,
+          "tension": "225kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 16,
+          "code": "CHOLO",
+          "name": "CHOLOY",
+          "queueMw": 33,
+          "reservedMw": 28.7,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 12.9,
+          "code": "FROUA",
+          "name": "FROUARD",
+          "queueMw": 26.4,
+          "reservedMw": 24.6,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 3,
+          "code": "AVRIM",
+          "name": "AVRIMA",
+          "queueMw": 0.8,
+          "reservedMw": 2.8,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        }
+      ],
+      "totalSites": 27,
+      "transformerMw": 1702,
+      "worksCount": 27
+    },
+    "creuse": {
+      "availableMw": 55.5,
+      "highVoltageSites": 2,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 13,
+      "name": "Creuse",
+      "queueMw": 348.6,
+      "reservedMw": 345.2,
+      "serviceMw": 332,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 2,
+        "63kV": 5,
+        "90kV": 6
+      },
+      "topStations": [
+        {
+          "availableMw": 26.6,
+          "code": "GUERE",
+          "name": "GUERET",
+          "queueMw": 18.4,
+          "reservedMw": 34.1,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 17.3,
+          "code": "E.BAI",
+          "name": "EVAUX LES BAINS",
+          "queueMw": 6.2,
+          "reservedMw": 30.8,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 4.4,
+          "code": "AUZAN",
+          "name": "AUZANCES",
+          "queueMw": 6.6,
+          "reservedMw": 15.3,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 4,
+          "code": "AUBUS",
+          "name": "AUBUSSON",
+          "queueMw": 9,
+          "reservedMw": 33.5,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 13,
+      "transformerMw": 590,
+      "worksCount": 0
+    },
+    "marne": {
+      "availableMw": 272.1,
+      "highVoltageSites": 5,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 28,
+      "name": "Marne",
+      "queueMw": 860.4,
+      "reservedMw": 776.1,
+      "serviceMw": 355,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 12,
+        "63kV": 11,
+        "225kV": 5
+      },
+      "topStations": [
+        {
+          "availableMw": 116.6,
+          "code": "MAROL",
+          "name": "MAROLLES",
+          "queueMw": 505.2,
+          "reservedMw": 321.8,
+          "tension": "225kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 48.8,
+          "code": "F.CHA",
+          "name": "FERE-CHAMPENOISE",
+          "queueMw": 104.2,
+          "reservedMw": 61.5,
+          "tension": "90kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 43.6,
+          "code": "COMPE",
+          "name": "COMPERTRIX",
+          "queueMw": 12.6,
+          "reservedMw": 56.7,
+          "tension": "63kV",
+          "works": [
+            "Schéma GE: renforcement de la liaison à 63 kV Compertrix - Oiry"
+          ]
+        },
+        {
+          "availableMw": 20.7,
+          "code": "TAUPI",
+          "name": "TAUPINIERES (LES)",
+          "queueMw": 0,
+          "reservedMw": 20.7,
+          "tension": "90kV",
+          "works": [
+            "."
+          ]
+        }
+      ],
+      "totalSites": 28,
+      "transformerMw": 2776,
+      "worksCount": 28
+    },
+    "morbihan": {
+      "availableMw": 641.1,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 29,
+      "name": "Morbihan",
+      "queueMw": 291.6,
+      "reservedMw": 688,
+      "serviceMw": 65.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 25,
+        "225kV": 3,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 93.5,
+          "code": "LANG5",
+          "name": "LANGONNET",
+          "queueMw": 10,
+          "reservedMw": 77,
+          "tension": "63kV",
+          "works": [
+            "Renforcement liaison  MUR-ST NICOLAS DU PELEM 63kV, Renforcement liaison CARHAIX PLUSQUELLEC 63kV, Renforcement liaison BRENNILIS – ST HERBOT 63kV, Création poste EST FINISTERE 225/63 kV"
+          ]
+        },
+        {
+          "availableMw": 75.1,
+          "code": "SEVE5",
+          "name": "SEVERAC",
+          "queueMw": 8.2,
+          "reservedMw": 44,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 51.3,
+          "code": "BIGNA",
+          "name": "BIGNAN",
+          "queueMw": 14.6,
+          "reservedMw": 39,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 50.5,
+          "code": "MALE5",
+          "name": "MALESTROIT",
+          "queueMw": 7,
+          "reservedMw": 43,
+          "tension": "63kV",
+          "works": [
+            "Renforcement liaison BEZON – MALESTROIT 63kV, ALLAIRE-PORTE 63kV, KERBOQUET-PONTIVY 63kV, QUESTEMBERT – ST GRAVES 63kV, Création poste NORD OUEST MORBIHAN 225/63/20kV"
+          ]
+        }
+      ],
+      "totalSites": 29,
+      "transformerMw": 1582,
+      "worksCount": 12
+    },
+    "haute vienne": {
+      "availableMw": 5.7,
+      "highVoltageSites": 2,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 20,
+      "name": "Haute-Vienne",
+      "queueMw": 531.4,
+      "reservedMw": 317.5,
+      "serviceMw": 259.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 18,
+        "225kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 4,
+          "code": "M.LAR",
+          "name": "MONT-LARRON",
+          "queueMw": 0,
+          "reservedMw": 2,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 1.7,
+          "code": "F.MON",
+          "name": "FAUX-LA-MONTAGNE",
+          "queueMw": 11.2,
+          "reservedMw": 9.4,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "AUREN",
+          "name": "AURENCE",
+          "queueMw": 30.8,
+          "reservedMw": 31.6,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "BREJO",
+          "name": "LE BREJOU",
+          "queueMw": 0,
+          "reservedMw": 0,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 20,
+      "transformerMw": 876,
+      "worksCount": 1
+    },
+    "gironde": {
+      "availableMw": 367.2,
+      "highVoltageSites": 13,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 54,
+      "name": "Gironde",
+      "queueMw": 3937.8,
+      "reservedMw": 2493.9,
+      "serviceMw": 811.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 38,
+        "225kV": 11,
+        "90kV": 3,
+        "400kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 82.9,
+          "code": "CESTA",
+          "name": "CESTAS",
+          "queueMw": 67,
+          "reservedMw": 126,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 52.4,
+          "code": "SAUCA",
+          "name": "SAUCATS",
+          "queueMw": 2168.2,
+          "reservedMw": 1114.1,
+          "tension": "400kV",
+          "works": []
+        },
+        {
+          "availableMw": 40,
+          "code": "MASQU",
+          "name": "MASQUET",
+          "queueMw": 94,
+          "reservedMw": 134,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 33.7,
+          "code": "REOLE",
+          "name": "LA REOLE",
+          "queueMw": 97.8,
+          "reservedMw": 52.3,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 54,
+      "transformerMw": 3198,
+      "worksCount": 1
+    },
+    "cote d or": {
+      "availableMw": 87,
+      "highVoltageSites": 5,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 21,
+      "name": "Côte-d'Or",
+      "queueMw": 883.2,
+      "reservedMw": 652.1,
+      "serviceMw": 341.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 16,
+        "225kV": 4,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 32.1,
+          "code": "COUCH",
+          "name": "COUCHEY",
+          "queueMw": 5.2,
+          "reservedMw": 71.5,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 30.5,
+          "code": "TRIEY",
+          "name": "TRIEY",
+          "queueMw": 6.4,
+          "reservedMw": 37,
+          "tension": "63kV",
+          "works": [
+            "Augmentation des capacités de transit du réseau à 63 000 Volts dans le secteur de Gray - Gy - Geneuille"
+          ]
+        },
+        {
+          "availableMw": 16.4,
+          "code": "VIELM",
+          "name": "VIELMOULIN",
+          "queueMw": 61,
+          "reservedMw": 71,
+          "tension": "400kV",
+          "works": [
+            "Mise en place d'une inductance de répartition des flux sur l'axe Darcey - Vielmoulin 225 kV. Raccordement de 2 transformateur 225/20 kV"
+          ]
+        },
+        {
+          "availableMw": 8,
+          "code": "SAULI",
+          "name": "SAULIEU",
+          "queueMw": 112.4,
+          "reservedMw": 84.9,
+          "tension": "63kV",
+          "works": [
+            "Raccordement d’un transformateur 63/20 kV.  (reporté du S3REnR Bourgogne. adaptation n°2)"
+          ]
+        }
+      ],
+      "totalSites": 21,
+      "transformerMw": 1466,
+      "worksCount": 8
+    },
+    "haute garonne": {
+      "availableMw": 312.6,
+      "highVoltageSites": 8,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 32,
+      "name": "Haute-Garonne",
+      "queueMw": 702,
+      "reservedMw": 612,
+      "serviceMw": 284.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 24,
+        "225kV": 7,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 64.9,
+          "code": "REVEL",
+          "name": "REVEL",
+          "queueMw": 205,
+          "reservedMw": 110,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 55.6,
+          "code": "CARBO",
+          "name": "CARBONNE",
+          "queueMw": 121.6,
+          "reservedMw": 76,
+          "tension": "63kV",
+          "works": [
+            "En attente poste de COMMINGES"
+          ]
+        },
+        {
+          "availableMw": 24.4,
+          "code": "VERFE",
+          "name": "VERFEIL",
+          "queueMw": 20.4,
+          "reservedMw": 28,
+          "tension": "400kV",
+          "works": []
+        },
+        {
+          "availableMw": 20,
+          "code": "SSALB",
+          "name": "ST-ALBAN",
+          "queueMw": 9.6,
+          "reservedMw": 23,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 32,
+      "transformerMw": 2292,
+      "worksCount": 6
+    },
+    "indre et loire": {
+      "availableMw": 62.1,
+      "highVoltageSites": 1,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 23,
+      "name": "Indre-et-Loire",
+      "queueMw": 714.2,
+      "reservedMw": 598.3,
+      "serviceMw": 373.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 1,
+        "90kV": 22
+      },
+      "topStations": [
+        {
+          "availableMw": 25.1,
+          "code": "FONDE",
+          "name": "FONDETTES",
+          "queueMw": 1,
+          "reservedMw": 27,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 21.8,
+          "code": "SEMBL",
+          "name": "SEMBLANCAY",
+          "queueMw": 72.8,
+          "reservedMw": 67.5,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 3.6,
+          "code": "SORIG",
+          "name": "SORIGNY",
+          "queueMw": 21,
+          "reservedMw": 19.5,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 2,
+          "code": "COUE5",
+          "name": "COUESMES",
+          "queueMw": 55.6,
+          "reservedMw": 34.5,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 23,
+      "transformerMw": 1444,
+      "worksCount": 0
+    },
+    "allier": {
+      "availableMw": 111.2,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 19,
+      "name": "Allier",
+      "queueMw": 1190.4,
+      "reservedMw": 937.7,
+      "serviceMw": 436.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 15,
+        "400kV": 1,
+        "225kV": 3
+      },
+      "topStations": [
+        {
+          "availableMw": 67.2,
+          "code": "MTLUC",
+          "name": "MONTLUCON",
+          "queueMw": 6.8,
+          "reservedMw": 132,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 13.2,
+          "code": "BAYET",
+          "name": "BAYET",
+          "queueMw": 379.8,
+          "reservedMw": 232.1,
+          "tension": "400kV",
+          "works": []
+        },
+        {
+          "availableMw": 8.8,
+          "code": "SSYOR",
+          "name": "ST-YORRE",
+          "queueMw": 8,
+          "reservedMw": 14.5,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 8.4,
+          "code": "DURRE",
+          "name": "LA DURRE",
+          "queueMw": 133.6,
+          "reservedMw": 79.6,
+          "tension": "63kV",
+          "works": [
+            "Augmentation de transit des liaisons 63kV MONTLUCON DURRE et MONTLUCON ZDURRE, Renforcement de la liaison 225kV Eguzon Montlucon"
+          ]
+        }
+      ],
+      "totalSites": 19,
+      "transformerMw": 898,
+      "worksCount": 11
+    },
+    "haute loire": {
+      "availableMw": 179.9,
+      "highVoltageSites": 3,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 16,
+      "name": "Haute-Loire",
+      "queueMw": 379.2,
+      "reservedMw": 356.1,
+      "serviceMw": 165,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 13,
+        "225kV": 3
+      },
+      "topStations": [
+        {
+          "availableMw": 86.5,
+          "code": "LANGE",
+          "name": "LANGEAC",
+          "queueMw": 157.4,
+          "reservedMw": 124.7,
+          "tension": "63kV",
+          "works": [
+            "Création du poste d'injection 225/63kV de Langeac"
+          ]
+        },
+        {
+          "availableMw": 23.2,
+          "code": "YSSIN",
+          "name": "YSSINGEAUX",
+          "queueMw": 10.4,
+          "reservedMw": 23.7,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 20,
+          "code": "B.BAS",
+          "name": "BAS-EN-BASSET",
+          "queueMw": 4.6,
+          "reservedMw": 15.2,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 15.8,
+          "code": "DUNIE",
+          "name": "DUNIERES",
+          "queueMw": 4.2,
+          "reservedMw": 14.2,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 16,
+      "transformerMw": 642,
+      "worksCount": 3
+    },
+    "meuse": {
+      "availableMw": 103.7,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 13,
+      "name": "Meuse",
+      "queueMw": 1072.4,
+      "reservedMw": 493.4,
+      "serviceMw": 105,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 9,
+        "225kV": 3,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 66.3,
+          "code": "STENA",
+          "name": "STENAY",
+          "queueMw": 246.6,
+          "reservedMw": 125.6,
+          "tension": "225kV",
+          "works": [
+            "Schéma GE: raccordement d'un transformateur 63/20 kV - 36 MVA"
+          ]
+        },
+        {
+          "availableMw": 15.6,
+          "code": "REVIG",
+          "name": "REVIGNY",
+          "queueMw": 349.8,
+          "reservedMw": 170.2,
+          "tension": "400kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 12.8,
+          "code": "DUGNY",
+          "name": "DUGNY",
+          "queueMw": 33.4,
+          "reservedMw": 31.9,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 6.8,
+          "code": "ETAI5",
+          "name": "ETAIN",
+          "queueMw": 2.6,
+          "reservedMw": 6.1,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        }
+      ],
+      "totalSites": 13,
+      "transformerMw": 900,
+      "worksCount": 13
+    },
+    "ille et vilaine": {
+      "availableMw": 624.4,
+      "highVoltageSites": 6,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 29,
+      "name": "Ille-et-Vilaine",
+      "queueMw": 224,
+      "reservedMw": 510,
+      "serviceMw": 89.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 4,
+        "90kV": 20,
+        "63kV": 3,
+        "400kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 95.9,
+          "code": "CROQU",
+          "name": "CROQUELOUP",
+          "queueMw": 3.6,
+          "reservedMw": 69,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 70.6,
+          "code": "MORIH",
+          "name": "MORIHAN",
+          "queueMw": 2.6,
+          "reservedMw": 38,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 64.8,
+          "code": "FOUGE",
+          "name": "FOUGERES",
+          "queueMw": 10.4,
+          "reservedMw": 40,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 62.5,
+          "code": "TINTE",
+          "name": "TINTENIAC",
+          "queueMw": 4.4,
+          "reservedMw": 37,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 29,
+      "transformerMw": 1582,
+      "worksCount": 0
+    },
+    "tarn et garonne": {
+      "availableMw": 38,
+      "highVoltageSites": 3,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 14,
+      "name": "Tarn-et-Garonne",
+      "queueMw": 591.4,
+      "reservedMw": 385.5,
+      "serviceMw": 147.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 11,
+        "400kV": 1,
+        "225kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 17.2,
+          "code": "MATRA",
+          "name": "MATRAS",
+          "queueMw": 33.8,
+          "reservedMw": 35.9,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 7.6,
+          "code": "ONDES",
+          "name": "ONDES",
+          "queueMw": 25,
+          "reservedMw": 26,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 6.4,
+          "code": "B.LOM",
+          "name": "BEAUMONT-DE-LOMAGNE",
+          "queueMw": 26.6,
+          "reservedMw": 27,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 3.6,
+          "code": "FINHA",
+          "name": "FINHAN",
+          "queueMw": 89.8,
+          "reservedMw": 53,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 14,
+      "transformerMw": 540,
+      "worksCount": 1
+    },
+    "drome": {
+      "availableMw": 146.8,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 12,
+      "name": "Drôme",
+      "queueMw": 147.2,
+      "reservedMw": 252.4,
+      "serviceMw": 164.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "400kV": 2,
+        "63kV": 8,
+        "225kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 26.6,
+          "code": "SSROY",
+          "name": "ST-THOMAS-EN-ROYANS",
+          "queueMw": 9.6,
+          "reservedMw": 22.8,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 24.9,
+          "code": "E.RHO",
+          "name": "ETOILE-SUR-RHONE",
+          "queueMw": 5.8,
+          "reservedMw": 27,
+          "tension": "225kV",
+          "works": [
+            "Création d'un poste 400/225kV à Logisneuf"
+          ]
+        },
+        {
+          "availableMw": 24.8,
+          "code": "NYONS",
+          "name": "NYONS",
+          "queueMw": 2.8,
+          "reservedMw": 19.8,
+          "tension": "63kV",
+          "works": [
+            "Création d'un poste 400/225kV à Logisneuf"
+          ]
+        },
+        {
+          "availableMw": 22.6,
+          "code": "DIEUL",
+          "name": "DIEULEFIT",
+          "queueMw": 9.6,
+          "reservedMw": 29.9,
+          "tension": "63kV",
+          "works": [
+            "Ajout d'une DJ HTB au poste de Dieulefit, Création d'un poste 400/225kV à Logisneuf"
+          ]
+        }
+      ],
+      "totalSites": 12,
+      "transformerMw": 524,
+      "worksCount": 6
+    },
+    "herault": {
+      "availableMw": 540.3,
+      "highVoltageSites": 12,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 39,
+      "name": "Hérault",
+      "queueMw": 341.4,
+      "reservedMw": 616,
+      "serviceMw": 271.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 11,
+        "63kV": 27,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 63.8,
+          "code": "GARDI",
+          "name": "GARDIOLE (COURNONTERRAL)",
+          "queueMw": 2.4,
+          "reservedMw": 38,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 46.8,
+          "code": "SSLON",
+          "name": "ST-MARTIN-DE-LONDRES",
+          "queueMw": 1.6,
+          "reservedMw": 25,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 42.3,
+          "code": "SANGO",
+          "name": "SANGONIS",
+          "queueMw": 1.2,
+          "reservedMw": 27,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 38,
+          "code": "COUL5",
+          "name": "COULONDRES",
+          "queueMw": 3.2,
+          "reservedMw": 21,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 39,
+      "transformerMw": 2674,
+      "worksCount": 1
+    },
+    "alpes de haute provence": {
+      "availableMw": 246.5,
+      "highVoltageSites": 5,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 18,
+      "name": "Alpes-de-Haute-Provence",
+      "queueMw": 164.2,
+      "reservedMw": 338,
+      "serviceMw": 104.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 9,
+        "150kV": 4,
+        "225kV": 5
+      },
+      "topStations": [
+        {
+          "availableMw": 78.6,
+          "code": "ENTRE",
+          "name": "ENTREVAUX",
+          "queueMw": 5.2,
+          "reservedMw": 80,
+          "tension": "150kV",
+          "works": [
+            "mutation des transformateurs d'Entrevaux (non déclenché)"
+          ]
+        },
+        {
+          "availableMw": 36.6,
+          "code": "CSLLA",
+          "name": "Castellane",
+          "queueMw": 0.8,
+          "reservedMw": 19,
+          "tension": "150kV",
+          "works": []
+        },
+        {
+          "availableMw": 32.7,
+          "code": "BARCE",
+          "name": "BARCELONNETTE",
+          "queueMw": 9.2,
+          "reservedMw": 38,
+          "tension": "63kV",
+          "works": [
+            "travaux poste de Champagnier"
+          ]
+        },
+        {
+          "availableMw": 16.6,
+          "code": "C.CH5",
+          "name": "CONDAMINE-CHATELARD",
+          "queueMw": 7.8,
+          "reservedMw": 21,
+          "tension": "63kV",
+          "works": [
+            "travaux poste de Champagnier"
+          ]
+        }
+      ],
+      "totalSites": 18,
+      "transformerMw": 784,
+      "worksCount": 11
+    },
+    "haute marne": {
+      "availableMw": 110.9,
+      "highVoltageSites": 3,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 16,
+      "name": "Haute-Marne",
+      "queueMw": 697.2,
+      "reservedMw": 529.3,
+      "serviceMw": 363.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 13,
+        "225kV": 3
+      },
+      "topStations": [
+        {
+          "availableMw": 48.4,
+          "code": "FRONC",
+          "name": "FRONCLES",
+          "queueMw": 134,
+          "reservedMw": 76.7,
+          "tension": "225kV",
+          "works": [
+            "EI schéma GE: raccordement d'un transformateur 90/20 kV - 36 MVA, renforcement de la transformation 225/63 kV et installation d'un moyen de compensation selfique"
+          ]
+        },
+        {
+          "availableMw": 31.7,
+          "code": "BASS6",
+          "name": "BASSIGNY",
+          "queueMw": 1,
+          "reservedMw": 63.2,
+          "tension": "63kV",
+          "works": [
+            "Schéma GE: raccordement d'un transformateur 63/20 kV - 36 MVA"
+          ]
+        },
+        {
+          "availableMw": 12.6,
+          "code": "BZBON",
+          "name": "BOURBONNE",
+          "queueMw": 8.4,
+          "reservedMw": 29.8,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 9.7,
+          "code": "CXMO5",
+          "name": "CHAUMONT",
+          "queueMw": 41.6,
+          "reservedMw": 39.3,
+          "tension": "63kV",
+          "works": [
+            "Schéma GE: renforcement de la liaison à 63 kV Chaumont - Rolampont"
+          ]
+        }
+      ],
+      "totalSites": 16,
+      "transformerMw": 950,
+      "worksCount": 16
+    },
+    "loire atlantique": {
+      "availableMw": 540.8,
+      "highVoltageSites": 10,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 36,
+      "name": "Loire-Atlantique",
+      "queueMw": 317.4,
+      "reservedMw": 532.4,
+      "serviceMw": 217.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 17,
+        "90kV": 9,
+        "225kV": 8,
+        "400kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 49.4,
+          "code": "BAULE",
+          "name": "LA BAULE",
+          "queueMw": 1.4,
+          "reservedMw": 27,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 42,
+          "code": "SSNAZ",
+          "name": "ST-NAZAIRE",
+          "queueMw": 14.2,
+          "reservedMw": 30,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 41.6,
+          "code": "TANNE",
+          "name": "TANNEURS",
+          "queueMw": 0.2,
+          "reservedMw": 21,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 40.8,
+          "code": "HEINL",
+          "name": "HEINLEX",
+          "queueMw": 5.8,
+          "reservedMw": 26,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 36,
+      "transformerMw": 2496,
+      "worksCount": 0
+    },
+    "calvados": {
+      "availableMw": 6,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 19,
+      "name": "Calvados",
+      "queueMw": 825.2,
+      "reservedMw": 374,
+      "serviceMw": 216.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 15,
+        "225kV": 3,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 6,
+          "code": "VASTO",
+          "name": "VASTON",
+          "queueMw": 88.2,
+          "reservedMw": 53.8,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "BAYEU",
+          "name": "BAYEUX",
+          "queueMw": 33.8,
+          "reservedMw": 7.4,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "BOCAG",
+          "name": "BOCAGE",
+          "queueMw": 5.4,
+          "reservedMw": 8.6,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "C.NOI",
+          "name": "CONDE-SUR-NOIREAU",
+          "queueMw": 20.6,
+          "reservedMw": 7.9,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 19,
+      "transformerMw": 1222,
+      "worksCount": 1
+    },
+    "vaucluse": {
+      "availableMw": 500.3,
+      "highVoltageSites": 3,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 17,
+      "name": "Vaucluse",
+      "queueMw": 243.4,
+      "reservedMw": 525,
+      "serviceMw": 184.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 14,
+        "225kV": 3
+      },
+      "topStations": [
+        {
+          "availableMw": 115.5,
+          "code": "TERRA",
+          "name": "TERRADOU",
+          "queueMw": 14,
+          "reservedMw": 133,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 97.6,
+          "code": "SORGU",
+          "name": "SORGUES",
+          "queueMw": 24.2,
+          "reservedMw": 65,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 45,
+          "code": "BXMET",
+          "name": "LES BEAUMETTES",
+          "queueMw": 2.2,
+          "reservedMw": 25,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 44,
+          "code": "MRNIE",
+          "name": "LA MARTINIERE",
+          "queueMw": 58.6,
+          "reservedMw": 64,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 17,
+      "transformerMw": 894,
+      "worksCount": 0
+    },
+    "dordogne": {
+      "availableMw": 95.6,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 28,
+      "name": "Dordogne",
+      "queueMw": 657.4,
+      "reservedMw": 610.8,
+      "serviceMw": 577.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 19,
+        "225kV": 4,
+        "90kV": 5
+      },
+      "topStations": [
+        {
+          "availableMw": 25.8,
+          "code": "TUILI",
+          "name": "TUILIERES",
+          "queueMw": 11.6,
+          "reservedMw": 27.5,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 23.1,
+          "code": "PIOVI",
+          "name": "PIOVIT",
+          "queueMw": 5,
+          "reservedMw": 35.5,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 14,
+          "code": "BERG5",
+          "name": "BERGERAC",
+          "queueMw": 51,
+          "reservedMw": 48.5,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 8.3,
+          "code": "THIVI",
+          "name": "THIVIERS",
+          "queueMw": 102.6,
+          "reservedMw": 73.9,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 28,
+      "transformerMw": 1152,
+      "worksCount": 1
+    },
+    "vendee": {
+      "availableMw": 366,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 24,
+      "name": "Vendée",
+      "queueMw": 393.4,
+      "reservedMw": 577.6,
+      "serviceMw": 364.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 20,
+        "225kV": 4
+      },
+      "topStations": [
+        {
+          "availableMw": 51,
+          "code": "FAYMO",
+          "name": "FAYMOREAU",
+          "queueMw": 17.6,
+          "reservedMw": 52,
+          "tension": "90kV",
+          "works": [
+            "Mutation d'un transformateur de 20 en 36 MVA"
+          ]
+        },
+        {
+          "availableMw": 47.6,
+          "code": "MERLA",
+          "name": "MERLATIERE",
+          "queueMw": 0,
+          "reservedMw": 47.6,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 34.8,
+          "code": "OLONN",
+          "name": "OLONNE",
+          "queueMw": 4,
+          "reservedMw": 23,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 32.2,
+          "code": "CHAB6",
+          "name": "CHABOT",
+          "queueMw": 6.8,
+          "reservedMw": 24,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 24,
+      "transformerMw": 1505,
+      "worksCount": 1
+    },
+    "var": {
+      "availableMw": 1034.4,
+      "highVoltageSites": 9,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 36,
+      "name": "Var",
+      "queueMw": 106.2,
+      "reservedMw": 821,
+      "serviceMw": 177.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 27,
+        "225kV": 7,
+        "400kV": 2
+      },
+      "topStations": [
+        {
+          "availableMw": 129.4,
+          "code": "GARD7",
+          "name": "GARDE (LA)",
+          "queueMw": 9.8,
+          "reservedMw": 140,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 80,
+          "code": "DRAGU",
+          "name": "DRAGUIGNAN",
+          "queueMw": 1.6,
+          "reservedMw": 43,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 79.7,
+          "code": "VALDE",
+          "name": "VALDEROURE",
+          "queueMw": 20.8,
+          "reservedMw": 86,
+          "tension": "225kV",
+          "works": [
+            "raccordement du 2nd transfo"
+          ]
+        },
+        {
+          "availableMw": 75.2,
+          "code": "ESCAR",
+          "name": "L ESCARELLE",
+          "queueMw": 1.6,
+          "reservedMw": 66,
+          "tension": "63kV",
+          "works": [
+            "Construction d'une liaison 63 kV entre les postes Le Castellet et Signes (non déclenché)"
+          ]
+        }
+      ],
+      "totalSites": 36,
+      "transformerMw": 2376,
+      "worksCount": 5
+    },
+    "loire": {
+      "availableMw": 192.5,
+      "highVoltageSites": 6,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 31,
+      "name": "Loire",
+      "queueMw": 279.2,
+      "reservedMw": 406.4,
+      "serviceMw": 324.8,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 25,
+        "400kV": 2,
+        "225kV": 4
+      },
+      "topStations": [
+        {
+          "availableMw": 25,
+          "code": "JACQU",
+          "name": "JACQUARD",
+          "queueMw": 1.2,
+          "reservedMw": 16.7,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 22.7,
+          "code": "BESS5",
+          "name": "BESSEY",
+          "queueMw": 0.8,
+          "reservedMw": 14.2,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 18,
+          "code": "CHAZ5",
+          "name": "CHAZELLES",
+          "queueMw": 12,
+          "reservedMw": 25.7,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 16,
+          "code": "S.COM",
+          "name": "SURY-LE-COMTAL",
+          "queueMw": 4.8,
+          "reservedMw": 15.2,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 31,
+      "transformerMw": 1630,
+      "worksCount": 2
+    },
+    "loir et cher": {
+      "availableMw": 40.9,
+      "highVoltageSites": 1,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 15,
+      "name": "Loir-et-Cher",
+      "queueMw": 383.6,
+      "reservedMw": 300.5,
+      "serviceMw": 187,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "90kV": 14,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 27.5,
+          "code": "MOISY",
+          "name": "MOISY",
+          "queueMw": 22.8,
+          "reservedMw": 47,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 4.7,
+          "code": "SEIGY",
+          "name": "SEIGY",
+          "queueMw": 3.8,
+          "reservedMw": 9.5,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 3.4,
+          "code": "TERTR",
+          "name": "TERTRE",
+          "queueMw": 6.4,
+          "reservedMw": 11,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 1.6,
+          "code": "ROMOR",
+          "name": "ROMORANTIN",
+          "queueMw": 84,
+          "reservedMw": 63,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 15,
+      "transformerMw": 894,
+      "worksCount": 0
+    },
+    "aisne": {
+      "availableMw": 219.7,
+      "highVoltageSites": 7,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 21,
+      "name": "Aisne",
+      "queueMw": 946.2,
+      "reservedMw": 535.2,
+      "serviceMw": 113.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 13,
+        "225kV": 6,
+        "400kV": 1,
+        "90kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 72.3,
+          "code": "BXTO5",
+          "name": "BEAUTOR",
+          "queueMw": 610.2,
+          "reservedMw": 302.9,
+          "tension": "225kV",
+          "works": [
+            "Non"
+          ]
+        },
+        {
+          "availableMw": 60.8,
+          "code": "CAPEL",
+          "name": "CAPELLE (LA)",
+          "queueMw": 1.4,
+          "reservedMw": 37.9,
+          "tension": "400kV",
+          "works": [
+            "Oui"
+          ]
+        },
+        {
+          "availableMw": 46.8,
+          "code": "NOGEN",
+          "name": "NOGENTEL",
+          "queueMw": 3.2,
+          "reservedMw": 27.5,
+          "tension": "225kV",
+          "works": [
+            "Non"
+          ]
+        },
+        {
+          "availableMw": 30,
+          "code": "BUIRE",
+          "name": "BUIRE",
+          "queueMw": 0,
+          "reservedMw": 30,
+          "tension": "225kV",
+          "works": [
+            "Non"
+          ]
+        }
+      ],
+      "totalSites": 21,
+      "transformerMw": 1240,
+      "worksCount": 21
+    },
+    "vienne": {
+      "availableMw": 308.4,
+      "highVoltageSites": 3,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 34,
+      "name": "Vienne",
+      "queueMw": 1650.4,
+      "reservedMw": 1242,
+      "serviceMw": 662.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 2,
+        "90kV": 31,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 110.5,
+          "code": "CXVIG",
+          "name": "CHAUVIGNY",
+          "queueMw": 13.2,
+          "reservedMw": 56,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 34.5,
+          "code": "I.JOU",
+          "name": "ISLE-JOURDAIN",
+          "queueMw": 70.6,
+          "reservedMw": 62,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 29.8,
+          "code": "BUGEL",
+          "name": "BUGELLERIE",
+          "queueMw": 15.2,
+          "reservedMw": 24,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 28.9,
+          "code": "ORANG",
+          "name": "ORANGERIE (L)",
+          "queueMw": 162.6,
+          "reservedMw": 84,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 34,
+      "transformerMw": 1776,
+      "worksCount": 2
+    },
+    "eure": {
+      "availableMw": 97.7,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 23,
+      "name": "Eure",
+      "queueMw": 301.8,
+      "reservedMw": 356.2,
+      "serviceMw": 328.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 3,
+        "90kV": 17,
+        "63kV": 2,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 59.4,
+          "code": "T.CH5",
+          "name": "TRIE-CHATEAU",
+          "queueMw": 6.4,
+          "reservedMw": 35,
+          "tension": "63kV",
+          "works": [
+            "Non"
+          ]
+        },
+        {
+          "availableMw": 4.4,
+          "code": "FOUL5",
+          "name": "FOULONNIERE",
+          "queueMw": 3,
+          "reservedMw": 8,
+          "tension": "90kV",
+          "works": []
+        },
+        {
+          "availableMw": 3.8,
+          "code": "ETREP",
+          "name": "ETREPAGNY",
+          "queueMw": 58,
+          "reservedMw": 37,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 3.6,
+          "code": "V.AVR",
+          "name": "VERNEUIL-SUR-AVRE",
+          "queueMw": 42,
+          "reservedMw": 27,
+          "tension": "90kV",
+          "works": []
+        }
+      ],
+      "totalSites": 23,
+      "transformerMw": 1781,
+      "worksCount": 2
+    },
+    "gers": {
+      "availableMw": 69.7,
+      "highVoltageSites": 1,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 16,
+      "name": "Gers",
+      "queueMw": 330.6,
+      "reservedMw": 335.1,
+      "serviceMw": 221.6,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 15,
+        "225kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 23.8,
+          "code": "I.JO5",
+          "name": "ISLE-JOURDAIN",
+          "queueMw": 11,
+          "reservedMw": 22.5,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 20.2,
+          "code": "MIRAN",
+          "name": "MIRANDE",
+          "queueMw": 41.6,
+          "reservedMw": 56,
+          "tension": "63kV",
+          "works": [
+            "En attente travaux EI réhab GIMONT - ISLE JOURDAIN et travaux liaison Jalis-mirande"
+          ]
+        },
+        {
+          "availableMw": 6.2,
+          "code": "LAGUI",
+          "name": "LAGUIAN",
+          "queueMw": 14.6,
+          "reservedMw": 21,
+          "tension": "63kV",
+          "works": [
+            "En attente de MAUBOURGET - ZLAGUIAN"
+          ]
+        },
+        {
+          "availableMw": 3.3,
+          "code": "RISCL",
+          "name": "RISCLE",
+          "queueMw": 13.8,
+          "reservedMw": 23.5,
+          "tension": "63kV",
+          "works": [
+            "En attente travaux EI réhab GIMONT - ISLE JOURDAIN"
+          ]
+        }
+      ],
+      "totalSites": 16,
+      "transformerMw": 656,
+      "worksCount": 14
+    },
+    "lot et garonne": {
+      "availableMw": 1,
+      "highVoltageSites": 3,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 17,
+      "name": "Lot-et-Garonne",
+      "queueMw": 370.2,
+      "reservedMw": 456.8,
+      "serviceMw": 629.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 14,
+        "225kV": 2,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 1,
+          "code": "CANCO",
+          "name": "CANCON",
+          "queueMw": 6,
+          "reservedMw": 20.2,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "BRUCH",
+          "name": "BRUCH",
+          "queueMw": 64.4,
+          "reservedMw": 46.8,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "CSLJA",
+          "name": "CASTELJALOUX",
+          "queueMw": 3,
+          "reservedMw": 8.3,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "DANTO",
+          "name": "DANTOU",
+          "queueMw": 0,
+          "reservedMw": 0,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 17,
+      "transformerMw": 782,
+      "worksCount": 0
+    },
+    "seine et marne": {
+      "availableMw": 328.4,
+      "highVoltageSites": 12,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 34,
+      "name": "Seine-et-Marne",
+      "queueMw": 691.8,
+      "reservedMw": 595.6,
+      "serviceMw": 427,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 22,
+        "225kV": 11,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 75,
+          "code": "ORSON",
+          "name": "ORSONVILLE",
+          "queueMw": 150,
+          "reservedMw": 104.5,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 74.8,
+          "code": "COUPV",
+          "name": "COUPVRAY",
+          "queueMw": 150.8,
+          "reservedMw": 76.1,
+          "tension": "225kV",
+          "works": [
+            "Cration poste"
+          ]
+        },
+        {
+          "availableMw": 72.2,
+          "code": "CHAR6",
+          "name": "CHARLY",
+          "queueMw": 1.2,
+          "reservedMw": 37.6,
+          "tension": "63kV",
+          "works": [
+            "Oui"
+          ]
+        },
+        {
+          "availableMw": 49.5,
+          "code": "NEMOU",
+          "name": "NEMOURS",
+          "queueMw": 136,
+          "reservedMw": 102.6,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 34,
+      "transformerMw": 2298,
+      "worksCount": 3
+    },
+    "cotes d armor": {
+      "availableMw": 563.2,
+      "highVoltageSites": 2,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 29,
+      "name": "Côtes-d'Armor",
+      "queueMw": 420.4,
+      "reservedMw": 794,
+      "serviceMw": 61.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 26,
+        "225kV": 2,
+        "90kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 72.1,
+          "code": "LAMBA",
+          "name": "LAMBALLE",
+          "queueMw": 14.4,
+          "reservedMw": 53,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 52.5,
+          "code": "GOURA",
+          "name": "LE GOURAY",
+          "queueMw": 3.4,
+          "reservedMw": 67,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 49.8,
+          "code": "SSAG5",
+          "name": "ST-AGATHON",
+          "queueMw": 19.6,
+          "reservedMw": 35,
+          "tension": "63kV",
+          "works": [
+            "Renforcement liaison PLOUVARA-TREGUEUX 63kV"
+          ]
+        },
+        {
+          "availableMw": 47.1,
+          "code": "SEVIG",
+          "name": "SEVIGNAC",
+          "queueMw": 3.8,
+          "reservedMw": 71,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 29,
+      "transformerMw": 1440,
+      "worksCount": 12
+    },
+    "nievre": {
+      "availableMw": 34.4,
+      "highVoltageSites": 1,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 8,
+      "name": "Nièvre",
+      "queueMw": 201.6,
+      "reservedMw": 328,
+      "serviceMw": 154,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 7,
+        "400kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 19.2,
+          "code": "CLAME",
+          "name": "CLAMECY",
+          "queueMw": 6.4,
+          "reservedMw": 42,
+          "tension": "63kV",
+          "works": [
+            "Raccordement d’un transformateur 63/20 kV"
+          ]
+        },
+        {
+          "availableMw": 15.2,
+          "code": "DOUDO",
+          "name": "DOUDOYE",
+          "queueMw": 16.8,
+          "reservedMw": 20.4,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "C.CHI",
+          "name": "CHATEAU-CHINON",
+          "queueMw": 9.8,
+          "reservedMw": 8.3,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 0,
+          "code": "CORB9",
+          "name": "CORBIGNY",
+          "queueMw": 21.8,
+          "reservedMw": 21.2,
+          "tension": "63kV",
+          "works": [
+            "-"
+          ]
+        }
+      ],
+      "totalSites": 8,
+      "transformerMw": 210,
+      "worksCount": 4
+    },
+    "aude": {
+      "availableMw": 110.9,
+      "highVoltageSites": 5,
+      "maxVoltageKv": 400,
+      "matchedCapareseauSites": 18,
+      "name": "Aude",
+      "queueMw": 573.4,
+      "reservedMw": 389,
+      "serviceMw": 140.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "225kV": 3,
+        "63kV": 12,
+        "400kV": 2,
+        "150kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 32.6,
+          "code": "GAUDI",
+          "name": "GAUDIERE(LA)",
+          "queueMw": 18.8,
+          "reservedMw": 30,
+          "tension": "400kV",
+          "works": []
+        },
+        {
+          "availableMw": 27.6,
+          "code": "C.ORB",
+          "name": "CONQUES-SUR-ORBIEL",
+          "queueMw": 85.8,
+          "reservedMw": 80,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 26.1,
+          "code": "VALGR",
+          "name": "VALGROS",
+          "queueMw": 56.8,
+          "reservedMw": 52,
+          "tension": "63kV",
+          "works": [
+            "Renforcement transformation d’Issel"
+          ]
+        },
+        {
+          "availableMw": 6.6,
+          "code": "LUNES",
+          "name": "LUNES",
+          "queueMw": 12.6,
+          "reservedMw": 15,
+          "tension": "63kV",
+          "works": []
+        }
+      ],
+      "totalSites": 18,
+      "transformerMw": 1270,
+      "worksCount": 7
+    },
+    "tarn": {
+      "availableMw": 109.1,
+      "highVoltageSites": 4,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 16,
+      "name": "Tarn",
+      "queueMw": 380.2,
+      "reservedMw": 351.4,
+      "serviceMw": 204.4,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 12,
+        "225kV": 4
+      },
+      "topStations": [
+        {
+          "availableMw": 31.6,
+          "code": "REQUI",
+          "name": "REQUISTA",
+          "queueMw": 37,
+          "reservedMw": 48.4,
+          "tension": "225kV",
+          "works": []
+        },
+        {
+          "availableMw": 27.6,
+          "code": "MARZE",
+          "name": "MARZENS",
+          "queueMw": 20.2,
+          "reservedMw": 26.2,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 16,
+          "code": "GAILL",
+          "name": "GAILLAC",
+          "queueMw": 31.4,
+          "reservedMw": 34.2,
+          "tension": "63kV",
+          "works": []
+        },
+        {
+          "availableMw": 13.4,
+          "code": "MIOLL",
+          "name": "MIOLLES",
+          "queueMw": 20,
+          "reservedMw": 20,
+          "tension": "225kV",
+          "works": []
+        }
+      ],
+      "totalSites": 16,
+      "transformerMw": 984,
+      "worksCount": 2
+    },
+    "ardennes": {
+      "availableMw": 39.7,
+      "highVoltageSites": 1,
+      "maxVoltageKv": 225,
+      "matchedCapareseauSites": 11,
+      "name": "Ardennes",
+      "queueMw": 78.4,
+      "reservedMw": 115.7,
+      "serviceMw": 129.2,
+      "source": "Capareseau + ODRÉ postes électriques RTE",
+      "tensions": {
+        "63kV": 8,
+        "90kV": 2,
+        "225kV": 1
+      },
+      "topStations": [
+        {
+          "availableMw": 15.5,
+          "code": "M.CAM",
+          "name": "LA MAL CAMPEE",
+          "queueMw": 2.4,
+          "reservedMw": 18.6,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 11,
+          "code": "LIART",
+          "name": "LIART",
+          "queueMw": 7,
+          "reservedMw": 25.5,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 9,
+          "code": "M.PIN",
+          "name": "Mont Pinson",
+          "queueMw": 0,
+          "reservedMw": 9,
+          "tension": "90kV",
+          "works": [
+            "."
+          ]
+        },
+        {
+          "availableMw": 2,
+          "code": "H.RIV",
+          "name": "HAUTES-RIVIERES",
+          "queueMw": 0,
+          "reservedMw": 1,
+          "tension": "63kV",
+          "works": [
+            "."
+          ]
+        }
+      ],
+      "totalSites": 11,
+      "transformerMw": 756,
+      "worksCount": 11
+    }
+  },
+  "meta": {
+    "capareseauCsvUrl": "https://www.capareseau.fr/medias/EEF3B73A-27D0-9574-4D9E-ADFE0395905D",
+    "generatedAt": "2026-06-17T14:46:42.699Z",
+    "matchedCapareseauRows": 2330,
+    "records": 3119,
+    "rteDatasetUrl": "https://odre.opendatasoft.com/explore/dataset/postes-electriques-rte/information/"
+  }
+}

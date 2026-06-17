@@ -8,8 +8,11 @@ const SOURCE_LINKS = {
   vigieau: 'https://vigieau.gouv.fr/',
   dvf: 'https://files.data.gouv.fr/geo-dvf/',
   apiAdresse: 'https://adresse.data.gouv.fr/api-doc/adresse',
+  capareseau:
+    'https://www.services-rte.com/fr/decouvrez-nos-offres-de-services/consulter-les-capacites-d-accueil-du-reseau-capareseau.html',
   overpass: 'https://overpass-turbo.eu/',
   geojsonFrance: 'https://github.com/gregoiredavid/france-geojson',
+  rteSubstations: 'https://odre.opendatasoft.com/explore/dataset/postes-electriques-rte/information/',
 };
 
 const dataSource = ({ name, link, usage, freshness }) => ({
@@ -27,9 +30,9 @@ export const INDICE_PAGES = [
     shortLabel: 'Score',
     question: 'Comment PrismCenter classe-t-il les territoires à instruire en premier ?',
     scoreMeaning:
-      'Le score global agrège les cinq indices opérationnels pour produire une priorité d’instruction. Il ne décide pas qu’un site est constructible: il hiérarchise les territoires et les points qui méritent une étude technique.',
+      'Le score global agrège les six indices opérationnels pour produire une priorité d’instruction. Il ne décide pas qu’un site est constructible: il hiérarchise les territoires et les points qui méritent une étude technique.',
     formulaSteps: [
-      'Calculer les cinq indices: énergie bas carbone, risques naturels, foncier, refroidissement et accès travailleurs.',
+      'Calculer les six indices: énergie bas carbone, raccordement électrique, risques naturels, foncier, refroidissement et accès travailleurs.',
       'Appliquer les pondérations du scénario choisi: cluster entraînement, campus souverain ou inférence régionale.',
       'Sur la carte, utiliser les signaux départementaux disponibles au chargement.',
       'Au point cliqué, remplacer ou ajuster les indices par les signaux locaux disponibles: Géorisques, météo, eau, sécheresse, route, ville, foncier local.',
@@ -39,11 +42,11 @@ export const INDICE_PAGES = [
       dataSource({
         name: 'Indices PrismCenter',
         link: SOURCE_LINKS.geojsonFrance,
-        usage: 'Agrégation des cinq indices documentés dans les pages méthode.',
+        usage: 'Agrégation des six indices documentés dans les pages méthode.',
         freshness: 'Recalculé dans le navigateur à chaque changement de scénario, de département ou de point.',
       }),
       dataSource({
-        name: 'ODRÉ, Eco2mix, Géorisques, Open-Meteo, Hub’Eau, VigiEau, DVF, API Adresse, OpenStreetMap',
+        name: 'ODRÉ, Caparéseau, postes électriques RTE, Eco2mix, Géorisques, Open-Meteo, Hub’Eau, VigiEau, DVF, API Adresse, OpenStreetMap',
         link: SOURCE_LINKS.odreEnergy,
         usage: 'Sources publiques utilisées par les indices sous-jacents.',
         freshness: 'Mélange de données live au clic et de jeux pré-agrégés quand les appels publics sont lourds ou instables.',
@@ -55,7 +58,7 @@ export const INDICE_PAGES = [
       'Un score faible peut venir d’un signal absent ou non qualifié; le panneau de confiance précise ce niveau de prudence.',
     ],
     whyItMatters:
-      'Pour un projet datacenter IA, la vraie question n’est pas seulement “où l’énergie est-elle forte ?” mais “où l’ensemble énergie, risques, foncier, refroidissement et accès justifie du temps d’instruction ?”.',
+      'Pour un projet datacenter IA, la vraie question n’est pas seulement “où l’énergie est-elle forte ?” mais “où l’ensemble énergie, raccordement, risques, foncier, refroidissement et accès justifie du temps d’instruction ?”.',
   },
   {
     id: 'energy',
@@ -93,6 +96,51 @@ export const INDICE_PAGES = [
     ],
     whyItMatters:
       'Un datacenter est d’abord contraint par l’accès à une puissance stable et bas carbone. Cet indice sert à orienter l’instruction vers les territoires déjà structurés énergétiquement, avant les études réseau.',
+  },
+  {
+    id: 'grid',
+    label: 'Raccordement électrique',
+    title: 'Indice raccordement électrique',
+    shortLabel: 'Raccord.',
+    question: 'Où l’accès réseau est-il crédible pour 30, 80 ou 200 MW ?',
+    scoreMeaning:
+      'Un score élevé indique un département où les capacités réservées disponibles Caparéseau, les postes RTE rapprochés et les niveaux de tension sont plus compatibles avec le profil datacenter sélectionné. Il ne vaut pas réponse de raccordement.',
+    formulaSteps: [
+      'Récupérer le fichier national Caparéseau et l’inventaire ODRÉ des postes électriques RTE en exploitation.',
+      'Rapprocher les postes par code poste pour rattacher les capacités Caparéseau aux départements RTE.',
+      'Additionner la capacité réservée disponible, la file d’attente S3REnR, les services système et les capacités de transformation.',
+      'Identifier le niveau de tension maximal et le nombre de postes HTB significatifs par département.',
+      'Comparer la capacité disponible avec le besoin indicatif du scénario: 160 MW pour entraînement, 70 MW pour campus souverain, 25 MW pour inférence.',
+      'Composer le score: disponibilité de capacité, niveau de tension, densité de postes et cohérence avec le score énergie bas carbone.',
+    ],
+    dataSources: [
+      dataSource({
+        name: 'Caparéseau — capacités d’accueil du réseau',
+        link: SOURCE_LINKS.capareseau,
+        usage: 'Capacité réservée disponible, file d’attente et informations de travaux par poste.',
+        freshness: 'Dataset embarqué généré par script; à régénérer pour actualiser les chiffres.',
+      }),
+      dataSource({
+        name: 'ODRÉ — postes électriques RTE',
+        link: SOURCE_LINKS.rteSubstations,
+        usage: 'Code poste, nom, département, état, fonction et tension des postes de transformation RTE.',
+        freshness: 'Chargé lors de la génération du dataset raccordement.',
+      }),
+      dataSource({
+        name: 'ODRÉ — registre national production et stockage',
+        link: SOURCE_LINKS.odreEnergy,
+        usage: 'Score énergie bas carbone utilisé comme signal de cohérence territoriale.',
+        freshness: 'Chargé au démarrage; la fraîcheur dépend du jeu publié par ODRÉ.',
+      }),
+    ],
+    limitations: [
+      'Le score est départemental: il ne localise pas précisément le poste disponible le plus proche du point cliqué.',
+      'Les capacités Caparéseau ne garantissent ni faisabilité, ni coût, ni délai, ni disponibilité contractuelle au moment du projet.',
+      'Le modèle ne remplace pas une étude exploratoire de raccordement, une demande auprès du gestionnaire de réseau ou une analyse de renforcement.',
+      'Les coordonnées fines des postes ne sont pas exploitées ici; l’indice reste volontairement prudent sur la précision spatiale.',
+    ],
+    whyItMatters:
+      'Le raccordement est souvent le verrou réel d’un datacenter IA. Deux territoires peuvent disposer d’énergie bas carbone, mais seul celui qui offre une puissance raccordable crédible mérite une instruction prioritaire.',
   },
   {
     id: 'risk',

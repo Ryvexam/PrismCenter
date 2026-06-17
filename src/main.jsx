@@ -23,6 +23,7 @@ import {
   Zap,
 } from 'lucide-react';
 import './styles.css';
+import gridCapacity from './data/gridCapacity.json';
 import landPrices from './data/landPrices.json';
 import { INDICE_PAGE_BY_ID, INDICE_PAGES } from './data/indices.js';
 import {
@@ -50,6 +51,9 @@ const GEORISQUES_LINK = 'https://www.georisques.gouv.fr/';
 const OPEN_METEO_LINK = 'https://open-meteo.com/';
 const OVERPASS_LINK = 'https://overpass-turbo.eu/';
 const GEOJSON_LINK = 'https://github.com/gregoiredavid/france-geojson';
+const RTE_SUBSTATIONS_LINK = 'https://odre.opendatasoft.com/explore/dataset/postes-electriques-rte/information/';
+const CAPARESEAU_LINK =
+  'https://www.services-rte.com/fr/decouvrez-nos-offres-de-services/consulter-les-capacites-d-accueil-du-reseau-capareseau.html';
 const DVF_LINK = 'https://files.data.gouv.fr/geo-dvf/';
 const HUBEAU_LINK = 'https://hubeau.eaufrance.fr/';
 const VIGIEAU_LINK = 'https://vigieau.gouv.fr/';
@@ -71,6 +75,12 @@ const MAP_LAYERS = [
     label: 'Énergie bas carbone',
     question: 'Où la puissance raccordée est-elle déjà forte ?',
     description: 'ODRÉ distingue bas carbone, nucléaire, renouvelables et stockage; Eco2mix ajoute le signal réseau live.',
+  },
+  {
+    id: 'grid',
+    label: 'Raccordement',
+    question: 'Où l’accès réseau est-il crédible ?',
+    description: 'Inventaire RTE des postes de transformation par département, niveaux de tension et compatibilité de puissance.',
   },
   {
     id: 'score',
@@ -110,21 +120,21 @@ const PROFILE_PRESETS = [
     label: 'Cluster entraînement',
     footprint: '80-200 MW',
     description: 'Priorité à la puissance bas carbone et à la marge foncière.',
-    weights: { access: 0.08, cooling: 0.14, energy: 0.4, land: 0.16, risk: 0.22 },
+    weights: { access: 0.05, cooling: 0.1, energy: 0.31, grid: 0.22, land: 0.13, risk: 0.19 },
   },
   {
     id: 'sovereign',
     label: 'Campus souverain',
     footprint: '30-80 MW',
     description: 'Équilibre entre énergie, risques naturels et refroidissement.',
-    weights: { access: 0.1, cooling: 0.15, energy: 0.34, land: 0.17, risk: 0.24 },
+    weights: { access: 0.06, cooling: 0.11, energy: 0.28, grid: 0.18, land: 0.14, risk: 0.23 },
   },
   {
     id: 'inference',
     label: 'Inférence régionale',
     footprint: '5-30 MW',
     description: 'L’accès aux équipes et aux bassins urbains devient plus important.',
-    weights: { access: 0.28, cooling: 0.1, energy: 0.26, land: 0.12, risk: 0.24 },
+    weights: { access: 0.24, cooling: 0.09, energy: 0.22, grid: 0.14, land: 0.11, risk: 0.2 },
   },
 ];
 
@@ -132,6 +142,7 @@ const CRITERIA_LABELS = {
   access: 'Accès travailleurs',
   cooling: 'Refroidissement',
   energy: 'Énergie bas carbone',
+  grid: 'Raccordement électrique',
   land: 'Foncier & ville 10-15 km',
   risk: 'Sismique & inondation',
 };
@@ -354,6 +365,9 @@ function Landing({ onStart }) {
           <p className="mb-7 font-mono text-[0.68rem] uppercase tracking-[0.24em] text-pewter">
             {APP_TAGLINE}
           </p>
+          <p className="mb-5 font-mono text-[0.58rem] uppercase tracking-[0.22em] text-graphite">
+            Contexte hackathon Defend Intelligence · prototype indépendant
+          </p>
           <h1 className="max-w-6xl font-display text-[clamp(3.2rem,8.8vw,8.3rem)] font-normal leading-[0.86] tracking-normal text-ink">
             Où poser un datacenter IA,
             <span className="block italic text-graphite">sans aveugler le territoire.</span>
@@ -383,6 +397,7 @@ function Landing({ onStart }) {
 function LandingPreview() {
   const rows = [
     ['Énergie bas carbone', '92'],
+    ['Raccordement RTE', '88'],
     ['Foncier utile', '71'],
     ['Risque naturel', '84'],
   ];
@@ -610,8 +625,8 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
 
   const selectedProfile = PROFILE_PRESETS.find((profile) => profile.id === selectedProfileId) ?? PROFILE_PRESETS[0];
   const model = useMemo(
-    () => buildDepartmentModel(energy.departments, energy.geojson, selectedProfile, energy.realtime),
-    [energy.departments, energy.geojson, selectedProfile, energy.realtime],
+    () => buildDepartmentModel(energy.departments, energy.geojson, selectedProfile, energy.realtime, energy.rteGrid),
+    [energy.departments, energy.geojson, selectedProfile, energy.realtime, energy.rteGrid],
   );
   const selectedMetric = model.byCode.get(selectedCode) ?? model.items[0];
   const selectedLayer = MAP_LAYERS.find((layer) => layer.id === activeLayerId) ?? MAP_LAYERS[0];
@@ -870,17 +885,19 @@ function DepartmentMap({
           selectedMetric={selectedMetric}
           selectedProfile={selectedProfile}
         />
+        <MapLayerLegend activeLayerId={activeLayerId} mode={mode} selectedMetric={selectedMetric} selectedProfile={selectedProfile} />
       </div>
 
       <div
         className={cx(
-          'map-stat-strip relative z-10 grid gap-3 border-t pt-5 text-sm md:grid-cols-3',
+          'map-stat-strip relative z-10 grid gap-3 border-t pt-5 text-sm',
+          activeLayerId === 'grid' ? 'md:grid-cols-4' : 'md:grid-cols-3',
           mode === 'tension' ? 'border-black text-black' : 'border-[#ded6c4] text-graphite',
         )}
       >
-        <Stat label="Score carte" value={`${Math.round(layerValue(selectedMetric, activeLayerId))}/100`} />
-        <Stat label="Puissance bas carbone" value={`${formatMw((selectedMetric?.lowCarbonKw ?? 0) / 1000)} MW`} />
-        <Stat label="Scénario" value={selectedProfile.footprint} />
+        {buildMapStats(activeLayerId, selectedMetric, selectedProfile).map((stat) => (
+          <Stat key={stat.label} label={stat.label} value={stat.value} />
+        ))}
       </div>
 
       <div className="relative z-10 mt-5 flex flex-wrap items-center justify-between gap-4">
@@ -900,6 +917,54 @@ function DepartmentMap({
   );
 }
 
+function MapLayerLegend({ activeLayerId, mode, selectedMetric, selectedProfile }) {
+  if (activeLayerId !== 'grid') return null;
+
+  const score = Math.round(layerValue(selectedMetric, activeLayerId));
+  const availableMw = selectedMetric?.gridAvailableMw ?? 0;
+  const needMw = profileToPowerNeedMw(selectedProfile);
+  const capacityRatio = clamp((availableMw / Math.max(needMw, 1)) * 100, 0, 100);
+
+  return (
+    <div className={cx('map-layer-legend', mode === 'tension' && 'map-layer-legend--tension')}>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-mono text-[0.58rem] uppercase tracking-[0.2em] text-pewter">Lecture raccordement</p>
+          <p className="mt-2 font-display text-3xl leading-none text-ink">{score}/100</p>
+        </div>
+        <Activity aria-hidden="true" size={17} strokeWidth={1.3} />
+      </div>
+      <div className="map-layer-legend__scale" aria-hidden="true">
+        <span style={{ width: `${score}%` }} />
+      </div>
+      <div className="grid gap-2 text-sm leading-6">
+        <FactRow label="Capacité disponible" value={`${formatMw(availableMw)} MW`} />
+        <FactRow label="Besoin scénario" value={`${formatMw(needMw)} MW`} />
+        <FactRow label="Couverture" value={`${Math.round(capacityRatio)}%`} />
+        <FactRow label="Tension max" value={selectedMetric?.rteMaxVoltageKv ? `${selectedMetric.rteMaxVoltageKv} kV` : '—'} />
+        <FactRow label="Postes RTE" value={selectedMetric?.rteSubstationCount ? `${selectedMetric.rteSubstationCount}` : '—'} />
+      </div>
+    </div>
+  );
+}
+
+function buildMapStats(activeLayerId, selectedMetric, selectedProfile) {
+  if (activeLayerId === 'grid') {
+    return [
+      { label: 'Score raccordement', value: `${Math.round(layerValue(selectedMetric, activeLayerId))}/100` },
+      { label: 'Capacité disponible', value: `${formatMw(selectedMetric?.gridAvailableMw ?? 0)} MW` },
+      { label: 'Tension max', value: selectedMetric?.rteMaxVoltageKv ? `${selectedMetric.rteMaxVoltageKv} kV` : '—' },
+      { label: 'Postes RTE', value: selectedMetric?.rteSubstationCount ? `${selectedMetric.rteSubstationCount}` : '—' },
+    ];
+  }
+
+  return [
+    { label: 'Score carte', value: `${Math.round(layerValue(selectedMetric, activeLayerId))}/100` },
+    { label: 'Puissance bas carbone', value: `${formatMw((selectedMetric?.lowCarbonKw ?? 0) / 1000)} MW` },
+    { label: 'Scénario', value: selectedProfile.footprint },
+  ];
+}
+
 function CalculationStatus({ mode, selectedMetric }) {
   return (
     <div
@@ -916,10 +981,10 @@ function CalculationStatus({ mode, selectedMetric }) {
         </p>
         <div className="calculation-status__sources" aria-hidden="true">
           <span>ODRÉ</span>
+          <span>Caparéseau</span>
+          <span>RTE</span>
           <span>Eco2mix</span>
           <span>Géorisques</span>
-          <span>Hub’Eau</span>
-          <span>OSM</span>
         </div>
       </div>
     </div>
@@ -1076,6 +1141,8 @@ function ControlDeck({
 
       <EnergyPriorityPanel energy={energy} mode={mode} selectedMetric={selectedMetric} />
 
+      <GridConnectionPanel mode={mode} selectedMetric={selectedMetric} selectedProfile={selectedProfile} />
+
       <ProfileSelector
         mode={mode}
         profiles={profiles}
@@ -1122,7 +1189,7 @@ function ControlDeck({
         setActiveLayerId={setActiveLayerId}
       />
 
-      <EvidencePanel energy={energy} mode={mode} pointAnalysis={pointAnalysis} />
+      <EvidencePanel energy={energy} mode={mode} pointAnalysis={pointAnalysis} selectedMetric={selectedMetric} />
 
       <div
         className={cx(
@@ -1172,6 +1239,42 @@ function EnergyPriorityPanel({ energy, mode, selectedMetric }) {
         <FactRow label="Signal réseau live" value={`${Math.round(liveScore)}/100`} />
         <FactRow label="Carbone instantané" value={carbon == null ? '—' : `${carbon} gCO₂/kWh`} />
         <FactRow label="Solaire national" value={`${solarShare}% de la consommation`} />
+      </div>
+    </div>
+  );
+}
+
+function GridConnectionPanel({ mode, selectedMetric, selectedProfile }) {
+  const score = Math.round(selectedMetric?.gridScore ?? 0);
+  const availableMw = selectedMetric?.gridAvailableMw ?? 0;
+  const queueMw = selectedMetric?.gridQueueMw ?? 0;
+  const needMw = profileToPowerNeedMw(selectedProfile);
+  const topStation = selectedMetric?.rteTopStations?.[0];
+  const fit = selectedMetric?.gridCompatibilityLabel ?? 'Non qualifié';
+  const sourceLabel = selectedMetric?.gridConfidenceLabel ?? 'Source non qualifiée';
+
+  return (
+    <div className={cx('grid-connection grid gap-4 border p-4', mode === 'tension' ? 'border-black' : 'border-[#d8d0bd]')}>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Raccordement électrique</p>
+          <p className="mt-2 font-display text-4xl leading-none text-ink">{score}/100</p>
+        </div>
+        <Activity aria-hidden="true" size={20} strokeWidth={1.25} />
+      </div>
+      <p className="text-sm leading-6 text-graphite">
+        {fit}. {formatMw(availableMw)} MW de capacité réservée disponible sont rapprochés des postes RTE du
+        département pour un besoin indicatif de {formatMw(needMw)} MW.
+      </p>
+      <div className="grid gap-2 text-sm leading-6">
+        <FactRow label="Source" value={sourceLabel} />
+        <FactRow label="Tension maximale" value={selectedMetric?.rteMaxVoltageKv ? `${selectedMetric.rteMaxVoltageKv} kV` : '—'} />
+        <FactRow label="Postes RTE rapprochés" value={selectedMetric?.rteSubstationCount ? `${selectedMetric.rteSubstationCount}` : '—'} />
+        <FactRow label="File d’attente S3REnR" value={`${formatMw(queueMw)} MW`} />
+        <FactRow
+          label="Poste le plus ouvert"
+          value={topStation ? `${topStation.name} · ${formatMw(topStation.availableMw)} MW` : '—'}
+        />
       </div>
     </div>
   );
@@ -1334,6 +1437,7 @@ function CandidateMemo({ energy, mode, pointAnalysis, score, selectedMetric, sel
     access: selectedMetric?.accessScore ?? 52,
     cooling: selectedMetric?.coolingScore ?? 0,
     energy: selectedMetric?.energyScore ?? 0,
+    grid: selectedMetric?.gridScore ?? 0,
     land: selectedMetric?.landScore ?? 0,
     risk: selectedMetric?.riskScore ?? 0,
   };
@@ -1444,7 +1548,7 @@ function NationalRanking({ mode, model, selectedCode, setSelectedCode }) {
             <span className="min-w-0">
               <span className="block text-sm">{department.name}</span>
               <span className="mt-1 block text-xs opacity-70">
-                {formatMw(department.lowCarbonKw / 1000)} MW bas carbone · DVF {formatLandPrice(department.landPrice)}
+                {formatMw(department.lowCarbonKw / 1000)} MW bas carbone · {formatMw(department.gridAvailableMw ?? 0)} MW raccord.
               </span>
             </span>
             <span className="font-display text-3xl leading-none">{department.datacenterScore}</span>
@@ -1458,6 +1562,7 @@ function NationalRanking({ mode, model, selectedCode, setSelectedCode }) {
 function CriteriaGrid({ mode, pointAnalysis, selectedMetric }) {
   const criteria = pointAnalysis.data?.criteria ?? {
     energy: selectedMetric?.energyScore ?? 0,
+    grid: selectedMetric?.gridScore ?? 0,
     risk: selectedMetric?.riskScore ?? 0,
     land: selectedMetric?.landScore ?? 0,
     cooling: selectedMetric?.coolingScore ?? 0,
@@ -1467,6 +1572,7 @@ function CriteriaGrid({ mode, pointAnalysis, selectedMetric }) {
   return (
     <dl className={cx('grid transition-[gap] duration-700', mode === 'tension' ? 'gap-2' : 'gap-3')}>
       <Signal icon={<Zap size={17} strokeWidth={1.3} />} label="Énergie bas carbone" mode={mode} value={`${Math.round(criteria.energy)}/100`} />
+      <Signal icon={<Activity size={17} strokeWidth={1.3} />} label="Raccordement électrique" mode={mode} value={`${Math.round(criteria.grid)}/100`} />
       <Signal icon={<Shield size={17} strokeWidth={1.3} />} label="Sismique & inondation" mode={mode} value={`${Math.round(criteria.risk)}/100`} />
       <Signal icon={<MapPin size={17} strokeWidth={1.3} />} label="Foncier & ville 10-15 km" mode={mode} value={`${Math.round(criteria.land)}/100`} />
       <Signal icon={<Snowflake size={17} strokeWidth={1.3} />} label="Refroidissement" mode={mode} value={`${Math.round(criteria.cooling)}/100`} />
@@ -1480,6 +1586,7 @@ function ActionPlan({ mode, pointAnalysis, selectedMetric }) {
     access: selectedMetric?.accessScore ?? 52,
     cooling: selectedMetric?.coolingScore ?? 0,
     energy: selectedMetric?.energyScore ?? 0,
+    grid: selectedMetric?.gridScore ?? 0,
     land: selectedMetric?.landScore ?? 0,
     risk: selectedMetric?.riskScore ?? 0,
   };
@@ -1510,10 +1617,16 @@ function ActionPlan({ mode, pointAnalysis, selectedMetric }) {
   );
 }
 
-function EvidencePanel({ energy, mode, pointAnalysis }) {
+function EvidencePanel({ energy, mode, pointAnalysis, selectedMetric }) {
   const data = pointAnalysis.data;
+  const gridEvidence = data
+    ? `Caparéseau/RTE: ${data.gridCompatibilityLabel}, ${data.gridAvailableLabel} MW disponible`
+    : selectedMetric?.gridCompatibilityLabel
+      ? `Caparéseau/RTE: ${selectedMetric.gridCompatibilityLabel}, ${formatMw(selectedMetric.gridAvailableMw)} MW disponible`
+      : 'Caparéseau/RTE non qualifié';
   const rows = [
     ['Énergie structurelle', energy.source === 'live' ? 'ODRÉ live: nucléaire + renouvelables + stockage' : 'Capacités locales de secours'],
+    ['Raccordement électrique', gridEvidence],
     ['Réseau temps réel', energy.source === 'live' ? 'Eco2mix live: CO₂ + solaire national' : 'Eco2mix local de secours'],
     ['Risques live', data ? `Géorisques au point: ${data.riskConfidenceLabel}` : 'Pré-filtre départemental estimé'],
     ['Météo live', data?.temperatureC != null ? 'Open-Meteo au point' : 'En attente du clic'],
@@ -1555,6 +1668,10 @@ function buildAction(key, value, selectedMetric) {
       label: CRITERIA_LABELS.energy,
       text: `${formatMw((selectedMetric?.lowCarbonKw ?? 0) / 1000)} MW bas carbone identifiés. Vérifier le poste source et les délais de raccordement.`,
     },
+    grid: {
+      label: CRITERIA_LABELS.grid,
+      text: `${formatMw(selectedMetric?.gridAvailableMw ?? 0)} MW de capacité réservée disponible Caparéseau. Vérifier poste, file d’attente, tension HTB et coût de renforcement.`,
+    },
     land: {
       label: CRITERIA_LABELS.land,
       text: 'Contrôler PLU, artificialisation, emprise disponible, extension et écart ville proche de 10-15 km.',
@@ -1592,13 +1709,14 @@ function buildCandidateMemo({ criteria, energy, pointAnalysis, score, selectedMe
     `Décision: ${verdict} · score ${Math.round(score)}/100`,
     `Confiance: ${confidence.label} · ${confidence.value}/100`,
     `Signal réseau: ${energy.realtime.tauxCo2} gCO2/kWh, ${formatNumber(energy.realtime.solaire)} MW solaire, ${energy.realtime.date} ${energy.realtime.heure}`,
+    `Raccordement: ${selectedMetric?.gridCompatibilityLabel ?? 'Non qualifié'}, ${formatMw(selectedMetric?.gridAvailableMw ?? 0)} MW disponible, tension max ${selectedMetric?.rteMaxVoltageKv ? `${selectedMetric.rteMaxVoltageKv} kV` : 'non qualifiée'}`,
     `Point: ${coordinates}`,
     data
       ? `Terrain: ${data.landPriceLabel}, ${data.landuseLabel}, ${data.droughtLabel}, ${data.riverLabel}`
       : `Terrain: non qualifié localement`,
     `Forces: ${strengths}`,
     `À lever: ${blockers}`,
-    `Sources: ODRÉ, Eco2mix, Géorisques, Open-Meteo, Hub’Eau, VigiEau, DVF, API Adresse, OpenStreetMap/Overpass, GeoJSON France.`,
+    `Sources: ODRÉ, Caparéseau, postes électriques RTE, Eco2mix, Géorisques, Open-Meteo, Hub’Eau, VigiEau, DVF, API Adresse, OpenStreetMap/Overpass, GeoJSON France.`,
     `Note: score de priorisation, à compléter par études réseau, PLU, foncier, sûreté et raccordement.`,
   ].join('\n');
 }
@@ -1678,6 +1796,14 @@ function PointPanel({ analysisPoint, mode, pointAnalysis }) {
         <FactRow label="Cible ville 10-15 km" value={data?.townTargetLabel ?? '—'} />
         <FactRow label="Accès voirie" value={data?.roadLabel ?? formatDistance(data?.nearestRoadKm)} />
         <FactRow label="Route travailleurs" value={data?.roadTargetLabel ?? '—'} />
+        <FactRow label="Raccordement" value={data?.gridCompatibilityLabel ?? '—'} />
+        <FactRow label="Capacité disponible" value={data?.gridAvailableLabel ? `${data.gridAvailableLabel} MW` : '—'} />
+        <FactRow label="Tension / postes" value={data?.gridVoltageLabel ?? '—'} />
+        <FactRow label="File d’attente" value={data?.gridQueueLabel ? `${data.gridQueueLabel} MW` : '—'} />
+        <FactRow
+          label="Poste repère"
+          value={data?.gridStations?.[0] ? `${data.gridStations[0].name} · ${formatMw(data.gridStations[0].availableMw)} MW` : '—'}
+        />
         <FactRow label="Eau / rivière" value={formatDistance(data?.nearestWaterKm)} />
         <FactRow label="Nappe" value={data?.groundwaterLabel ?? '—'} />
         <FactRow label="Débit rivière" value={data?.riverLabel ?? '—'} />
@@ -1699,6 +1825,11 @@ function ScenarioPanel({ activeLayerId, mode, selectedLayer, selectedMetric, set
       id: 'energy',
       label: 'Sécuriser l’énergie',
       text: `${formatMw((selectedMetric?.lowCarbonKw ?? 0) / 1000)} MW bas carbone raccordés, dont nucléaire et renouvelables ODRÉ.`,
+    },
+    {
+      id: 'grid',
+      label: 'Qualifier le raccordement',
+      text: `${formatMw(selectedMetric?.gridAvailableMw ?? 0)} MW de capacité réservée disponible et ${selectedMetric?.rteMaxVoltageKv ?? '—'} kV max côté postes RTE.`,
     },
     {
       id: 'access',
@@ -1831,6 +1962,8 @@ function SourcePill({ source }) {
 function SourceLinks({ mode, onOpenLegal }) {
   const links = [
     ['ODRÉ parc électrique', ENERGY_DATASET_LINK],
+    ['Caparéseau', CAPARESEAU_LINK],
+    ['Postes RTE', RTE_SUBSTATIONS_LINK],
     ['Eco2mix temps réel', ECO2MIX_LINK],
     ['Géorisques', GEORISQUES_LINK],
     ['Open-Meteo', OPEN_METEO_LINK],
@@ -1889,6 +2022,7 @@ function useEnergyData() {
     error: null,
     geojson: null,
     realtime: FALLBACK_REALTIME,
+    rteGrid: gridCapacity.departments,
     source: 'fallback',
     status: 'loading',
   });
@@ -1923,6 +2057,7 @@ function useEnergyData() {
               solaire: latest.solaire,
               tauxCo2: latest.taux_co2,
             },
+            rteGrid: gridCapacity.departments,
             source: 'live',
             status: 'ready',
           });
@@ -2107,9 +2242,19 @@ function normalizeEnergyRows(rows) {
   return [...byCode.values()];
 }
 
-function buildDepartmentModel(departments, geojson, selectedProfile = PROFILE_PRESETS[0], realtime = FALLBACK_REALTIME) {
+function normalizeDepartmentName(name) {
+  return String(name ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[’']/g, ' ')
+    .replace(/[^a-zA-Z0-9]+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function buildDepartmentModel(departments, geojson, selectedProfile = PROFILE_PRESETS[0], realtime = FALLBACK_REALTIME, rteGrid = {}) {
   if (!geojson?.features?.length) {
-    const fallbackItems = departments.map((department) => buildBareMetric(department, selectedProfile));
+    const fallbackItems = departments.map((department) => buildBareMetric(department, selectedProfile, rteGrid));
     return {
       byCode: new Map(fallbackItems.map((department) => [department.code, department])),
       features: [],
@@ -2177,6 +2322,7 @@ function buildDepartmentModel(departments, geojson, selectedProfile = PROFILE_PR
     const longitude = feature.centroid?.[0] ?? 2.4;
     const siteDensityPer100Km2 = (totalSites / Math.max(feature.areaKm2, 1)) * 100;
     const landPrice = landPrices[feature.code]?.price ?? null;
+    const rteInfo = rteGrid[normalizeDepartmentName(feature.name)] ?? null;
 
     return {
       ...department,
@@ -2196,6 +2342,7 @@ function buildDepartmentModel(departments, geojson, selectedProfile = PROFILE_PR
       storageKw,
       thermalKw,
       totalSites,
+      rteInfo,
     };
   });
 
@@ -2207,6 +2354,8 @@ function buildDepartmentModel(departments, geojson, selectedProfile = PROFILE_PR
   const maxSiteDensity = Math.max(...rawMetrics.map((item) => item.siteDensityPer100Km2), 1);
   const maxSites = Math.max(...rawMetrics.map((item) => Math.log1p(item.totalSites)), 1);
   const maxStorage = Math.max(...rawMetrics.map((item) => Math.log1p(item.storageKw)), 1);
+  const maxRteSites = Math.max(...rawMetrics.map((item) => Math.log1p(item.rteInfo?.totalSites ?? 0)), 1);
+  const maxRteHighVoltage = Math.max(...rawMetrics.map((item) => Math.log1p(item.rteInfo?.highVoltageSites ?? 0)), 1);
   const nationalLandMedian = Number(landPrices._meta?.nationalMedian ?? 2400);
   const liveGridScore = buildLiveGridScore(realtime);
 
@@ -2234,13 +2383,22 @@ function buildDepartmentModel(departments, geojson, selectedProfile = PROFILE_PR
     const landScore = clamp(areaScore * 0.38 + freeSpaceScore * 0.38 + landPriceScore * 0.24, 0, 100);
     const latitudeCooling = clamp((item.latitude - 42.4) / 8.2, 0, 1);
     const coolingScore = clamp(latitudeCooling * 54 + (Math.log1p(item.hydroKw) / maxHydro) * 32 + lowCarbonShare * 14, 0, 100);
-    const gridScore = clamp((energyScore * 0.75 + (Math.log1p(item.nuclearKw + item.hydroKw) / maxLowCarbon) * 25), 0, 100);
+    const gridFit = buildGridFit(item.rteInfo, selectedProfile);
+    const rteSiteScore =
+      item.rteInfo?.totalSites ? (Math.log1p(item.rteInfo.totalSites) / maxRteSites) * 100 : Math.min(energyScore * 0.58, 52);
+    const rteVoltageScore =
+      item.rteInfo?.highVoltageSites
+        ? (Math.log1p(item.rteInfo.highVoltageSites) / maxRteHighVoltage) * 100
+        : item.rteInfo?.maxVoltageKv >= 90
+          ? 46
+          : 28;
+    const gridScore = clamp(gridFit.score * 0.46 + rteVoltageScore * 0.28 + rteSiteScore * 0.16 + energyScore * 0.1, 0, 100);
     const accessScore = clamp(
       48 + (Math.log1p(item.totalSites) / maxSites) * 24 + (gridScore / 100) * 16 - (Math.sqrt(item.areaKm2) / maxArea) * 10,
       0,
       100,
     );
-    const criteria = { access: accessScore, cooling: coolingScore, energy: energyScore, land: landScore, risk: item.riskScore };
+    const criteria = { access: accessScore, cooling: coolingScore, energy: energyScore, grid: gridScore, land: landScore, risk: item.riskScore };
     const datacenterScore = scoreCriteria(criteria, selectedProfile);
 
     return {
@@ -2250,12 +2408,23 @@ function buildDepartmentModel(departments, geojson, selectedProfile = PROFILE_PR
       datacenterScore,
       energyScore,
       gridScore,
+      gridCompatibilityLabel: gridFit.label,
+      gridConfidenceLabel: item.rteInfo ? 'RTE départemental' : 'Proxy énergie',
+      gridFit,
+      gridAvailableMw: item.rteInfo?.availableMw ?? 0,
+      gridQueueMw: item.rteInfo?.queueMw ?? 0,
+      gridReservedMw: item.rteInfo?.reservedMw ?? 0,
       landScore,
       landPriceScore,
+      rteHighVoltageSites: item.rteInfo?.highVoltageSites ?? 0,
+      rteMaxVoltageKv: item.rteInfo?.maxVoltageKv ?? 0,
+      rteSubstationCount: item.rteInfo?.totalSites ?? 0,
+      rteTopStations: item.rteInfo?.topStations ?? [],
+      rteTensions: item.rteInfo?.tensions ?? {},
     };
   });
 
-  addRanks(items, ['datacenterScore', 'energyScore', 'landScore', 'coolingScore', 'accessScore', 'riskScore']);
+  addRanks(items, ['datacenterScore', 'energyScore', 'gridScore', 'landScore', 'coolingScore', 'accessScore', 'riskScore']);
 
   return {
     byCode: new Map(items.map((item) => [item.code, item])),
@@ -2264,6 +2433,7 @@ function buildDepartmentModel(departments, geojson, selectedProfile = PROFILE_PR
     maxByLayer: {
       cooling: 100,
       energy: 100,
+      grid: 100,
       land: 100,
       access: 100,
       risk: 100,
@@ -2273,11 +2443,14 @@ function buildDepartmentModel(departments, geojson, selectedProfile = PROFILE_PR
   };
 }
 
-function buildBareMetric(department, selectedProfile = PROFILE_PRESETS[0]) {
+function buildBareMetric(department, selectedProfile = PROFILE_PRESETS[0], rteGrid = {}) {
+  const rteInfo = rteGrid[normalizeDepartmentName(department.name)] ?? null;
+  const gridFit = buildGridFit(rteInfo, selectedProfile);
   const criteria = {
     access: 52,
     cooling: 45,
     energy: 45,
+    grid: rteInfo ? gridFit.score : 42,
     land: 45,
     risk: 45,
   };
@@ -2287,10 +2460,73 @@ function buildBareMetric(department, selectedProfile = PROFILE_PRESETS[0]) {
     coolingScore: criteria.cooling,
     datacenterScore: scoreCriteria(criteria, selectedProfile),
     energyScore: criteria.energy,
+    gridCompatibilityLabel: gridFit.label,
+    gridAvailableMw: rteInfo?.availableMw ?? 0,
+    gridConfidenceLabel: rteInfo ? 'RTE départemental' : 'Proxy énergie',
+    gridQueueMw: rteInfo?.queueMw ?? 0,
+    gridReservedMw: rteInfo?.reservedMw ?? 0,
+    gridScore: criteria.grid,
     landScore: criteria.land,
     lowCarbonKw: LOW_CARBON_FILIERES.reduce((sum, filiere) => sum + Number(department.capacities?.[filiere] ?? 0), 0),
     riskScore: criteria.risk,
+    rteHighVoltageSites: rteInfo?.highVoltageSites ?? 0,
+    rteMaxVoltageKv: rteInfo?.maxVoltageKv ?? 0,
+    rteSubstationCount: rteInfo?.totalSites ?? 0,
+    rteTopStations: rteInfo?.topStations ?? [],
+    rteTensions: rteInfo?.tensions ?? {},
   };
+}
+
+function buildGridFit(rteInfo, profile = PROFILE_PRESETS[0]) {
+  if (!rteInfo?.totalSites) {
+    return {
+      label: 'Non qualifié',
+      score: 38,
+      thresholdMw: profileToPowerNeedMw(profile),
+    };
+  }
+
+  const thresholdMw = profileToPowerNeedMw(profile);
+  const maxVoltageKv = rteInfo.maxVoltageKv ?? 0;
+  const highVoltageSites = rteInfo.highVoltageSites ?? 0;
+  const totalSites = rteInfo.totalSites ?? 0;
+  const availableMw = Number(rteInfo.availableMw ?? 0);
+  const voltageBase =
+    maxVoltageKv >= 400 ? 96 : maxVoltageKv >= 225 ? 78 : maxVoltageKv >= 150 ? 64 : maxVoltageKv >= 90 ? 52 : 38;
+  const densityBonus = clamp(Math.log1p(totalSites) * 9 + Math.log1p(highVoltageSites) * 13, 0, 38);
+  const capacityScore = clamp((availableMw / Math.max(thresholdMw * 1.4, 1)) * 100, 0, 100);
+  const profilePenalty =
+    thresholdMw >= 160
+      ? maxVoltageKv >= 400
+        ? 0
+        : maxVoltageKv >= 225
+          ? 13
+          : 30
+      : thresholdMw >= 70
+        ? maxVoltageKv >= 225
+          ? 0
+          : 14
+        : maxVoltageKv >= 90
+          ? 0
+          : 10;
+  const score = clamp(capacityScore * 0.48 + voltageBase * 0.32 + densityBonus * 0.2 - profilePenalty, 0, 100);
+
+  return {
+    label:
+      availableMw >= thresholdMw && score >= 72
+        ? 'Compatible à instruire'
+        : score >= 58
+          ? 'Plausible sous réserve'
+          : 'Contrainte forte',
+    score,
+    thresholdMw,
+  };
+}
+
+function profileToPowerNeedMw(profile = PROFILE_PRESETS[0]) {
+  if (profile.id === 'training') return 160;
+  if (profile.id === 'sovereign') return 70;
+  return 25;
 }
 
 function addRanks(items, keys) {
@@ -2387,10 +2623,12 @@ function buildPointAnalysis({
   const riskScore = clamp(riskSignals.seismicScore * 0.42 + riskSignals.floodScore * 0.46 + riskSignals.groundScore * 0.12, 0, 100);
   const access = clamp(roadScore * 0.72 + townScore * 0.28, 0, 100);
   const energy = clamp(metric.energyScore * 0.84 + buildLiveGridScore(realtime) * 0.16, 0, 100);
+  const grid = clamp((metric.gridScore ?? 42) * 0.9 + roadScore * 0.1, 0, 100);
   const criteria = {
     access,
     cooling,
     energy,
+    grid,
     land,
     risk: riskScore,
   };
@@ -2407,6 +2645,13 @@ function buildPointAnalysis({
     criteria,
     floodLabel: riskSignals.floodLabel,
     groundwaterLabel: formatGroundwater(terrain?.groundwater),
+    gridAvailableLabel: formatMw(metric.gridAvailableMw ?? 0),
+    gridCompatibilityLabel: metric.gridCompatibilityLabel ?? 'Non qualifié',
+    gridConfidenceLabel: metric.gridConfidenceLabel ?? 'Départemental',
+    gridQueueLabel: formatMw(metric.gridQueueMw ?? 0),
+    gridScore: grid,
+    gridStations: metric.rteTopStations ?? [],
+    gridVoltageLabel: metric.rteMaxVoltageKv ? `${metric.rteMaxVoltageKv} kV max · ${metric.rteSubstationCount ?? 0} postes` : 'Non qualifié',
     droughtLabel: terrain?.drought?.label ?? 'Non mesuré',
     landPriceLabel: formatLandPrice(terrain?.price?.price ?? metric.landPrice),
     landuseLabel: formatLanduse(terrain?.landuse),
@@ -2544,7 +2789,18 @@ function departmentFill(metric, layerId, mode, isSelected) {
   if (!metric) return '#fbfaf5';
 
   const ratio = clamp(layerValue(metric, layerId) / 100, 0, 1);
-  const hue = layerId === 'risk' ? 92 : layerId === 'cooling' ? 192 : layerId === 'access' ? 28 : layerId === 'land' ? 72 : 46;
+  const hue =
+    layerId === 'risk'
+      ? 92
+      : layerId === 'cooling'
+        ? 192
+        : layerId === 'grid'
+          ? 210
+          : layerId === 'access'
+            ? 28
+            : layerId === 'land'
+              ? 72
+              : 46;
   const saturation = 42 + ratio * 30;
   const lightness = 92 - ratio * 34;
   return `hsl(${hue} ${saturation}% ${lightness}%)`;
@@ -2553,6 +2809,7 @@ function departmentFill(metric, layerId, mode, isSelected) {
 function layerValue(metric, layerId) {
   if (!metric) return 0;
   if (layerId === 'energy') return metric.energyScore ?? 0;
+  if (layerId === 'grid') return metric.gridScore ?? 0;
   if (layerId === 'land') return metric.landScore ?? 0;
   if (layerId === 'cooling') return metric.coolingScore ?? 0;
   if (layerId === 'access') return metric.accessScore ?? 0;
