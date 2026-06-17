@@ -11,6 +11,7 @@ export default {
         mist: '#dfe8ec',
         pewter: '#8c8f8a',
         solar: '#e7c85d',
+        forest: '#5f8a73',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],

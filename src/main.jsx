@@ -6,8 +6,10 @@ import {
   Activity,
   ArrowLeft,
   ArrowRight,
+  ClipboardCheck,
   Database,
   ExternalLink,
+  FileText,
   Layers,
   MapPin,
   Radio,
@@ -21,6 +23,16 @@ import {
   Zap,
 } from 'lucide-react';
 import './styles.css';
+import landPrices from './data/landPrices.json';
+import { INDICE_PAGE_BY_ID, INDICE_PAGES } from './data/indices.js';
+import {
+  coolingScore as scoreTerrainCooling,
+  fetchTerrain,
+  landScore as scoreTerrainLand,
+} from './data/sources.js';
+
+const APP_NAME = 'PrismCenter';
+const APP_TAGLINE = "Localisateur d'opportunité de datacenter";
 
 const ENERGY_MIX_URL =
   'https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/registre-national-installation-production-stockage-electricite-agrege/records?select=codedepartement%2Cdepartement%2Cfiliere%2Csum(puismaxinstallee)%20as%20capacity_kw%2Ccount(*)%20as%20sites&where=codedepartement%20is%20not%20null&group_by=codedepartement%2Cdepartement%2Cfiliere&order_by=codedepartement';
@@ -38,6 +50,10 @@ const GEORISQUES_LINK = 'https://www.georisques.gouv.fr/';
 const OPEN_METEO_LINK = 'https://open-meteo.com/';
 const OVERPASS_LINK = 'https://overpass-turbo.eu/';
 const GEOJSON_LINK = 'https://github.com/gregoiredavid/france-geojson';
+const DVF_LINK = 'https://files.data.gouv.fr/geo-dvf/';
+const HUBEAU_LINK = 'https://hubeau.eaufrance.fr/';
+const VIGIEAU_LINK = 'https://vigieau.gouv.fr/';
+const API_ADRESSE_LINK = 'https://adresse.data.gouv.fr/api-doc/adresse';
 
 const LOW_CARBON_FILIERES = [
   'Solaire',
@@ -60,13 +76,13 @@ const MAP_LAYERS = [
     id: 'energy',
     label: 'Énergie bas carbone',
     question: 'Où la puissance raccordée est-elle déjà forte ?',
-    description: 'Solaire, éolien, hydraulique, nucléaire, bioénergies et stockage déclarés dans ODRÉ.',
+    description: 'ODRÉ distingue bas carbone, nucléaire, renouvelables et stockage; Eco2mix ajoute le signal réseau live.',
   },
   {
     id: 'land',
     label: 'Foncier',
     question: 'Où existe-t-il une marge spatiale ?',
-    description: 'Surface géographique du département et pression territoriale estimée.',
+    description: 'Surface GeoJSON, densité d’installations et cible locale de 10-15 km des villes.',
   },
   {
     id: 'cooling',
@@ -76,9 +92,9 @@ const MAP_LAYERS = [
   },
   {
     id: 'access',
-    label: 'Accès',
+    label: 'Route & équipes',
     question: 'Où l’accès humain reste-t-il crédible ?',
-    description: 'Pré-signal territorial, affiné au clic par la voirie et la distance aux villes.',
+    description: 'Pré-signal territorial, affiné au clic par la voirie OSM/BAN et l’écart aux bassins de travailleurs.',
   },
   {
     id: 'risk',
@@ -116,8 +132,69 @@ const CRITERIA_LABELS = {
   access: 'Accès travailleurs',
   cooling: 'Refroidissement',
   energy: 'Énergie bas carbone',
-  land: 'Foncier & distance villes',
+  land: 'Foncier & ville 10-15 km',
   risk: 'Sismique & inondation',
+};
+
+const TOWN_TARGET_KM = {
+  idealMin: 10,
+  idealMax: 15,
+  workableMax: 28,
+};
+
+const ROAD_TARGET_KM = {
+  idealMin: 0.5,
+  idealMax: 4,
+  workableMax: 12,
+};
+
+const LEGAL_PAGES = {
+  legal: {
+    eyebrow: 'Cadre public',
+    title: 'Mentions légales',
+    intro:
+      "PrismCenter est un prototype de hackathon. L'application agrège des sources publiques pour prioriser une instruction territoriale, sans se substituer aux études administratives, foncières, électriques ou environnementales.",
+    sections: [
+      {
+        title: 'Éditeur',
+        body:
+          "Prototype expérimental PrismCenter. Les informations d'éditeur, d'hébergement et de contact doivent être complétées avant toute mise en ligne publique nominative.",
+      },
+      {
+        title: 'Sources',
+        body:
+          "Les données proviennent notamment d'ODRÉ, Eco2mix, Géorisques, Open-Meteo, Hub'Eau, VigiEau, DVF, API Adresse, OpenStreetMap et france-geojson. Les liens sources sont exposés dans l'atlas.",
+      },
+      {
+        title: 'Responsabilité',
+        body:
+          "Les scores sont des estimations de priorisation. Ils ne constituent pas une décision d'implantation, une étude de raccordement, une analyse PLU, une due diligence foncière ou un avis réglementaire.",
+      },
+    ],
+  },
+  terms: {
+    eyebrow: 'Conditions prototype',
+    title: "Conditions d'utilisation",
+    intro:
+      "L'utilisation de PrismCenter implique de lire les résultats comme une aide à l'exploration. Toute décision opérationnelle doit être confirmée par les autorités, opérateurs réseau, bureaux d'études et conseils compétents.",
+    sections: [
+      {
+        title: 'Usage autorisé',
+        body:
+          "Le prototype peut être utilisé pour comparer des territoires, préparer une liste courte et identifier les points nécessitant une instruction approfondie.",
+      },
+      {
+        title: 'Limites',
+        body:
+          "Les appels aux API publiques peuvent échouer, être incomplets ou évoluer. L'application prévoit des fallbacks, mais ne garantit ni exhaustivité, ni disponibilité continue, ni exactitude juridique.",
+      },
+      {
+        title: 'Données personnelles',
+        body:
+          "Le prototype ne demande pas de compte utilisateur et ne stocke pas de données personnelles côté application. Les fournisseurs de données et l'hébergeur peuvent toutefois traiter des logs techniques.",
+      },
+    ],
+  },
 };
 
 const FALLBACK_REALTIME = {
@@ -186,16 +263,30 @@ const MAP_BOUNDS = {
   padY: 54,
 };
 
+const INITIAL_FETCH_TIMEOUT_MS = 7000;
+const POINT_FETCH_TIMEOUT_MS = 4000;
 const EARTH_RADIUS_KM = 6371;
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const cx = (...classes) => classes.filter(Boolean).join(' ');
 
+function parseRoute() {
+  const hash = window.location.hash.replace(/^#/, '');
+  if (hash === 'studio') return { id: null, view: 'studio' };
+  if (hash === 'legal') return { id: 'legal', view: 'legal' };
+  if (hash === 'terms') return { id: 'terms', view: 'legal' };
+  if (hash.startsWith('indice/')) {
+    const id = decodeURIComponent(hash.replace('indice/', ''));
+    return { id: INDICE_PAGE_BY_ID[id] ? id : 'score', view: 'indice' };
+  }
+  return { id: null, view: 'landing' };
+}
+
 function App() {
-  const [view, setView] = useState(() => (window.location.hash === '#studio' ? 'studio' : 'landing'));
+  const [route, setRoute] = useState(parseRoute);
 
   useEffect(() => {
     const syncViewWithHash = () => {
-      setView(window.location.hash === '#studio' ? 'studio' : 'landing');
+      setRoute(parseRoute());
     };
 
     syncViewWithHash();
@@ -203,24 +294,44 @@ function App() {
     return () => window.removeEventListener('hashchange', syncViewWithHash);
   }, []);
 
+  useEffect(() => {
+    window.scrollTo({ left: 0, top: 0 });
+  }, [route.id, route.view]);
+
   const openStudio = () => {
     window.history.replaceState(null, '', '#studio');
-    setView('studio');
+    setRoute({ id: null, view: 'studio' });
   };
 
   const openLanding = () => {
     window.history.replaceState(null, '', window.location.pathname);
-    setView('landing');
+    setRoute({ id: null, view: 'landing' });
+  };
+
+  const openIndice = (id) => {
+    const nextId = INDICE_PAGE_BY_ID[id] ? id : 'score';
+    window.history.replaceState(null, '', `#indice/${nextId}`);
+    setRoute({ id: nextId, view: 'indice' });
+  };
+
+  const openLegal = (id) => {
+    const nextId = id === 'terms' ? 'terms' : 'legal';
+    window.history.replaceState(null, '', `#${nextId}`);
+    setRoute({ id: nextId, view: 'legal' });
   };
 
   return (
     <MotionConfig reducedMotion="user">
       <div className="min-h-screen bg-porcelain text-ink antialiased selection:bg-ink selection:text-white">
         <AnimatePresence mode="wait">
-          {view === 'landing' ? (
+          {route.view === 'landing' ? (
             <Landing key="landing" onStart={openStudio} />
+          ) : route.view === 'indice' ? (
+            <IndicePage key={`indice-${route.id}`} id={route.id} onBack={openStudio} onHome={openLanding} onOpenIndice={openIndice} />
+          ) : route.view === 'legal' ? (
+            <LegalPage key={`legal-${route.id}`} id={route.id} onBack={openStudio} onHome={openLanding} onOpenLegal={openLegal} />
           ) : (
-            <Studio key="studio" onBack={openLanding} />
+            <Studio key="studio" onBack={openLanding} onOpenIndice={openIndice} onOpenLegal={openLegal} />
           )}
         </AnimatePresence>
       </div>
@@ -231,63 +342,99 @@ function App() {
 function Landing({ onStart }) {
   return (
     <motion.main
-      className="min-h-screen px-6 py-8 md:px-16 md:py-12"
+      className="landing-canvas min-h-screen px-5 py-6 sm:px-8 md:px-16 md:py-12"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
     >
       <Header />
-      <section className="mx-auto grid min-h-[calc(100vh-8rem)] max-w-7xl content-center gap-14">
+      <section className="mx-auto grid min-h-[calc(100vh-7rem)] max-w-[94rem] items-center gap-12 xl:grid-cols-[minmax(0,1.05fr)_minmax(24rem,0.62fr)] xl:gap-16">
         <div className="max-w-6xl">
           <p className="mb-7 font-mono text-[0.68rem] uppercase tracking-[0.24em] text-pewter">
-            Implantation IA · énergie · risques · territoire
+            {APP_TAGLINE}
           </p>
           <h1 className="max-w-6xl font-display text-[clamp(3.2rem,8.8vw,8.3rem)] font-normal leading-[0.86] tracking-normal text-ink">
-            Où poser un datacenter IA.
-            <span className="block italic text-graphite">Sans aveugler le territoire.</span>
+            Où poser un datacenter IA,
+            <span className="block italic text-graphite">sans aveugler le territoire.</span>
           </h1>
-        </div>
-        <div className="grid max-w-6xl gap-8 md:grid-cols-[0.82fr_1fr] md:items-end">
-          <p className="text-lg font-light leading-8 text-graphite md:text-xl md:leading-9">
-            Prisme croise la puissance électrique bas carbone, les contraintes naturelles
+          <div className="mt-10 grid max-w-5xl gap-8 md:grid-cols-[0.82fr_1fr] md:items-end">
+            <p className="text-lg font-light leading-8 text-graphite md:text-xl md:leading-9">
+            {APP_NAME} croise la puissance électrique bas carbone, les contraintes naturelles
             et les signaux d’accès autour d’un point. Cliquez un département, puis un site
             potentiel pour obtenir un score d’aptitude.
-          </p>
-          <button
-            type="button"
-            onClick={onStart}
-            className="inline-flex min-h-14 w-fit items-center gap-4 border border-ink bg-ink px-7 text-sm font-medium uppercase tracking-[0.16em] text-white transition duration-300 hover:bg-transparent hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain md:justify-self-end"
-          >
-            Explorer la carte
-            <ArrowRight aria-hidden="true" size={17} strokeWidth={1.5} />
-          </button>
+            </p>
+            <button
+              type="button"
+              onClick={onStart}
+              className="primary-cta inline-flex min-h-14 w-fit items-center gap-4 border border-ink bg-ink px-7 text-sm font-medium uppercase tracking-[0.16em] text-white transition duration-300 hover:bg-transparent hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain md:justify-self-end"
+            >
+              Ouvrir l’atlas
+              <ArrowRight aria-hidden="true" size={17} strokeWidth={1.5} />
+            </button>
+          </div>
         </div>
+        <LandingPreview />
       </section>
     </motion.main>
   );
 }
 
-function Header({ compact = false, onBack }) {
+function LandingPreview() {
+  const rows = [
+    ['Énergie bas carbone', '92'],
+    ['Foncier utile', '71'],
+    ['Risque naturel', '84'],
+  ];
+
+  return (
+    <aside className="landing-preview" aria-label={`Aperçu éditorial de l’atlas ${APP_NAME}`}>
+      <div className="landing-preview__plate">
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-pewter">Lecture territoriale</p>
+            <p className="mt-3 font-display text-5xl leading-none text-ink">86</p>
+          </div>
+          <MapPin aria-hidden="true" className="mt-1 text-ink" size={24} strokeWidth={1.2} />
+        </div>
+        <div className="landing-preview__map" aria-hidden="true">
+          <span className="landing-preview__pin landing-preview__pin--a" />
+          <span className="landing-preview__pin landing-preview__pin--b" />
+          <span className="landing-preview__pin landing-preview__pin--c" />
+        </div>
+        <div className="grid gap-3">
+          {rows.map(([label, value]) => (
+            <div key={label} className="landing-preview__row">
+              <span>{label}</span>
+              <span>{value}/100</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function Header({ backLabel = 'Retour', compact = false, onBack, onBrandClick }) {
+  const brandClasses =
+    'font-display text-2xl text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4';
+  const brandAction = onBrandClick ?? onBack;
+
   return (
     <header className={cx('flex items-center justify-between', compact ? 'mb-4' : 'mb-8')}>
-      <button
-        type={onBack ? 'button' : undefined}
-        onClick={onBack}
-        className={cx(
-          'font-serif text-2xl text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
-          onBack ? 'cursor-pointer' : 'cursor-default',
-        )}
-        aria-label={onBack ? 'Retour au manifeste' : undefined}
-      >
-        Prisme.
-      </button>
+      {brandAction ? (
+        <button type="button" onClick={brandAction} className={cx(brandClasses, 'cursor-pointer')} aria-label="Retour au manifeste">
+          {APP_NAME}
+        </button>
+      ) : (
+        <span className={cx(brandClasses, 'cursor-default')}>{APP_NAME}</span>
+      )}
       {onBack && (
         <button
           type="button"
           onClick={onBack}
           className="inline-flex h-10 w-10 items-center justify-center border border-ink text-ink transition hover:bg-ink hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4"
-          aria-label="Retour"
+          aria-label={backLabel}
         >
           <ArrowLeft aria-hidden="true" size={18} strokeWidth={1.4} />
         </button>
@@ -296,7 +443,164 @@ function Header({ compact = false, onBack }) {
   );
 }
 
-function Studio({ onBack }) {
+function IndicePage({ id, onBack, onHome, onOpenIndice }) {
+  const page = INDICE_PAGE_BY_ID[id] ?? INDICE_PAGE_BY_ID.score;
+
+  return (
+    <motion.main
+      className="method-canvas min-h-screen px-5 py-6 sm:px-8 md:px-16 md:py-12"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <Header backLabel="Retour à l’atlas" onBack={onBack} onBrandClick={onHome} />
+
+      <article className="method-shell mx-auto grid max-w-[94rem] gap-10 lg:grid-cols-[minmax(0,0.78fr)_minmax(22rem,0.22fr)] lg:gap-14">
+        <div className="min-w-0">
+          <section className="method-hero border-b pb-10">
+            <p className="font-mono text-[0.68rem] uppercase tracking-[0.24em] text-pewter">
+              {APP_NAME} · méthode
+            </p>
+            <h1 className="mt-6 max-w-5xl font-display text-[clamp(3rem,7.5vw,7.4rem)] font-normal leading-[0.86] tracking-normal text-ink">
+              {page.title}
+            </h1>
+            <p className="mt-8 max-w-4xl text-lg font-light leading-8 text-graphite md:text-xl md:leading-9">
+              {page.question}
+            </p>
+            <p className="mt-6 max-w-4xl text-base leading-7 text-graphite">
+              {page.scoreMeaning}
+            </p>
+          </section>
+
+          <section className="method-section">
+            <div className="method-section__label">Calcul</div>
+            <div className="method-rule-list">
+              {page.formulaSteps.map((step, index) => (
+                <div key={step} className="method-rule-row">
+                  <span className="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-pewter">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <p>{step}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="method-section">
+            <div className="method-section__label">Données</div>
+            <div className="method-source-list">
+              {page.dataSources.map((source) => (
+                <a key={`${page.id}-${source.name}`} className="method-source-row" href={source.link} rel="noreferrer" target="_blank">
+                  <span className="method-source-row__title">
+                    {source.name}
+                    <ExternalLink aria-hidden="true" size={14} strokeWidth={1.4} />
+                  </span>
+                  <span>{source.usage}</span>
+                  <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-pewter">{source.freshness}</span>
+                </a>
+              ))}
+            </div>
+          </section>
+
+          <section className="method-section">
+            <div className="method-section__label">Limites</div>
+            <div className="grid gap-3">
+              {page.limitations.map((limitation) => (
+                <p key={limitation} className="method-limitation">
+                  {limitation}
+                </p>
+              ))}
+            </div>
+          </section>
+
+          <section className="method-section method-section--closing">
+            <div className="method-section__label">Utilité</div>
+            <p className="max-w-4xl font-display text-3xl leading-tight text-ink md:text-5xl">
+              {page.whyItMatters}
+            </p>
+            <button
+              type="button"
+              onClick={onBack}
+              className="primary-cta mt-8 inline-flex min-h-12 w-fit items-center gap-3 border border-ink bg-ink px-5 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-white transition duration-300 hover:bg-transparent hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4"
+            >
+              Retour à l’atlas
+              <ArrowRight aria-hidden="true" size={15} strokeWidth={1.4} />
+            </button>
+          </section>
+        </div>
+
+        <aside className="method-nav">
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-pewter">Indices</p>
+          <div className="mt-4 grid gap-2">
+            {INDICE_PAGES.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                aria-current={item.id === page.id ? 'page' : undefined}
+                onClick={() => onOpenIndice(item.id)}
+                className={cx('method-nav__item', item.id === page.id && 'method-nav__item--active')}
+              >
+                <span>{item.shortLabel}</span>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </aside>
+      </article>
+    </motion.main>
+  );
+}
+
+function LegalPage({ id, onBack, onHome, onOpenLegal }) {
+  const page = LEGAL_PAGES[id] ?? LEGAL_PAGES.legal;
+
+  return (
+    <motion.main
+      className="method-canvas min-h-screen px-5 py-6 sm:px-8 md:px-16 md:py-12"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <Header backLabel="Retour à l’atlas" onBack={onBack} onBrandClick={onHome} />
+
+      <article className="mx-auto grid max-w-[78rem] gap-10">
+        <section className="method-hero border-b pb-10">
+          <p className="font-mono text-[0.68rem] uppercase tracking-[0.24em] text-pewter">
+            {APP_NAME} · {page.eyebrow}
+          </p>
+          <h1 className="mt-6 max-w-5xl font-display text-[clamp(3rem,7.5vw,7.2rem)] font-normal leading-[0.86] tracking-normal text-ink">
+            {page.title}
+          </h1>
+          <p className="mt-8 max-w-4xl text-lg font-light leading-8 text-graphite md:text-xl md:leading-9">
+            {page.intro}
+          </p>
+        </section>
+
+        <div className="grid gap-8">
+          {page.sections.map((section) => (
+            <section key={section.title} className="legal-block">
+              <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-pewter">{section.title}</p>
+              <p className="mt-4 max-w-4xl text-base leading-8 text-graphite">{section.body}</p>
+            </section>
+          ))}
+        </div>
+
+        <nav className="flex flex-wrap gap-3 border-t border-[#ddd6c4] pt-6" aria-label="Documents légaux">
+          <button type="button" onClick={() => onOpenLegal('legal')} className="source-link">
+            Mentions légales
+          </button>
+          <button type="button" onClick={() => onOpenLegal('terms')} className="source-link">
+            Conditions d’utilisation
+          </button>
+        </nav>
+      </article>
+    </motion.main>
+  );
+}
+
+function Studio({ onBack, onOpenIndice, onOpenLegal }) {
   const energy = useEnergyData();
   const [selectedCode, setSelectedCode] = useState('33');
   const [activeLayerId, setActiveLayerId] = useState('score');
@@ -312,31 +616,26 @@ function Studio({ onBack }) {
   const selectedMetric = model.byCode.get(selectedCode) ?? model.items[0];
   const selectedLayer = MAP_LAYERS.find((layer) => layer.id === activeLayerId) ?? MAP_LAYERS[0];
 
-  useEffect(() => {
-    if (!analysisPoint && selectedMetric?.centroid) {
-      setAnalysisPoint({
-        label: 'Point de référence',
-        lat: selectedMetric.centroid[1],
-        lon: selectedMetric.centroid[0],
-      });
-    }
-  }, [analysisPoint, selectedMetric]);
-
   const pointAnalysis = usePointAnalysis(analysisPoint, selectedMetric, selectedProfile, energy.realtime);
   const finalScore = pointAnalysis.data?.score ?? selectedMetric?.datacenterScore ?? 0;
   const mode = finalScore >= 76 ? 'optimal' : finalScore < 52 ? 'tension' : 'transition';
 
   const handleDepartmentSelect = (code, point) => {
-    const metric = model.byCode.get(code);
     setSelectedCode(code);
     setIsZoomed(true);
-    setAnalysisPoint(
-      point ??
-        (metric?.centroid
-          ? { label: 'Point de référence', lon: metric.centroid[0], lat: metric.centroid[1] }
-          : null),
-    );
+    setAnalysisPoint(point ?? null);
   };
+
+  const resetMapView = () => {
+    setIsZoomed(false);
+    setAnalysisPoint(null);
+  };
+
+  useEffect(() => {
+    if (!isZoomed && analysisPoint) {
+      setAnalysisPoint(null);
+    }
+  }, [analysisPoint, isZoomed]);
 
   const shellClasses = {
     optimal: 'bg-porcelain text-graphite p-5 md:p-12 lg:p-16',
@@ -361,7 +660,7 @@ function Studio({ onBack }) {
 
       <div
         className={cx(
-          'studio-grid transition-[gap] duration-700',
+          'studio-grid mx-auto max-w-[98rem] transition-[gap] duration-700',
           mode === 'optimal' ? 'gap-12' : mode === 'tension' ? 'gap-4' : 'gap-8',
         )}
       >
@@ -369,14 +668,17 @@ function Studio({ onBack }) {
           activeLayerId={activeLayerId}
           analysisPoint={analysisPoint}
           energy={energy}
+          finalScore={finalScore}
           isZoomed={isZoomed}
           mode={mode}
           model={model}
+          pointAnalysis={pointAnalysis}
           selectedProfile={selectedProfile}
           selectedMetric={selectedMetric}
           setActiveLayerId={setActiveLayerId}
-          setIsZoomed={setIsZoomed}
+          resetMapView={resetMapView}
           setSelectedCode={handleDepartmentSelect}
+          onOpenIndice={onOpenIndice}
         />
         <ControlDeck
           activeLayerId={activeLayerId}
@@ -392,6 +694,8 @@ function Studio({ onBack }) {
           setActiveLayerId={setActiveLayerId}
           setSelectedCode={handleDepartmentSelect}
           setSelectedProfileId={setSelectedProfileId}
+          onOpenIndice={onOpenIndice}
+          onOpenLegal={onOpenLegal}
         />
       </div>
     </motion.main>
@@ -402,27 +706,33 @@ function DepartmentMap({
   activeLayerId,
   analysisPoint,
   energy,
+  finalScore,
   isZoomed,
   mode,
   model,
+  pointAnalysis,
   selectedProfile,
   selectedMetric,
   setActiveLayerId,
-  setIsZoomed,
+  resetMapView,
   setSelectedCode,
+  onOpenIndice,
 }) {
   const svgRef = useRef(null);
   const selectedFeature = model.features.find((feature) => feature.code === selectedMetric?.code);
   const transform = getZoomTransform(selectedFeature?.bounds, isZoomed);
-  const marker = analysisPoint && model.projection ? model.projection([analysisPoint.lon, analysisPoint.lat]) : null;
+  const marker = analysisPoint && isZoomed && model.projection ? model.projection([analysisPoint.lon, analysisPoint.lat]) : null;
   const layer = MAP_LAYERS.find((item) => item.id === activeLayerId) ?? MAP_LAYERS[0];
 
   const clickToLonLat = (event) => {
     if (!svgRef.current || !model.projection?.invert) return null;
+    const screenMatrix = svgRef.current.getScreenCTM();
+    if (!screenMatrix) return null;
+
     const point = svgRef.current.createSVGPoint();
     point.x = event.clientX;
     point.y = event.clientY;
-    const svgPoint = point.matrixTransform(svgRef.current.getScreenCTM().inverse());
+    const svgPoint = point.matrixTransform(screenMatrix.inverse());
     const sourceX = transform.scale === 1 ? svgPoint.x : (svgPoint.x - MAP_BOUNDS.width / 2) / transform.scale + transform.centerX;
     const sourceY = transform.scale === 1 ? svgPoint.y : (svgPoint.y - MAP_BOUNDS.height / 2) / transform.scale + transform.centerY;
     const lonLat = model.projection.invert([sourceX, sourceY]);
@@ -433,15 +743,15 @@ function DepartmentMap({
   return (
     <section
       className={cx(
-        'relative min-h-[42rem] overflow-hidden border transition-all duration-700',
+        'map-stage relative overflow-hidden border transition-all duration-700',
         mode === 'tension'
           ? 'border-black bg-white p-3 md:p-5'
           : mode === 'optimal'
-            ? 'border-[#dfd8c6] bg-[#f4f0e7] p-6 md:p-9 lg:p-11 shadow-editorial'
+            ? 'border-[#dfd8c6] bg-[#f4f0e7] p-5 sm:p-6 md:p-9 lg:p-11 shadow-editorial'
             : 'border-[#ded9ca] bg-[#f7f4ec] p-5 md:p-8',
       )}
     >
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-5">
+      <div className="relative z-10 mb-5 flex flex-wrap items-start justify-between gap-5">
         <div>
           <p className="font-mono text-[0.62rem] uppercase tracking-[0.24em] text-pewter">
             Carte d’aptitude datacenter IA
@@ -454,13 +764,18 @@ function DepartmentMap({
           >
             {selectedMetric?.name ?? 'France'}
           </h2>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-graphite">
+            {selectedMetric?.ranks?.datacenterScore
+              ? `Rang ${selectedMetric.ranks.datacenterScore} national sur ce scénario.`
+              : 'Prélecture nationale, à préciser par un clic local.'}
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <SourcePill source={energy.source} />
-          {isZoomed && (
+          {(isZoomed || analysisPoint) && (
             <button
               type="button"
-              onClick={() => setIsZoomed(false)}
+              onClick={resetMapView}
               className="inline-flex h-10 items-center gap-2 border border-ink px-3 font-mono text-[0.62rem] uppercase tracking-[0.16em] transition hover:bg-ink hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4"
             >
               <RotateCcw aria-hidden="true" size={14} strokeWidth={1.4} />
@@ -472,12 +787,15 @@ function DepartmentMap({
 
       <LayerControls activeLayerId={activeLayerId} mode={mode} setActiveLayerId={setActiveLayerId} />
 
-      <div className="relative mt-5 min-h-[38rem] min-w-0 overflow-hidden">
+      <div
+        className="map-viewport relative z-10 mt-5 min-w-0 overflow-hidden"
+        aria-busy={pointAnalysis.status === 'loading'}
+      >
         {model.features.length ? (
           <svg
             ref={svgRef}
-            className="h-[38rem] w-full max-w-full"
-            role="img"
+            className="map-svg h-full w-full max-w-full"
+            role="group"
             aria-label="Carte interactive des départements français"
             viewBox={`0 0 ${MAP_BOUNDS.width} ${MAP_BOUNDS.height}`}
           >
@@ -490,24 +808,27 @@ function DepartmentMap({
               {model.features.map((feature) => {
                 const metric = model.byCode.get(feature.code);
                 const isSelected = feature.code === selectedMetric?.code;
+                const isVisuallySelected = isZoomed && isSelected;
 
                 return (
                   <path
                     key={feature.code}
                     aria-label={`${feature.name}, score ${metric?.datacenterScore ?? 0}`}
+                    aria-pressed={isVisuallySelected}
                     className={cx(
                       'department-path cursor-crosshair transition-[fill,stroke,opacity] duration-500 focus:outline-none',
-                      isSelected && 'department-path--selected',
+                      isVisuallySelected && 'department-path--selected',
                     )}
                     d={feature.path}
-                    fill={departmentFill(metric, activeLayerId, mode, isSelected)}
-                    filter={isSelected && mode !== 'tension' ? 'url(#department-shadow)' : undefined}
+                    fill={departmentFill(metric, activeLayerId, mode, isVisuallySelected)}
+                    filter={isVisuallySelected && mode !== 'tension' ? 'url(#department-shadow)' : undefined}
                     onClick={(event) => {
                       const point = clickToLonLat(event);
                       setSelectedCode(feature.code, point ? { ...point, label: 'Point cliqué' } : undefined);
                     }}
                     onKeyDown={(event) => {
                       if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
                         const centroid = metric?.centroid;
                         setSelectedCode(
                           feature.code,
@@ -517,9 +838,9 @@ function DepartmentMap({
                     }}
                     role="button"
                     opacity={isZoomed && !isSelected ? 0.055 : 1}
-                    stroke={isSelected ? '#141414' : mode === 'tension' ? '#000000' : '#d9d0bd'}
-                    strokeWidth={isSelected ? 2.4 / transform.scale : 0.72 / transform.scale}
-                    tabIndex="0"
+                    stroke={isVisuallySelected ? '#141414' : mode === 'tension' ? '#000000' : '#d9d0bd'}
+                    strokeWidth={isVisuallySelected ? 2.4 / transform.scale : 0.72 / transform.scale}
+                    tabIndex={0}
                   />
                 );
               })}
@@ -541,11 +862,19 @@ function DepartmentMap({
         ) : (
           <FallbackDepartmentList departments={model.items} mode={mode} setSelectedCode={setSelectedCode} />
         )}
+        {pointAnalysis.status === 'loading' && <CalculationStatus mode={mode} />}
+        <MapScoreCartouche
+          finalScore={finalScore}
+          mode={mode}
+          pointAnalysis={pointAnalysis}
+          selectedMetric={selectedMetric}
+          selectedProfile={selectedProfile}
+        />
       </div>
 
       <div
         className={cx(
-          'grid gap-3 border-t pt-5 text-sm md:grid-cols-3',
+          'map-stat-strip relative z-10 grid gap-3 border-t pt-5 text-sm md:grid-cols-3',
           mode === 'tension' ? 'border-black text-black' : 'border-[#ded6c4] text-graphite',
         )}
       >
@@ -554,23 +883,98 @@ function DepartmentMap({
         <Stat label="Scénario" value={selectedProfile.footprint} />
       </div>
 
-      <p className="mt-5 max-w-3xl text-sm leading-6 text-graphite">
-        {layer.question} {layer.description}
-      </p>
+      <div className="relative z-10 mt-5 flex flex-wrap items-center justify-between gap-4">
+        <p className="max-w-3xl text-sm leading-6 text-graphite">
+          {layer.question} {layer.description}
+        </p>
+        <button
+          type="button"
+          onClick={() => onOpenIndice(layer.id)}
+          className="method-link"
+        >
+          Comprendre l’indice
+          <ArrowRight aria-hidden="true" size={13} strokeWidth={1.4} />
+        </button>
+      </div>
     </section>
+  );
+}
+
+function CalculationStatus({ mode }) {
+  return (
+    <div
+      className={cx('calculation-status', mode === 'tension' && 'calculation-status--tension')}
+      role="status"
+      aria-live="polite"
+    >
+      <span className="calculation-status__mark" aria-hidden="true" />
+      <span>Calcul du score en cours</span>
+    </div>
+  );
+}
+
+function MapScoreCartouche({ finalScore, mode, pointAnalysis, selectedMetric, selectedProfile }) {
+  const score = Math.round(finalScore ?? 0);
+  const isCalculating = pointAnalysis.status === 'loading';
+  const hasLocalPoint = Boolean(pointAnalysis.data);
+  const state =
+    isCalculating
+      ? 'Calcul du score'
+      : hasLocalPoint
+        ? 'Point instruit'
+        : 'Pré-score départemental';
+  const verdict =
+    isCalculating
+      ? 'Calcul du score en cours'
+      : hasLocalPoint
+        ? score >= 78
+          ? 'Instruction prioritaire'
+          : score >= 58
+            ? 'Instruction conditionnelle'
+            : 'Instruction défavorable'
+        : score >= 78
+          ? 'Pré-candidat fort'
+          : score >= 58
+            ? 'Pré-candidat'
+            : 'Pré-candidat faible';
+
+  return (
+    <div className={cx('map-cartouche', mode === 'tension' && 'map-cartouche--tension')}>
+      <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-end">
+        <div>
+          <p className="font-mono text-[0.58rem] uppercase tracking-[0.22em] text-pewter">{state}</p>
+          <p className="mt-2 font-display text-[4.8rem] leading-[0.82] text-ink">{score}</p>
+        </div>
+        <div className="grid gap-2">
+          <p className="font-display text-2xl leading-none text-ink">{verdict}</p>
+          <p className="text-sm leading-6 text-graphite">
+            {selectedMetric?.name ?? 'Département'} · {selectedProfile.label} · {selectedProfile.footprint}
+          </p>
+        </div>
+      </div>
+      <div className="score-rule" aria-hidden="true">
+        <span style={{ width: `${clamp(score, 0, 100)}%` }} />
+      </div>
+      {isCalculating && (
+        <p className="calculation-caption" role="status" aria-live="polite">
+          Sources publiques interrogées. Le score affiché reste provisoire.
+        </p>
+      )}
+    </div>
   );
 }
 
 function LayerControls({ activeLayerId, mode, setActiveLayerId }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="layer-strip relative z-10 flex gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible md:pb-0">
       {MAP_LAYERS.map((layer) => (
         <button
           key={layer.id}
           type="button"
+          aria-pressed={activeLayerId === layer.id}
           onClick={() => setActiveLayerId(layer.id)}
           className={cx(
-            'inline-flex h-10 items-center gap-2 border px-3 font-mono text-[0.62rem] uppercase tracking-[0.16em] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
+            'inline-flex h-11 shrink-0 items-center gap-2 border px-3 font-mono text-[0.62rem] uppercase tracking-[0.16em] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
             activeLayerId === layer.id
               ? 'border-ink bg-ink text-white'
               : mode === 'tension'
@@ -600,33 +1004,47 @@ function ControlDeck({
   setActiveLayerId,
   setSelectedCode,
   setSelectedProfileId,
+  onOpenIndice,
+  onOpenLegal,
 }) {
   const score = pointAnalysis.data?.score ?? selectedMetric?.datacenterScore ?? 0;
-  const verdict =
-    score >= 78 ? 'Site à instruire' : score >= 58 ? 'À challenger' : 'À écarter';
+  const verdict = pointAnalysis.data
+    ? score >= 78
+      ? 'Site à instruire'
+      : score >= 58
+        ? 'À challenger'
+        : 'À écarter'
+    : score >= 78
+      ? 'Pré-candidat fort'
+      : score >= 58
+        ? 'Pré-candidat'
+        : 'Pré-candidat faible';
   const statusMessage =
     pointAnalysis.status === 'loading'
-      ? 'Analyse locale en cours. Prisme interroge les sources publiques autour du point.'
+      ? `Analyse locale en cours. ${APP_NAME} interroge les sources publiques autour du point.`
       : pointAnalysis.data?.summary ??
-        'Cliquez dans le département pour remplacer le pré-score par une analyse locale.';
+        'Cliquez dans le département pour qualifier un site précis avec Géorisques, météo, voirie et distance ville.';
 
   return (
     <aside
       className={cx(
-        'flex flex-col border bg-transparent transition-all duration-700',
+        'dossier-panel flex flex-col transition-all duration-700',
         mode === 'tension'
           ? 'gap-4 border-black p-4'
           : mode === 'optimal'
-            ? 'gap-8 border-[#d9d1be] p-7 md:p-9'
-            : 'gap-6 border-[#ddd6c4] p-6 md:p-8',
+            ? 'gap-8 border-[#d9d1be] p-5 sm:p-7 md:p-9'
+            : 'gap-6 border-[#ddd6c4] p-5 sm:p-6 md:p-8',
       )}
     >
-      <div className={cx('grid transition-[gap] duration-700', mode === 'tension' ? 'gap-3' : 'gap-5')}>
-        <p className="font-mono text-[0.62rem] uppercase tracking-[0.24em]">Décision d’implantation</p>
+      <div className={cx('decision-ledger grid transition-[gap] duration-700', mode === 'tension' ? 'gap-3' : 'gap-5')}>
+        <div className="flex items-start justify-between gap-5">
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.24em]">Dossier d’implantation</p>
+          <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em]">{Math.round(score)}/100</span>
+        </div>
         <h2
           className={cx(
             'font-display font-normal leading-none tracking-normal text-ink transition-all duration-700',
-            mode === 'tension' ? 'text-3xl' : 'text-5xl md:text-6xl',
+            mode === 'tension' ? 'text-3xl' : 'text-4xl sm:text-5xl md:text-6xl',
           )}
         >
           {verdict}
@@ -634,7 +1052,7 @@ function ControlDeck({
         <p
           className={cx(
             'transition-all duration-700',
-            mode === 'tension' ? 'text-sm leading-6' : 'text-lg font-light leading-8',
+            mode === 'tension' ? 'text-sm leading-6' : 'text-base font-light leading-7 sm:text-lg sm:leading-8',
           )}
         >
           {statusMessage}
@@ -650,7 +1068,21 @@ function ControlDeck({
         setSelectedProfileId={setSelectedProfileId}
       />
 
-      <ScorePlate mode={mode} score={score} selectedMetric={selectedMetric} />
+      <ScorePlate isCalculating={pointAnalysis.status === 'loading'} mode={mode} score={score} selectedMetric={selectedMetric} />
+
+      <MethodIndexPanel activeLayerId={activeLayerId} mode={mode} onOpenIndice={onOpenIndice} />
+
+      <ConfidenceNote energy={energy} mode={mode} pointAnalysis={pointAnalysis} />
+
+      <CandidateMemo
+        energy={energy}
+        mode={mode}
+        pointAnalysis={pointAnalysis}
+        score={score}
+        selectedMetric={selectedMetric}
+        selectedProfile={selectedProfile}
+        verdict={verdict}
+      />
 
       <CriteriaGrid mode={mode} pointAnalysis={pointAnalysis} selectedMetric={selectedMetric} />
 
@@ -683,32 +1115,42 @@ function ControlDeck({
           mode === 'tension' ? 'border-black text-black' : 'border-[#ddd6c4] text-graphite',
         )}
       >
-        <FactRow label="Dernier point Eco2mix" value={`${energy.realtime.date} · ${energy.realtime.heure}`} />
+        <FactRow
+          label={energy.source === 'live' ? 'Dernier point Eco2mix' : 'Point Eco2mix de secours'}
+          value={`${energy.realtime.date} · ${energy.realtime.heure}`}
+        />
         <FactRow label="Consommation nationale" value={`${formatNumber(energy.realtime.consommation)} MW`} />
         <FactRow label="Solaire national" value={`${formatNumber(energy.realtime.solaire)} MW`} />
         <FactRow label="Intensité CO₂" value={`${energy.realtime.tauxCo2} g/kWh`} />
       </div>
 
-      <SourceLinks mode={mode} />
+      <SourceLinks mode={mode} onOpenLegal={onOpenLegal} />
     </aside>
   );
 }
 
 function LiveGridSignal({ energy, mode }) {
   const liveScore = buildLiveGridScore(energy.realtime);
-  const solarShare = Math.round((energy.realtime.solaire / Math.max(energy.realtime.consommation, 1)) * 100);
+  const solaire = Number.isFinite(Number(energy.realtime?.solaire)) ? Number(energy.realtime.solaire) : 0;
+  const consommation = Number.isFinite(Number(energy.realtime?.consommation)) ? Number(energy.realtime.consommation) : 1;
+  const solarShare = Math.round((solaire / Math.max(consommation, 1)) * 100);
   const label = liveScore >= 78 ? 'Signal très favorable' : liveScore >= 55 ? 'Signal exploitable' : 'Signal contraint';
+  const title = energy.source === 'live' ? 'Signal réseau maintenant' : 'Signal réseau de secours';
+  const sourceNote =
+    energy.source === 'live'
+      ? `${energy.realtime.date} · ${energy.realtime.heure}`
+      : 'données figées de secours';
 
   return (
-    <div className={cx('grid gap-3 border p-4', mode === 'tension' ? 'border-black' : 'border-[#d8d0bd]')}>
+    <div className={cx('live-signal grid gap-3 border p-4', mode === 'tension' ? 'border-black' : 'border-[#d8d0bd]')}>
       <div className="flex items-center justify-between gap-4">
-        <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Signal réseau maintenant</p>
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">{title}</p>
         <SunMedium aria-hidden="true" size={17} strokeWidth={1.3} />
       </div>
       <div className="grid grid-cols-[auto_1fr] items-end gap-4">
         <p className="font-display text-5xl leading-none text-ink">{Math.round(liveScore)}</p>
-        <p className="text-sm leading-6 text-graphite">
-          {label}. CO₂ {energy.realtime.tauxCo2} g/kWh · solaire {solarShare}% · {energy.realtime.heure}.
+        <p className="min-w-0 text-sm leading-6 text-graphite">
+          {label}. CO₂ {energy.realtime.tauxCo2} g/kWh · solaire {solarShare}% · {sourceNote}.
         </p>
       </div>
       <div className={cx('h-2 border p-[2px]', mode === 'tension' ? 'border-black' : 'border-[#d8d0bd]')}>
@@ -730,9 +1172,10 @@ function ProfileSelector({ mode, profiles, selectedProfile, setSelectedProfileId
           <button
             key={profile.id}
             type="button"
+            aria-pressed={profile.id === selectedProfile.id}
             onClick={() => setSelectedProfileId(profile.id)}
             className={cx(
-              'border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
+              'profile-choice border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
               profile.id === selectedProfile.id
                 ? 'border-ink bg-ink text-white'
                 : mode === 'tension'
@@ -752,13 +1195,15 @@ function ProfileSelector({ mode, profiles, selectedProfile, setSelectedProfileId
   );
 }
 
-function ScorePlate({ mode, score, selectedMetric }) {
+function ScorePlate({ isCalculating = false, mode, score, selectedMetric }) {
   return (
-    <div className={cx('grid gap-3 border transition-all duration-700', mode === 'tension' ? 'border-black p-4' : 'border-[#d8d0bd] p-5')}>
+    <div className={cx('score-plate grid gap-3 border transition-all duration-700', mode === 'tension' ? 'border-black p-4' : 'border-[#d8d0bd] p-5')}>
       <div className="flex items-end justify-between gap-4">
         <div>
-          <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Score d’aptitude</p>
-          <p className="mt-2 font-display text-6xl leading-none text-ink">{Math.round(score)}</p>
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">
+            {isCalculating ? 'Calcul du score en cours' : 'Composition du score'}
+          </p>
+          <p className="mt-2 font-display text-5xl leading-none text-ink">{Math.round(score)}</p>
         </div>
         <Target aria-hidden="true" size={24} strokeWidth={1.2} />
       </div>
@@ -769,9 +1214,155 @@ function ScorePlate({ mode, score, selectedMetric }) {
         />
       </div>
       <p className="text-sm leading-6 text-graphite">
-        Pré-score départemental : {Math.round(selectedMetric?.datacenterScore ?? 0)}/100. Le clic local ajuste ce score
-        avec les risques, la route, l’eau et la température.
+        Base départementale : {Math.round(selectedMetric?.datacenterScore ?? 0)}/100. Le clic local ajuste ce score
+        avec les risques live, la route, l’écart ville 10-15 km, l’eau et la température.
       </p>
+    </div>
+  );
+}
+
+function MethodIndexPanel({ activeLayerId, mode, onOpenIndice }) {
+  return (
+    <div className={cx('method-panel grid gap-3 border p-4', mode === 'tension' ? 'border-black' : 'border-[#d8d0bd]')}>
+      <div className="flex items-center justify-between gap-4">
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Méthode des indices</p>
+        <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em]">{INDICE_PAGES.length}</span>
+      </div>
+      <div className="grid gap-2">
+        {INDICE_PAGES.map((page) => (
+          <button
+            key={page.id}
+            type="button"
+            aria-current={activeLayerId === page.id ? 'true' : undefined}
+            onClick={() => onOpenIndice(page.id)}
+            className={cx(
+              'method-choice border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
+              activeLayerId === page.id
+                ? 'border-ink bg-ink text-white'
+                : mode === 'tension'
+                  ? 'border-black hover:bg-black hover:text-white'
+                  : 'border-[#d8d0bd] hover:border-ink',
+            )}
+          >
+            <span className="flex items-center justify-between gap-3">
+              <span className="text-sm">{page.label}</span>
+              <ArrowRight aria-hidden="true" size={13} strokeWidth={1.4} />
+            </span>
+            <span className="mt-1 block text-xs leading-5 opacity-70">{page.question}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ConfidenceNote({ energy, mode, pointAnalysis }) {
+  const confidence = buildConfidence(pointAnalysis, energy);
+
+  return (
+    <div className={cx('confidence-note grid gap-3 border p-4', mode === 'tension' ? 'border-black' : 'border-[#d8d0bd]')}>
+      <div className="flex items-center justify-between gap-4">
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Confiance décisionnelle</p>
+        <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em]">{confidence.value}/100</span>
+      </div>
+      <div className={cx('h-2 border p-[2px]', mode === 'tension' ? 'border-black' : 'border-[#d8d0bd]')}>
+        <div
+          className={cx('h-full transition-all duration-700', mode === 'tension' ? 'bg-black' : 'bg-forest')}
+          style={{ width: `${confidence.value}%` }}
+        />
+      </div>
+      <p className="text-sm leading-6 text-graphite">
+        {confidence.label}. {confidence.detail}
+      </p>
+    </div>
+  );
+}
+
+function CandidateMemo({ energy, mode, pointAnalysis, score, selectedMetric, selectedProfile, verdict }) {
+  const [copied, setCopied] = useState(false);
+  const copyResetRef = useRef(null);
+  const confidence = buildConfidence(pointAnalysis, energy);
+  const criteria = pointAnalysis.data?.criteria ?? {
+    access: selectedMetric?.accessScore ?? 52,
+    cooling: selectedMetric?.coolingScore ?? 0,
+    energy: selectedMetric?.energyScore ?? 0,
+    land: selectedMetric?.landScore ?? 0,
+    risk: selectedMetric?.riskScore ?? 0,
+  };
+  const strengths = Object.entries(criteria)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 2);
+  const blockers = Object.entries(criteria)
+    .sort(([, a], [, b]) => a - b)
+    .slice(0, 2);
+  const memo = buildCandidateMemo({
+    criteria,
+    energy,
+    pointAnalysis,
+    score,
+    selectedMetric,
+    selectedProfile,
+    verdict,
+  });
+
+  useEffect(() => () => window.clearTimeout(copyResetRef.current), []);
+
+  const copyMemo = async () => {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard indisponible');
+      await navigator.clipboard.writeText(memo);
+      setCopied(true);
+      window.clearTimeout(copyResetRef.current);
+      copyResetRef.current = window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  return (
+    <div className={cx('candidate-memo grid gap-4 border p-4', mode === 'tension' ? 'border-black' : 'border-[#d8d0bd]')}>
+      <div className="flex items-center justify-between gap-4">
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Dossier candidat</p>
+        <FileText aria-hidden="true" size={17} strokeWidth={1.3} />
+      </div>
+      <p className="text-sm leading-6 text-graphite">
+        {selectedMetric?.name} est évalué pour un scénario {selectedProfile.label.toLowerCase()}.
+        {pointAnalysis.data
+          ? ' Le mémo reprend les signaux locaux disponibles maintenant.'
+          : ' Le mémo reste départemental tant qu’aucun point n’est cliqué.'}
+      </p>
+      <FactRow label="Niveau de confiance" value={`${confidence.label} · ${confidence.value}/100`} />
+      <div className="grid gap-3 md:grid-cols-2">
+        <MemoList mode={mode} title="Forces" items={strengths} />
+        <MemoList mode={mode} title="À lever" items={blockers} />
+      </div>
+      <button
+        type="button"
+        onClick={copyMemo}
+        className={cx(
+          'inline-flex h-11 w-fit items-center gap-3 border px-4 font-mono text-[0.62rem] uppercase tracking-[0.16em] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
+          mode === 'tension' ? 'border-black hover:bg-black hover:text-white' : 'border-ink hover:bg-ink hover:text-white',
+        )}
+      >
+        <ClipboardCheck aria-hidden="true" size={14} strokeWidth={1.4} />
+        {copied ? 'Mémo copié' : 'Copier le mémo'}
+      </button>
+    </div>
+  );
+}
+
+function MemoList({ items, mode, title }) {
+  return (
+    <div className={cx('memo-list border p-3', mode === 'tension' ? 'border-black' : 'border-[#e0d8c5]')}>
+      <p className="font-mono text-[0.58rem] uppercase tracking-[0.2em] text-pewter">{title}</p>
+      <div className="mt-3 grid gap-2">
+        {items.map(([key, value]) => (
+          <div key={key} className="flex items-center justify-between gap-3 text-sm">
+            <span>{CRITERIA_LABELS[key]}</span>
+            <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em]">{Math.round(value)}/100</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -790,9 +1381,10 @@ function NationalRanking({ mode, model, selectedCode, setSelectedCode }) {
           <button
             key={department.code}
             type="button"
+            aria-current={department.code === selectedCode ? 'true' : undefined}
             onClick={() => setSelectedCode(department.code)}
             className={cx(
-              'grid grid-cols-[auto_1fr_auto] items-center gap-3 border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
+              'ranking-choice grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
               department.code === selectedCode
                 ? 'border-ink bg-ink text-white'
                 : mode === 'tension'
@@ -801,10 +1393,10 @@ function NationalRanking({ mode, model, selectedCode, setSelectedCode }) {
             )}
           >
             <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em]">{index + 1}</span>
-            <span>
+            <span className="min-w-0">
               <span className="block text-sm">{department.name}</span>
               <span className="mt-1 block text-xs opacity-70">
-                {formatMw(department.lowCarbonKw / 1000)} MW bas carbone · {formatNumber(department.areaKm2 ?? 0)} km²
+                {formatMw(department.lowCarbonKw / 1000)} MW bas carbone · DVF {formatLandPrice(department.landPrice)}
               </span>
             </span>
             <span className="font-display text-3xl leading-none">{department.datacenterScore}</span>
@@ -828,7 +1420,7 @@ function CriteriaGrid({ mode, pointAnalysis, selectedMetric }) {
     <dl className={cx('grid transition-[gap] duration-700', mode === 'tension' ? 'gap-2' : 'gap-3')}>
       <Signal icon={<Zap size={17} strokeWidth={1.3} />} label="Énergie bas carbone" mode={mode} value={`${Math.round(criteria.energy)}/100`} />
       <Signal icon={<Shield size={17} strokeWidth={1.3} />} label="Sismique & inondation" mode={mode} value={`${Math.round(criteria.risk)}/100`} />
-      <Signal icon={<MapPin size={17} strokeWidth={1.3} />} label="Foncier & distance villes" mode={mode} value={`${Math.round(criteria.land)}/100`} />
+      <Signal icon={<MapPin size={17} strokeWidth={1.3} />} label="Foncier & ville 10-15 km" mode={mode} value={`${Math.round(criteria.land)}/100`} />
       <Signal icon={<Snowflake size={17} strokeWidth={1.3} />} label="Refroidissement" mode={mode} value={`${Math.round(criteria.cooling)}/100`} />
       <Signal icon={<Route size={17} strokeWidth={1.3} />} label="Accès travailleurs" mode={mode} value={`${Math.round(criteria.access)}/100`} />
     </dl>
@@ -873,11 +1465,13 @@ function ActionPlan({ mode, pointAnalysis, selectedMetric }) {
 function EvidencePanel({ energy, mode, pointAnalysis }) {
   const data = pointAnalysis.data;
   const rows = [
-    ['Énergie', energy.source === 'live' ? 'ODRÉ + Eco2mix live' : 'Données locales de secours'],
-    ['Risques', data ? 'Géorisques au point' : 'Pré-filtre départemental'],
-    ['Température', data?.temperatureC != null ? 'Open-Meteo live' : 'En attente du clic'],
-    ['Voirie', data?.roadLabel?.includes('OSM') ? 'OpenStreetMap' : data?.roadLabel?.includes('BAN') ? 'API Adresse' : 'En attente du clic'],
-    ['Foncier', 'Surface GeoJSON + modèle prudent'],
+    ['Énergie structurelle', energy.source === 'live' ? 'ODRÉ live: nucléaire + renouvelables + stockage' : 'Capacités locales de secours'],
+    ['Réseau temps réel', energy.source === 'live' ? 'Eco2mix live: CO₂ + solaire national' : 'Eco2mix local de secours'],
+    ['Risques live', data ? `Géorisques au point: ${data.riskConfidenceLabel}` : 'Pré-filtre départemental estimé'],
+    ['Météo live', data?.temperatureC != null ? 'Open-Meteo au point' : 'En attente du clic'],
+    ['Eau & sécheresse', data ? `Hub’Eau ${data.groundwaterLabel}; VigiEau ${data.droughtLabel}` : 'Hub’Eau / VigiEau au clic'],
+    ['Ville / route', data ? 'OSM + API Adresse au point' : 'Estimation au clic à venir'],
+    ['Foncier local', data ? `Overpass ${data.landuseLabel}; DVF ${data.landPriceLabel}` : 'GeoJSON + densité ODRÉ + DVF médian; PLU absent'],
   ];
 
   return (
@@ -903,7 +1497,7 @@ function buildAction(key, value, selectedMetric) {
   const actions = {
     access: {
       label: CRITERIA_LABELS.access,
-      text: 'Vérifier la route d’accès, la desserte transport et la capacité à recruter sans installer le site en cœur urbain.',
+      text: 'Vérifier une route exploitable et un bassin de travailleurs accessible sans installer le site en cœur urbain.',
     },
     cooling: {
       label: CRITERIA_LABELS.cooling,
@@ -915,7 +1509,7 @@ function buildAction(key, value, selectedMetric) {
     },
     land: {
       label: CRITERIA_LABELS.land,
-      text: 'Contrôler PLU, artificialisation, zones agricoles, emprise disponible et possibilité d’extension.',
+      text: 'Contrôler PLU, artificialisation, emprise disponible, extension et écart ville proche de 10-15 km.',
     },
     risk: {
       label: CRITERIA_LABELS.risk,
@@ -926,8 +1520,95 @@ function buildAction(key, value, selectedMetric) {
   return { label: actions[key]?.label ?? key, text: actions[key]?.text ?? 'Critère à vérifier.', value };
 }
 
+function buildCandidateMemo({ criteria, energy, pointAnalysis, score, selectedMetric, selectedProfile, verdict }) {
+  const data = pointAnalysis.data;
+  const confidence = buildConfidence(pointAnalysis, energy);
+  const sortedCriteria = Object.entries(criteria).sort(([, a], [, b]) => b - a);
+  const strengths = sortedCriteria
+    .slice(0, 2)
+    .map(([key, value]) => `${CRITERIA_LABELS[key]} ${Math.round(value)}/100`)
+    .join(', ');
+  const blockers = [...sortedCriteria]
+    .reverse()
+    .slice(0, 2)
+    .map(([key, value]) => `${CRITERIA_LABELS[key]} ${Math.round(value)}/100`)
+    .join(', ');
+  const coordinates = data
+    ? `${pointAnalysis.data?.commune ?? 'point non identifié'} · ${formatDistance(data.nearestRoadKm)} voirie · ${formatDistance(data.nearestTownKm)} ville`
+    : 'point local non encore analysé';
+
+  return [
+    `${APP_NAME} · mémo candidat datacenter IA`,
+    `Département: ${selectedMetric?.name ?? 'Non sélectionné'}`,
+    `Scénario: ${selectedProfile.label} (${selectedProfile.footprint})`,
+    `Décision: ${verdict} · score ${Math.round(score)}/100`,
+    `Confiance: ${confidence.label} · ${confidence.value}/100`,
+    `Signal réseau: ${energy.realtime.tauxCo2} gCO2/kWh, ${formatNumber(energy.realtime.solaire)} MW solaire, ${energy.realtime.date} ${energy.realtime.heure}`,
+    `Point: ${coordinates}`,
+    data
+      ? `Terrain: ${data.landPriceLabel}, ${data.landuseLabel}, ${data.droughtLabel}, ${data.riverLabel}`
+      : `Terrain: non qualifié localement`,
+    `Forces: ${strengths}`,
+    `À lever: ${blockers}`,
+    `Sources: ODRÉ, Eco2mix, Géorisques, Open-Meteo, Hub’Eau, VigiEau, DVF, API Adresse, OpenStreetMap/Overpass, GeoJSON France.`,
+    `Note: score de priorisation, à compléter par études réseau, PLU, foncier, sûreté et raccordement.`,
+  ].join('\n');
+}
+
+function buildConfidence(pointAnalysis, energy) {
+  if (pointAnalysis.status === 'loading') {
+    return {
+      detail: 'Les sources locales sont en cours d’interrogation.',
+      label: 'Calcul en cours',
+      value: 60,
+    };
+  }
+
+  const data = pointAnalysis.data;
+  if (!data) {
+    return {
+      detail: 'Le score reste départemental: énergie, foncier agrégé et pré-risque géographique.',
+      label: energy.source === 'live' ? 'Départementale' : 'Exploratoire',
+      value: energy.source === 'live' ? 46 : 32,
+    };
+  }
+
+  const terrainSignals = [
+    data.temperatureC != null,
+    data.terrain?.groundwater,
+    data.terrain?.river,
+    data.terrain?.drought,
+    data.terrain?.landuse,
+    data.nearestRoadKm != null,
+    data.nearestTownKm != null,
+  ].filter(Boolean).length;
+  const value = Math.round(
+    clamp(
+      34 +
+        (energy.source === 'live' ? 13 : 0) +
+        terrainSignals * 5.6 +
+        Number(data.riskConfidence ?? 0) * 0.22 -
+        (pointAnalysis.error ? 8 : 0),
+      18,
+      92,
+    ),
+  );
+
+  return {
+    detail:
+      value >= 78
+        ? 'Le point dispose de plusieurs signaux publics convergents.'
+        : value >= 58
+          ? 'Le point est qualifié, mais certaines sources restent absentes ou partielles.'
+          : 'La lecture reste fragile: les sources locales doivent être complétées.',
+    label: value >= 78 ? 'Forte' : value >= 58 ? 'Moyenne' : 'Exploratoire',
+    value,
+  };
+}
+
 function PointPanel({ analysisPoint, mode, pointAnalysis }) {
   const data = pointAnalysis.data;
+  const isWaitingForPoint = !analysisPoint;
 
   return (
     <div className={cx('grid gap-3 border-t pt-5', mode === 'tension' ? 'border-black' : 'border-[#ddd6c4]')}>
@@ -937,12 +1618,24 @@ function PointPanel({ analysisPoint, mode, pointAnalysis }) {
           {pointAnalysis.status === 'loading' ? 'Live' : analysisPoint?.label ?? 'Attente'}
         </span>
       </div>
+      {isWaitingForPoint && (
+        <p className="text-sm leading-6 text-graphite">
+          Sélectionnez un point dans le département zoomé pour qualifier les risques, l’accès, la météo et l’écart aux villes.
+        </p>
+      )}
       <div className="grid gap-2 text-sm leading-6">
         <FactRow label="Coordonnées" value={analysisPoint ? `${analysisPoint.lat.toFixed(4)}, ${analysisPoint.lon.toFixed(4)}` : '—'} />
         <FactRow label="Commune" value={data?.commune ?? '—'} />
         <FactRow label="Écart ville" value={data?.townLabel ?? formatDistance(data?.nearestTownKm)} />
+        <FactRow label="Cible ville 10-15 km" value={data?.townTargetLabel ?? '—'} />
         <FactRow label="Accès voirie" value={data?.roadLabel ?? formatDistance(data?.nearestRoadKm)} />
+        <FactRow label="Route travailleurs" value={data?.roadTargetLabel ?? '—'} />
         <FactRow label="Eau / rivière" value={formatDistance(data?.nearestWaterKm)} />
+        <FactRow label="Nappe" value={data?.groundwaterLabel ?? '—'} />
+        <FactRow label="Débit rivière" value={data?.riverLabel ?? '—'} />
+        <FactRow label="Sécheresse" value={data?.droughtLabel ?? '—'} />
+        <FactRow label="Occupation sol" value={data?.landuseLabel ?? '—'} />
+        <FactRow label="Prix foncier DVF" value={data?.landPriceLabel ?? '—'} />
         <FactRow label="Température" value={data?.temperatureC != null ? `${formatDecimal(data.temperatureC)} °C` : '—'} />
         <FactRow label="Inondation" value={data?.floodLabel ?? '—'} />
         <FactRow label="Sismicité" value={data?.seismicLabel ?? '—'} />
@@ -957,7 +1650,12 @@ function ScenarioPanel({ activeLayerId, mode, selectedLayer, selectedMetric, set
     {
       id: 'energy',
       label: 'Sécuriser l’énergie',
-      text: `${formatMw((selectedMetric?.lowCarbonKw ?? 0) / 1000)} MW bas carbone raccordés dans le département.`,
+      text: `${formatMw((selectedMetric?.lowCarbonKw ?? 0) / 1000)} MW bas carbone raccordés, dont nucléaire et renouvelables ODRÉ.`,
+    },
+    {
+      id: 'access',
+      label: 'Tester l’accès',
+      text: 'Viser une route exploitable et un site à 10-15 km d’un bassin urbain, pas en cœur de ville.',
     },
     {
       id: 'risk',
@@ -982,9 +1680,10 @@ function ScenarioPanel({ activeLayerId, mode, selectedLayer, selectedMetric, set
           <button
             key={item.id}
             type="button"
+            aria-pressed={activeLayerId === item.id}
             onClick={() => setActiveLayerId(item.id)}
             className={cx(
-              'border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
+              'scenario-choice border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
               activeLayerId === item.id
                 ? 'border-ink bg-ink text-white'
                 : mode === 'tension'
@@ -1005,13 +1704,13 @@ function Signal({ icon, label, mode, value }) {
   return (
     <div
       className={cx(
-        'grid grid-cols-[1fr_auto] items-end border transition-all duration-700',
-        mode === 'tension' ? 'border-black p-3' : 'border-[#ded6c4] bg-white/35 p-4',
+        'signal-row grid grid-cols-[minmax(0,1fr)_auto] items-end border transition-all duration-700',
+        mode === 'tension' ? 'border-black p-3' : 'border-[#ded6c4] bg-[#fffaf0] p-4',
       )}
     >
-      <dt className="flex items-center gap-3 font-mono text-[0.62rem] uppercase tracking-[0.18em]">
+      <dt className="flex min-w-0 items-center gap-3 font-mono text-[0.62rem] uppercase tracking-[0.18em]">
         {mode !== 'tension' && icon}
-        <span>{label}</span>
+        <span className="min-w-0">{label}</span>
       </dt>
       <dd
         className={cx(
@@ -1033,7 +1732,7 @@ function DepartmentSearch({ departments, mode, selectedCode, setSelectedCode }) 
       <span className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Accès département</span>
       <select
         className={cx(
-          'h-12 border bg-transparent px-3 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
+          'h-12 min-w-0 border bg-transparent px-3 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
           mode === 'tension' ? 'border-black text-black' : 'border-[#d8d0bd] text-ink',
         )}
         onChange={(event) => setSelectedCode(event.target.value)}
@@ -1051,9 +1750,9 @@ function DepartmentSearch({ departments, mode, selectedCode, setSelectedCode }) 
 
 function FactRow({ label, value }) {
   return (
-    <div className="grid grid-cols-[1fr_auto] gap-4">
-      <span>{label}</span>
-      <span className="text-right font-mono text-[0.68rem] uppercase tracking-[0.16em]">{value}</span>
+    <div className="grid gap-1 sm:grid-cols-[minmax(0,1fr)_minmax(8rem,auto)] sm:gap-4">
+      <span className="min-w-0">{label}</span>
+      <span className="min-w-0 break-words font-mono text-[0.68rem] uppercase tracking-[0.16em] sm:text-right">{value}</span>
     </div>
   );
 }
@@ -1081,12 +1780,16 @@ function SourcePill({ source }) {
   );
 }
 
-function SourceLinks({ mode }) {
+function SourceLinks({ mode, onOpenLegal }) {
   const links = [
     ['ODRÉ parc électrique', ENERGY_DATASET_LINK],
     ['Eco2mix temps réel', ECO2MIX_LINK],
     ['Géorisques', GEORISQUES_LINK],
     ['Open-Meteo', OPEN_METEO_LINK],
+    ['Hub’Eau', HUBEAU_LINK],
+    ['VigiEau', VIGIEAU_LINK],
+    ['DVF foncier', DVF_LINK],
+    ['API Adresse', API_ADRESSE_LINK],
     ['OpenStreetMap', OVERPASS_LINK],
     ['GeoJSON France', GEOJSON_LINK],
   ];
@@ -1099,6 +1802,12 @@ function SourceLinks({ mode }) {
           <ExternalLink aria-hidden="true" size={13} strokeWidth={1.4} />
         </a>
       ))}
+      <button type="button" className="source-link" onClick={() => onOpenLegal('legal')}>
+        Mentions légales
+      </button>
+      <button type="button" className="source-link" onClick={() => onOpenLegal('terms')}>
+        Conditions d’utilisation
+      </button>
     </div>
   );
 }
@@ -1114,7 +1823,7 @@ function FallbackDepartmentList({ departments, mode, setSelectedCode }) {
             type="button"
             onClick={() => setSelectedCode(department.code)}
             className={cx(
-              'border p-3 text-left text-sm transition',
+              'border p-3 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
               mode === 'tension' ? 'border-black hover:bg-black hover:text-white' : 'border-[#ded6c4] hover:border-ink',
             )}
           >
@@ -1138,13 +1847,14 @@ function useEnergyData() {
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
 
     async function load() {
       try {
         const [energyRows, realtimePayload, geojson] = await Promise.all([
-          fetchPagedRecords(ENERGY_MIX_URL),
-          fetchJson(ECO2MIX_URL),
-          fetchJson(DEPARTMENTS_GEOJSON_URL),
+          fetchPagedRecords(ENERGY_MIX_URL, controller.signal),
+          fetchJson(ECO2MIX_URL, controller.signal, INITIAL_FETCH_TIMEOUT_MS),
+          fetchJson(DEPARTMENTS_GEOJSON_URL, controller.signal, INITIAL_FETCH_TIMEOUT_MS),
         ]);
         const departments = normalizeEnergyRows(energyRows);
         const latest = realtimePayload.results?.[0];
@@ -1170,8 +1880,10 @@ function useEnergyData() {
           });
         }
       } catch (error) {
+        if (controller.signal.aborted) return;
+
         try {
-          const geojson = await fetchJson(DEPARTMENTS_GEOJSON_URL);
+          const geojson = await fetchJson(DEPARTMENTS_GEOJSON_URL, controller.signal, INITIAL_FETCH_TIMEOUT_MS);
           if (active) {
             setState((current) => ({
               ...current,
@@ -1197,6 +1909,7 @@ function useEnergyData() {
     load();
     return () => {
       active = false;
+      controller.abort();
     };
   }, []);
 
@@ -1207,18 +1920,27 @@ function usePointAnalysis(point, selectedMetric, selectedProfile, realtime) {
   const [state, setState] = useState({ data: null, error: null, status: 'idle' });
 
   useEffect(() => {
-    if (!point || !selectedMetric) return undefined;
+    if (!point || !selectedMetric) {
+      setState((current) =>
+        current.status === 'idle' && current.data == null && current.error == null
+          ? current
+          : { data: null, error: null, status: 'idle' },
+      );
+      return undefined;
+    }
+
     const controller = new AbortController();
 
     async function load() {
       setState((current) => ({ ...current, error: null, status: 'loading' }));
       try {
-        const [riskResult, weatherResult, communeResult, addressResult, osmResult] = await Promise.allSettled([
-          fetchJson(buildGeorisquesUrl(point), controller.signal),
-          fetchJson(buildWeatherUrl(point), controller.signal),
-          fetchJson(buildCommuneUrl(point), controller.signal),
-          fetchJson(buildAddressUrl(point), controller.signal),
-          withTimeout(fetchJson(buildOverpassUrl(point), controller.signal), 4200, 'OSM timeout'),
+        const [riskResult, weatherResult, communeResult, addressResult, osmResult, terrainResult] = await Promise.allSettled([
+          fetchJson(buildGeorisquesUrl(point), controller.signal, POINT_FETCH_TIMEOUT_MS),
+          fetchJson(buildWeatherUrl(point), controller.signal, POINT_FETCH_TIMEOUT_MS),
+          fetchJson(buildCommuneUrl(point), controller.signal, POINT_FETCH_TIMEOUT_MS),
+          fetchJson(buildAddressUrl(point), controller.signal, POINT_FETCH_TIMEOUT_MS),
+          fetchJson(buildOverpassUrl(point), controller.signal, POINT_FETCH_TIMEOUT_MS),
+          fetchTerrain(point, selectedMetric.code, { signal: controller.signal }),
         ]);
 
         if (controller.signal.aborted) return;
@@ -1232,6 +1954,7 @@ function usePointAnalysis(point, selectedMetric, selectedProfile, realtime) {
           profile: selectedProfile,
           risk: riskResult.status === 'fulfilled' ? riskResult.value : null,
           realtime,
+          terrain: terrainResult.status === 'fulfilled' ? terrainResult.value : null,
           weather: weatherResult.status === 'fulfilled' ? weatherResult.value : null,
         });
 
@@ -1252,6 +1975,7 @@ function usePointAnalysis(point, selectedMetric, selectedProfile, realtime) {
               profile: selectedProfile,
               risk: null,
               realtime,
+              terrain: null,
               weather: null,
             }),
             error: error.message,
@@ -1268,27 +1992,41 @@ function usePointAnalysis(point, selectedMetric, selectedProfile, realtime) {
   return state;
 }
 
-async function fetchJson(url, signal) {
-  const response = await fetch(url, { signal });
-  if (!response.ok) throw new Error(`Source indisponible (${response.status})`);
-  return response.json();
+async function fetchJson(url, signal, timeoutMs = INITIAL_FETCH_TIMEOUT_MS) {
+  const controller = new AbortController();
+  let timedOut = false;
+  const abortFromParent = () => controller.abort();
+
+  if (signal?.aborted) {
+    controller.abort();
+  } else {
+    signal?.addEventListener('abort', abortFromParent, { once: true });
+  }
+
+  const timeoutId = window.setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) throw new Error(`Source indisponible (${response.status})`);
+    return response.json();
+  } catch (error) {
+    if (timedOut) throw new Error(`Source trop lente (${Math.round(timeoutMs / 1000)} s)`);
+    throw error;
+  } finally {
+    window.clearTimeout(timeoutId);
+    signal?.removeEventListener('abort', abortFromParent);
+  }
 }
 
-function withTimeout(promise, timeoutMs, message) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => {
-      window.setTimeout(() => reject(new Error(message)), timeoutMs);
-    }),
-  ]);
-}
-
-async function fetchPagedRecords(baseUrl) {
+async function fetchPagedRecords(baseUrl, signal) {
   const records = [];
   const pageSize = 100;
 
   for (let offset = 0; offset < 1200; offset += pageSize) {
-    const payload = await fetchJson(`${baseUrl}&limit=${pageSize}&offset=${offset}`);
+    const payload = await fetchJson(`${baseUrl}&limit=${pageSize}&offset=${offset}`, signal, INITIAL_FETCH_TIMEOUT_MS);
     records.push(...(payload.results ?? []));
     if ((payload.results ?? []).length < pageSize) break;
   }
@@ -1301,7 +2039,8 @@ function normalizeEnergyRows(rows) {
 
   rows.forEach((row) => {
     const code = String(row.codedepartement ?? '');
-    if (!code) return;
+    const filiere = row.filiere;
+    if (!code || !filiere) return;
 
     const current =
       byCode.get(code) ??
@@ -1312,8 +2051,8 @@ function normalizeEnergyRows(rows) {
         sitesByFiliere: {},
       };
 
-    current.capacities[row.filiere] = Number(row.capacity_kw ?? 0);
-    current.sitesByFiliere[row.filiere] = Number(row.sites ?? 0);
+    current.capacities[filiere] = Number(row.capacity_kw ?? 0);
+    current.sitesByFiliere[filiere] = Number(row.sites ?? 0);
     byCode.set(code, current);
   });
 
@@ -1388,6 +2127,8 @@ function buildDepartmentModel(departments, geojson, selectedProfile = PROFILE_PR
     const totalSites = Object.values(sitesByFiliere).reduce((sum, value) => sum + Number(value ?? 0), 0);
     const latitude = feature.centroid?.[1] ?? 46.7;
     const longitude = feature.centroid?.[0] ?? 2.4;
+    const siteDensityPer100Km2 = (totalSites / Math.max(feature.areaKm2, 1)) * 100;
+    const landPrice = landPrices[feature.code]?.price ?? null;
 
     return {
       ...department,
@@ -1396,12 +2137,14 @@ function buildDepartmentModel(departments, geojson, selectedProfile = PROFILE_PR
       feature,
       hydroKw,
       latitude,
+      landPrice,
       longitude,
       lowCarbonKw,
       nuclearKw,
       renewableKw,
       riskScore: estimateGeoRiskScore(longitude, latitude),
       solarKw,
+      siteDensityPer100Km2,
       storageKw,
       thermalKw,
       totalSites,
@@ -1411,19 +2154,36 @@ function buildDepartmentModel(departments, geojson, selectedProfile = PROFILE_PR
   const maxLowCarbon = Math.max(...rawMetrics.map((item) => Math.log1p(item.lowCarbonKw)), 1);
   const maxArea = Math.max(...rawMetrics.map((item) => Math.sqrt(item.areaKm2)), 1);
   const maxHydro = Math.max(...rawMetrics.map((item) => Math.log1p(item.hydroKw)), 1);
+  const maxNuclear = Math.max(...rawMetrics.map((item) => Math.log1p(item.nuclearKw)), 1);
+  const maxRenewable = Math.max(...rawMetrics.map((item) => Math.log1p(item.renewableKw)), 1);
+  const maxSiteDensity = Math.max(...rawMetrics.map((item) => item.siteDensityPer100Km2), 1);
   const maxSites = Math.max(...rawMetrics.map((item) => Math.log1p(item.totalSites)), 1);
   const maxStorage = Math.max(...rawMetrics.map((item) => Math.log1p(item.storageKw)), 1);
+  const nationalLandMedian = Number(landPrices._meta?.nationalMedian ?? 2400);
   const liveGridScore = buildLiveGridScore(realtime);
 
   const items = rawMetrics.map((item) => {
     const lowCarbonShare = item.lowCarbonKw / Math.max(item.lowCarbonKw + item.thermalKw, 1);
+    const lowCarbonCapacityScore = (Math.log1p(item.lowCarbonKw) / maxLowCarbon) * 100;
+    const nuclearAnchorScore = (Math.log1p(item.nuclearKw) / maxNuclear) * 100;
+    const renewableDiversityScore = (Math.log1p(item.renewableKw) / maxRenewable) * 100;
+    const storageFlexScore = (Math.log1p(item.storageKw) / maxStorage) * 100;
     const structuralEnergyScore = clamp(
-      (Math.log1p(item.lowCarbonKw) / maxLowCarbon) * 70 + lowCarbonShare * 20 + (Math.log1p(item.storageKw) / maxStorage) * 10,
+      lowCarbonCapacityScore * 0.43 +
+        nuclearAnchorScore * 0.19 +
+        renewableDiversityScore * 0.23 +
+        lowCarbonShare * 10 +
+        storageFlexScore * 0.05,
       0,
       100,
     );
-    const energyScore = clamp(structuralEnergyScore * 0.84 + liveGridScore * 0.16, 0, 100);
-    const landScore = clamp((Math.sqrt(item.areaKm2) / maxArea) * 82 + (1 - clamp(item.totalSites / 6000, 0, 1)) * 18, 0, 100);
+    const energyScore = clamp(structuralEnergyScore * 0.88 + liveGridScore * 0.12, 0, 100);
+    const areaScore = (Math.sqrt(item.areaKm2) / maxArea) * 100;
+    const densityPressure = clamp(item.siteDensityPer100Km2 / maxSiteDensity, 0, 1);
+    const freeSpaceScore = clamp(100 - densityPressure * 72 - clamp(item.totalSites / 7000, 0, 1) * 18, 0, 100);
+    const landPriceScore =
+      item.landPrice == null ? 58 : clamp(100 - (item.landPrice / Math.max(nationalLandMedian, 1) - 0.55) * 72, 12, 100);
+    const landScore = clamp(areaScore * 0.38 + freeSpaceScore * 0.38 + landPriceScore * 0.24, 0, 100);
     const latitudeCooling = clamp((item.latitude - 42.4) / 8.2, 0, 1);
     const coolingScore = clamp(latitudeCooling * 54 + (Math.log1p(item.hydroKw) / maxHydro) * 32 + lowCarbonShare * 14, 0, 100);
     const gridScore = clamp((energyScore * 0.75 + (Math.log1p(item.nuclearKw + item.hydroKw) / maxLowCarbon) * 25), 0, 100);
@@ -1443,6 +2203,7 @@ function buildDepartmentModel(departments, geojson, selectedProfile = PROFILE_PR
       energyScore,
       gridScore,
       landScore,
+      landPriceScore,
     };
   });
 
@@ -1502,13 +2263,27 @@ function scoreCriteria(criteria, profile = PROFILE_PRESETS[0]) {
 }
 
 function buildLiveGridScore(realtime = FALLBACK_REALTIME) {
-  const solarShare = realtime.solaire / Math.max(realtime.consommation, 1);
-  const carbonScore = clamp(100 - Number(realtime.tauxCo2 ?? 80) * 0.9, 0, 100);
+  const solaire = Number.isFinite(Number(realtime?.solaire)) ? Number(realtime.solaire) : 0;
+  const consommation = Number.isFinite(Number(realtime?.consommation)) ? Number(realtime.consommation) : 1;
+  const tauxCo2 = Number.isFinite(Number(realtime?.tauxCo2)) ? Number(realtime.tauxCo2) : 80;
+  const solarShare = solaire / Math.max(consommation, 1);
+  const carbonScore = clamp(100 - tauxCo2 * 0.9, 0, 100);
   const solarScore = clamp(solarShare / 0.32, 0, 1) * 100;
   return clamp(carbonScore * 0.72 + solarScore * 0.28, 0, 100);
 }
 
-function buildPointAnalysis({ address, commune, metric, osm, point, profile = PROFILE_PRESETS[0], realtime = FALLBACK_REALTIME, risk, weather }) {
+function buildPointAnalysis({
+  address,
+  commune,
+  metric,
+  osm,
+  point,
+  profile = PROFILE_PRESETS[0],
+  realtime = FALLBACK_REALTIME,
+  risk,
+  terrain,
+  weather,
+}) {
   const osmSignals = parseOsmSignals(osm, point);
   const addressDistanceKm = Number(address?.features?.[0]?.properties?.distance ?? NaN) / 1000;
   const communePopulation = Number(commune?.[0]?.population ?? 0);
@@ -1527,22 +2302,40 @@ function buildPointAnalysis({ address, commune, metric, osm, point, profile = PR
     [18, 54],
     [Infinity, 30],
   ]);
-  const cooling = clamp(coolingTemperatureScore * 0.62 + waterScore * 0.38, 0, 100);
+  const terrainCooling = terrain
+    ? scoreTerrainCooling({
+        drought: terrain.drought,
+        groundwater: terrain.groundwater,
+        nearestWaterKm: osmSignals.nearestWaterKm,
+        river: terrain.river,
+        temperatureC,
+      })
+    : null;
+  const cooling = terrainCooling == null ? clamp(coolingTemperatureScore * 0.62 + waterScore * 0.38, 0, 100) : terrainCooling;
   const townScore = distanceBandScore(inferredTownKm, [
-    [4, 24],
-    [9, 62],
-    [18, 96],
-    [35, 78],
-    [Infinity, 44],
+    [5, 28],
+    [TOWN_TARGET_KM.idealMin, 68],
+    [TOWN_TARGET_KM.idealMax, 100],
+    [TOWN_TARGET_KM.workableMax, 78],
+    [35, 56],
+    [Infinity, 34],
   ]);
   const roadScore = distanceBandScore(inferredRoadKm, [
-    [0.5, 52],
-    [4, 96],
+    [ROAD_TARGET_KM.idealMin, 72],
+    [ROAD_TARGET_KM.idealMax, 96],
     [10, 84],
-    [18, 56],
-    [Infinity, 28],
+    [ROAD_TARGET_KM.workableMax, 66],
+    [18, 46],
+    [Infinity, 26],
   ]);
-  const land = clamp(metric.landScore * 0.45 + townScore * 0.55, 0, 100);
+  const terrainLand = terrain
+    ? scoreTerrainLand({
+        landuse: terrain.landuse,
+        nearestTownKm: inferredTownKm,
+        price: terrain.price?.price,
+      })
+    : null;
+  const land = terrainLand == null ? clamp(metric.landScore * 0.45 + townScore * 0.55, 0, 100) : clamp(metric.landScore * 0.22 + terrainLand * 0.78, 0, 100);
   const riskScore = clamp(riskSignals.seismicScore * 0.42 + riskSignals.floodScore * 0.46 + riskSignals.groundScore * 0.12, 0, 100);
   const access = clamp(roadScore * 0.72 + townScore * 0.28, 0, 100);
   const energy = clamp(metric.energyScore * 0.84 + buildLiveGridScore(realtime) * 0.16, 0, 100);
@@ -1565,14 +2358,24 @@ function buildPointAnalysis({ address, commune, metric, osm, point, profile = PR
     commune: communeName ?? 'Non identifié',
     criteria,
     floodLabel: riskSignals.floodLabel,
+    groundwaterLabel: formatGroundwater(terrain?.groundwater),
+    droughtLabel: terrain?.drought?.label ?? 'Non mesuré',
+    landPriceLabel: formatLandPrice(terrain?.price?.price ?? metric.landPrice),
+    landuseLabel: formatLanduse(terrain?.landuse),
     nearestRoadKm: inferredRoadKm,
     nearestTownKm: inferredTownKm,
     nearestWaterKm: osmSignals.nearestWaterKm,
+    riverLabel: formatRiver(terrain?.river),
     roadLabel: inferredRoadKm == null ? '—' : `${formatDistance(inferredRoadKm)} · ${osmSignals.nearestRoadKm == null ? 'BAN' : 'OSM'}`,
+    roadTargetLabel: buildRoadTargetLabel(inferredRoadKm),
+    riskConfidence: riskSignals.confidence,
+    riskConfidenceLabel: riskSignals.confidenceLabel,
     score,
     seismicLabel: riskSignals.seismicLabel,
     summary,
+    terrain,
     temperatureC,
+    townTargetLabel: buildTownTargetLabel(inferredTownKm),
     townLabel:
       osmSignals.nearestTownKm == null && communePopulation
         ? `${formatDistance(inferredTownKm)} · ${formatNumber(communePopulation)} hab.`
@@ -1581,6 +2384,18 @@ function buildPointAnalysis({ address, commune, metric, osm, point, profile = PR
 }
 
 function parseRiskSignals(risk) {
+  if (!risk?.risquesNaturels) {
+    return {
+      confidence: 18,
+      confidenceLabel: 'non qualifié',
+      floodLabel: 'Non qualifié',
+      floodScore: 34,
+      groundScore: 38,
+      seismicLabel: 'Non qualifié',
+      seismicScore: 38,
+    };
+  }
+
   const natural = risk?.risquesNaturels ?? {};
   const flood = natural.inondation;
   const seismic = natural.seisme;
@@ -1589,25 +2404,43 @@ function parseRiskSignals(risk) {
   const floodStatus = flood?.libelleStatutAdresse ?? flood?.libelleStatutCommune ?? '';
   const seismicStatus = seismic?.libelleStatutAdresse ?? seismic?.libelleStatutCommune ?? '';
   const groundStatus = `${clay?.libelleStatutAdresse ?? ''} ${movement?.libelleStatutAdresse ?? ''}`;
+  const knownSignals = [floodStatus, seismicStatus, groundStatus.trim()].filter((value) => value && !isUnknownRiskText(value));
 
   return {
-    floodLabel: floodStatus || 'Non connu',
-    floodScore: floodStatus.includes('Existant') ? 36 : 88,
+    confidence: knownSignals.length >= 3 ? 86 : knownSignals.length === 2 ? 70 : knownSignals.length === 1 ? 52 : 28,
+    confidenceLabel: knownSignals.length >= 2 ? 'qualifié' : 'partiel',
+    floodLabel: floodStatus || 'Non qualifié',
+    floodScore: scoreFloodText(floodStatus),
     groundScore: scoreRiskText(groundStatus),
-    seismicLabel: seismicStatus || 'Non connu',
+    seismicLabel: seismicStatus || 'Non qualifié',
     seismicScore: scoreRiskText(seismicStatus),
   };
 }
 
+function scoreFloodText(text) {
+  const value = text.toLowerCase();
+  if (isUnknownRiskText(value)) return 34;
+  if (value.includes('existant') || value.includes('important') || value.includes('moyen') || value.includes('fort')) return 30;
+  if (value.includes('modéré') || value.includes('modere')) return 50;
+  if (value.includes('faible')) return 74;
+  if (value.includes('aucun') || value.includes('absent') || value.includes('non concerné') || value.includes('non concerne')) return 90;
+  return 58;
+}
+
 function scoreRiskText(text) {
   const value = text.toLowerCase();
-  if (!value || value.includes('non connu') || value.includes('inconnu')) return 64;
+  if (isUnknownRiskText(value)) return 38;
   if (value.includes('important') || value.includes('moyen') || value.includes('fort')) return 28;
   if (value.includes('modéré') || value.includes('modere')) return 54;
   if (value.includes('très faible') || value.includes('tres faible')) return 94;
   if (value.includes('faible')) return 82;
   if (value.includes('existant')) return 52;
   return 72;
+}
+
+function isUnknownRiskText(text) {
+  const value = String(text ?? '').toLowerCase();
+  return !value.trim() || value.includes('non connu') || value.includes('inconnu') || value.includes('non qualifié');
 }
 
 function parseOsmSignals(osm, point) {
@@ -1617,10 +2450,16 @@ function parseOsmSignals(osm, point) {
   const waters = [];
 
   elements.forEach((element) => {
-    const location = element.center ?? (element.lat && element.lon ? { lat: element.lat, lon: element.lon } : null);
+    const location = element.center ?? (element.lat != null && element.lon != null ? { lat: element.lat, lon: element.lon } : null);
     if (!location) return;
 
-    const distance = distanceKm(point, location);
+    const lat = Number(location.lat);
+    const lon = Number(location.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+
+    const distance = distanceKm(point, { lat, lon });
+    if (!Number.isFinite(distance)) return;
+
     if (element.tags?.highway) roads.push(distance);
     if (element.tags?.place) towns.push(distance);
     if (element.tags?.waterway || element.tags?.natural === 'water' || element.tags?.water) waters.push(distance);
@@ -1655,7 +2494,6 @@ function getZoomTransform(bounds, isZoomed) {
 function departmentFill(metric, layerId, mode, isSelected) {
   if (mode === 'tension') return isSelected ? '#000000' : '#ffffff';
   if (!metric) return '#fbfaf5';
-  if (isSelected) return '#e4c94e';
 
   const ratio = clamp(layerValue(metric, layerId) / 100, 0, 1);
   const hue = layerId === 'risk' ? 92 : layerId === 'cooling' ? 192 : layerId === 'access' ? 28 : layerId === 'land' ? 72 : 46;
@@ -1706,8 +2544,25 @@ function buildOverpassUrl(point) {
   return `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
 }
 
+function buildTownTargetLabel(distance) {
+  if (distance == null || !Number.isFinite(distance)) return 'Non mesuré';
+  if (distance < 5) return 'Trop urbain';
+  if (distance < TOWN_TARGET_KM.idealMin) return 'Proche';
+  if (distance <= TOWN_TARGET_KM.idealMax) return 'Zone idéale';
+  if (distance <= TOWN_TARGET_KM.workableMax) return 'Zone exploitable';
+  return 'Trop isolé';
+}
+
+function buildRoadTargetLabel(distance) {
+  if (distance == null || !Number.isFinite(distance)) return 'Non mesuré';
+  if (distance < ROAD_TARGET_KM.idealMin) return 'Très proche voirie';
+  if (distance <= ROAD_TARGET_KM.idealMax) return 'Accès idéal';
+  if (distance <= ROAD_TARGET_KM.workableMax) return 'Accès exploitable';
+  return 'Accès à vérifier';
+}
+
 function distanceBandScore(distance, bands) {
-  if (distance == null) return 50;
+  if (distance == null || !Number.isFinite(distance)) return 50;
   return bands.find(([max]) => distance <= max)?.[1] ?? 50;
 }
 
@@ -1727,24 +2582,53 @@ function degreesToRadians(value) {
 }
 
 function formatNumber(value) {
-  return new Intl.NumberFormat('fr-FR').format(Math.round(value ?? 0));
+  const numericValue = Number(value ?? 0);
+  return new Intl.NumberFormat('fr-FR').format(Math.round(Number.isFinite(numericValue) ? numericValue : 0));
 }
 
 function formatDecimal(value) {
-  return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(value ?? 0);
+  const numericValue = Number(value ?? 0);
+  return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(Number.isFinite(numericValue) ? numericValue : 0);
 }
 
 function formatDistance(value) {
-  if (value == null) return '—';
+  if (value == null || !Number.isFinite(value)) return '—';
   if (value < 1) return `${Math.round(value * 1000)} m`;
   return `${formatDecimal(value)} km`;
 }
 
+function formatGroundwater(groundwater) {
+  if (!groundwater) return 'Non mesurée';
+  const depth = groundwater.depthM != null ? `${formatDecimal(groundwater.depthM)} m` : 'profondeur inconnue';
+  const distance = groundwater.distanceKm != null ? ` · ${formatDistance(groundwater.distanceKm)}` : '';
+  return `${depth}${distance}`;
+}
+
+function formatRiver(river) {
+  if (!river) return 'Non mesuré';
+  const flow = river.flowM3s != null ? `${formatDecimal(river.flowM3s)} m³/s` : 'débit inconnu';
+  const distance = river.distanceKm != null ? ` · ${formatDistance(river.distanceKm)}` : '';
+  return `${flow}${distance}`;
+}
+
+function formatLanduse(landuse) {
+  if (!landuse || landuse.openShare == null) return 'Non mesuré';
+  const openShare = Math.round(clamp(landuse.openShare, 0, 1) * 100);
+  return `${openShare}% ouvert${landuse.dominant ? ` · ${landuse.dominant}` : ''}`;
+}
+
+function formatLandPrice(value) {
+  const numericValue = Number(value ?? 0);
+  if (!Number.isFinite(numericValue) || numericValue <= 0) return 'non mesuré';
+  return `${formatNumber(numericValue)} €/m²`;
+}
+
 function formatMw(value) {
-  return new Intl.NumberFormat('fr-FR').format(Math.round(value ?? 0));
+  const numericValue = Number(value ?? 0);
+  return new Intl.NumberFormat('fr-FR').format(Math.round(Number.isFinite(numericValue) ? numericValue : 0));
 }
 
 const rootElement = document.getElementById('root');
-const root = globalThis.__prismeRoot ?? createRoot(rootElement);
-globalThis.__prismeRoot = root;
+const root = globalThis.__prismCenterRoot ?? createRoot(rootElement);
+globalThis.__prismCenterRoot = root;
 root.render(<App />);
