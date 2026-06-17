@@ -4,6 +4,7 @@
 [![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)](https://vite.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Vercel](https://img.shields.io/badge/Déploiement-Vercel-000000?logo=vercel&logoColor=white)](https://vercel.com/)
+[![Licence](https://img.shields.io/badge/licence-MIT-111111)](LICENSE)
 [![Statut](https://img.shields.io/badge/statut-prototype_hackathon-e7c85d)](#statut-hackathon)
 [![Données](https://img.shields.io/badge/données-publiques-2f855a)](#sources-de-données)
 
@@ -15,11 +16,11 @@ L'application croise des signaux énergétiques, fonciers, climatiques, hydrolog
 
 Les datacenters IA concentrent de fortes contraintes: puissance électrique bas carbone, refroidissement, foncier disponible, exposition aux risques naturels, accès opérationnel et acceptabilité territoriale.
 
-PrismCenter propose une lecture rapide de ces contraintes:
+PrismCenter propose une lecture energie-first de ces contraintes:
 
-1. visualiser les départements français avec un pré-score d'aptitude;
+1. visualiser les départements français par potentiel électrique bas carbone;
 2. sélectionner un département pour concentrer l'analyse;
-3. cliquer un point sur la carte pour déclencher une analyse locale;
+3. cliquer un point sur la carte pour déclencher une analyse locale du score énergie-site;
 4. comparer les critères qui soutiennent ou fragilisent le site.
 
 Le produit assume une approche transparente: chaque score est une estimation issue de sources publiques et de pondérations documentées, pas une vérité réglementaire.
@@ -27,6 +28,7 @@ Le produit assume une approche transparente: chaque score est une estimation iss
 ## Fonctionnalités
 
 - Carte de France interactive avec géométrie départementale.
+- Couche énergie bas carbone affichée par défaut pour ancrer le parcours dans le thème énergie.
 - Pré-score départemental pour repérer les zones à instruire en priorité.
 - Analyse locale au clic: énergie, risques, foncier, refroidissement et accès.
 - Profils de pondération selon le type de datacenter: cluster d'entraînement, campus souverain, inférence régionale.
@@ -180,6 +182,10 @@ Les prochaines extensions doivent ajouter des preuves de décision, pas seulemen
 
 ## Documents Publics
 
+- [Licence MIT](LICENSE)
+- [Notice et attributions](NOTICE.md)
+- [Notices des dépendances tierces](THIRD_PARTY_NOTICES.md)
+- [Licences et attributions des données](docs/DATA_LICENSES.md)
 - [Mentions légales](docs/LEGAL.md)
 - [Conditions d'utilisation](docs/TERMS.md)
 - [Politique de confidentialité](docs/PRIVACY.md)

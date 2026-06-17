@@ -30,6 +30,8 @@ Le service peut utiliser ou référencer notamment:
 
 Ces sources restent exploitées selon leurs conditions, licences et limites respectives. PrismCenter n'est pas affilié à ces services publics ou communautaires, sauf mention contraire explicite.
 
+Les attributions et licences de données sont détaillées dans [`docs/DATA_LICENSES.md`](DATA_LICENSES.md).
+
 ## Données Et Exactitude
 
 Les données affichées peuvent être incomplètes, indisponibles, retardées, modifiées par les fournisseurs ou interprétées de manière simplifiée par le prototype.
@@ -38,9 +40,11 @@ L'utilisateur doit vérifier toute information importante auprès des sources of
 
 ## Propriété Intellectuelle
 
-Le nom, l'interface, les textes, les modèles de score et les éléments propres à PrismCenter sont protégés dans les conditions prévues par le droit applicable, sous réserve des droits appartenant aux fournisseurs de données, bibliothèques open source et tiers mentionnés.
+Le code applicatif de PrismCenter est distribué sous licence MIT, sauf indication contraire. Le texte complet est disponible dans [`LICENSE`](../LICENSE).
 
-Les bibliothèques et dépendances utilisées conservent leurs licences respectives.
+Le nom, l'interface, les textes, les modèles de score et les éléments propres à PrismCenter restent soumis aux conditions de la licence du projet et au droit applicable, sous réserve des droits appartenant aux fournisseurs de données, bibliothèques open source et tiers mentionnés.
+
+Les bibliothèques et dépendances utilisées conservent leurs licences respectives. Les principales notices sont documentées dans [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).
 
 ## Responsabilité
 
@@ -51,4 +55,3 @@ L'éditeur du prototype ne saurait être tenu responsable d'une décision prise 
 ## Contact
 
 Une adresse de contact dédiée doit être ajoutée avant publication officielle.
-

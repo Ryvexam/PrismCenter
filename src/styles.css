@@ -197,29 +197,71 @@ body {
 
 .calculation-status {
   position: absolute;
-  right: clamp(1rem, 2.4vw, 2rem);
-  top: clamp(1rem, 2.4vw, 2rem);
+  inset: 0;
   z-index: 20;
-  display: inline-flex;
-  min-height: 2.75rem;
+  display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
+  background: rgba(247, 244, 236, 0.64);
+  padding: clamp(1rem, 4vw, 3rem);
+  pointer-events: none;
+}
+
+.calculation-status__panel {
+  display: grid;
+  width: min(34rem, 100%);
+  gap: 1rem;
   border: 1px solid rgba(20, 20, 20, 0.18);
   background: oklch(98.4% 0.009 86 / 0.96);
-  padding: 0.75rem 0.9rem;
+  padding: clamp(1.35rem, 3vw, 2rem);
   color: var(--ink);
+  box-shadow: 0 2rem 4rem rgba(44, 37, 22, 0.18);
+}
+
+.calculation-status__label,
+.calculation-status__sources {
   font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.62rem;
   letter-spacing: 0.16em;
   line-height: 1.2;
-  pointer-events: none;
   text-transform: uppercase;
-  box-shadow: 0 1.2rem 2.5rem rgba(44, 37, 22, 0.1);
+}
+
+.calculation-status__title {
+  font-family: 'Newsreader', ui-serif, Georgia, serif;
+  font-size: clamp(2.4rem, 6vw, 4.6rem);
+  font-weight: 300;
+  letter-spacing: 0;
+  line-height: 0.9;
+}
+
+.calculation-status__body {
+  max-width: 28rem;
+  color: var(--graphite);
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.75;
+}
+
+.calculation-status__sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  color: var(--graphite);
+}
+
+.calculation-status__sources span {
+  border: 1px solid var(--rule);
+  padding: 0.45rem 0.55rem;
 }
 
 .calculation-status--tension {
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.calculation-status--tension .calculation-status__panel,
+.calculation-status--tension .calculation-status__sources span {
   border-color: black;
-  background: white;
   box-shadow: none;
 }
 
@@ -323,6 +365,7 @@ body {
 .live-signal,
 .score-plate,
 .method-panel,
+.energy-priority,
 .candidate-memo {
   background: oklch(97.2% 0.015 86);
 }
@@ -572,11 +615,12 @@ body {
   }
 
   .calculation-status {
-    position: relative;
-    top: auto;
-    right: auto;
-    width: auto;
-    margin: 1rem 0 0;
+    align-items: end;
+    padding: 1rem;
+  }
+
+  .calculation-status__panel {
+    padding: 1.2rem;
   }
 
   .signal-row {

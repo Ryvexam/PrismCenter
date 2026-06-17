@@ -67,16 +67,16 @@ const LOW_CARBON_FILIERES = [
 
 const MAP_LAYERS = [
   {
-    id: 'score',
-    label: 'Score IA',
-    question: 'Où regarder en premier ?',
-    description: 'Pré-score départemental pour un datacenter IA, avant analyse fine du site.',
-  },
-  {
     id: 'energy',
     label: 'Énergie bas carbone',
     question: 'Où la puissance raccordée est-elle déjà forte ?',
     description: 'ODRÉ distingue bas carbone, nucléaire, renouvelables et stockage; Eco2mix ajoute le signal réseau live.',
+  },
+  {
+    id: 'score',
+    label: 'Score IA',
+    question: 'Où regarder en premier ?',
+    description: 'Pré-score départemental pour un datacenter IA, avant analyse fine du site.',
   },
   {
     id: 'land',
@@ -603,7 +603,7 @@ function LegalPage({ id, onBack, onHome, onOpenLegal }) {
 function Studio({ onBack, onOpenIndice, onOpenLegal }) {
   const energy = useEnergyData();
   const [selectedCode, setSelectedCode] = useState('33');
-  const [activeLayerId, setActiveLayerId] = useState('score');
+  const [activeLayerId, setActiveLayerId] = useState('energy');
   const [selectedProfileId, setSelectedProfileId] = useState('training');
   const [isZoomed, setIsZoomed] = useState(false);
   const [analysisPoint, setAnalysisPoint] = useState(null);
@@ -754,7 +754,7 @@ function DepartmentMap({
       <div className="relative z-10 mb-5 flex flex-wrap items-start justify-between gap-5">
         <div>
           <p className="font-mono text-[0.62rem] uppercase tracking-[0.24em] text-pewter">
-            Carte d’aptitude datacenter IA
+            Carte énergétique d’aptitude datacenter IA
           </p>
           <h2
             className={cx(
@@ -862,7 +862,7 @@ function DepartmentMap({
         ) : (
           <FallbackDepartmentList departments={model.items} mode={mode} setSelectedCode={setSelectedCode} />
         )}
-        {pointAnalysis.status === 'loading' && <CalculationStatus mode={mode} />}
+        {pointAnalysis.status === 'loading' && <CalculationStatus mode={mode} selectedMetric={selectedMetric} />}
         <MapScoreCartouche
           finalScore={finalScore}
           mode={mode}
@@ -900,15 +900,28 @@ function DepartmentMap({
   );
 }
 
-function CalculationStatus({ mode }) {
+function CalculationStatus({ mode, selectedMetric }) {
   return (
     <div
       className={cx('calculation-status', mode === 'tension' && 'calculation-status--tension')}
       role="status"
       aria-live="polite"
     >
-      <span className="calculation-status__mark" aria-hidden="true" />
-      <span>Calcul du score en cours</span>
+      <div className="calculation-status__panel">
+        <span className="calculation-status__mark" aria-hidden="true" />
+        <p className="calculation-status__label">Calcul du score en cours</p>
+        <p className="calculation-status__title">Qualification énergétique du site</p>
+        <p className="calculation-status__body">
+          {selectedMetric?.name ?? 'Département'} · énergie bas carbone, signal réseau, eau, risques et accès sont recroisés au point cliqué.
+        </p>
+        <div className="calculation-status__sources" aria-hidden="true">
+          <span>ODRÉ</span>
+          <span>Eco2mix</span>
+          <span>Géorisques</span>
+          <span>Hub’Eau</span>
+          <span>OSM</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1061,6 +1074,8 @@ function ControlDeck({
 
       <LiveGridSignal energy={energy} mode={mode} />
 
+      <EnergyPriorityPanel energy={energy} mode={mode} selectedMetric={selectedMetric} />
+
       <ProfileSelector
         mode={mode}
         profiles={profiles}
@@ -1126,6 +1141,39 @@ function ControlDeck({
 
       <SourceLinks mode={mode} onOpenLegal={onOpenLegal} />
     </aside>
+  );
+}
+
+function EnergyPriorityPanel({ energy, mode, selectedMetric }) {
+  const liveScore = buildLiveGridScore(energy.realtime);
+  const lowCarbonMw = (selectedMetric?.lowCarbonKw ?? 0) / 1000;
+  const energyScore = Math.round(selectedMetric?.energyScore ?? 0);
+  const rank = selectedMetric?.ranks?.energyScore;
+  const carbon = Number.isFinite(Number(energy.realtime?.tauxCo2)) ? Number(energy.realtime.tauxCo2) : null;
+  const solar = Number.isFinite(Number(energy.realtime?.solaire)) ? Number(energy.realtime.solaire) : 0;
+  const consumption = Number.isFinite(Number(energy.realtime?.consommation)) ? Number(energy.realtime.consommation) : 1;
+  const solarShare = Math.round((solar / Math.max(consumption, 1)) * 100);
+
+  return (
+    <div className={cx('energy-priority grid gap-4 border p-4', mode === 'tension' ? 'border-black' : 'border-[#d8d0bd]')}>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Énergie d’abord</p>
+          <p className="mt-2 font-display text-4xl leading-none text-ink">{energyScore}/100</p>
+        </div>
+        <Zap aria-hidden="true" size={20} strokeWidth={1.25} />
+      </div>
+      <p className="text-sm leading-6 text-graphite">
+        {formatMw(lowCarbonMw)} MW bas carbone raccordés. Le score commence par la capacité électrique existante,
+        puis seulement ensuite par le foncier, les risques et l’accès.
+      </p>
+      <div className="grid gap-2 text-sm leading-6">
+        <FactRow label="Rang énergie" value={rank ? `${rank} national` : '—'} />
+        <FactRow label="Signal réseau live" value={`${Math.round(liveScore)}/100`} />
+        <FactRow label="Carbone instantané" value={carbon == null ? '—' : `${carbon} gCO₂/kWh`} />
+        <FactRow label="Solaire national" value={`${solarShare}% de la consommation`} />
+      </div>
+    </div>
   );
 }
 
