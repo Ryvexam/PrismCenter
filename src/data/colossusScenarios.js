@@ -2,8 +2,8 @@ const DEFAULT_ELECTRICITY_PRICE_EUR_PER_KWH = 0.08;
 const HOURS_PER_DAY = 24;
 const DAYS_PER_MONTH = 30;
 const DAYS_PER_YEAR = 365;
-const KW_PER_MW = 1000;
-const KWH_PER_GWH = 1_000_000;
+const KW_PER_MW = 1_000;
+const GWH_PER_TWH = 1_000;
 
 export const COLOSSUS_SCALE_ASSUMPTIONS = {
   defaultElectricityPriceEurPerKwh: DEFAULT_ELECTRICITY_PRICE_EUR_PER_KWH,
@@ -12,48 +12,67 @@ export const COLOSSUS_SCALE_ASSUMPTIONS = {
     h200: 0.7,
     gb200Equivalent: 1.2,
   },
+  serverOverheadFactor: {
+    efficient: 1.25,
+    realistic: 1.45,
+    dense: 1.65,
+  },
   pueRange: {
     efficient: 1.15,
-    realistic: 1.35,
-    stressed: 1.55,
+    realistic: 1.25,
+    stressed: 1.4,
   },
 };
 
 export const COLOSSUS_SCENARIOS = [
   {
     id: 'baseline-30mw',
-    label: 'Datacenter actuel',
+    label: 'Datacenter régional',
     electricalLoadMw: 30,
-    gpuCount: 40_000,
-    description: 'Ordre de grandeur d’un datacenter IA déjà massif mais encore très loin d’un campus type Colossus.',
+    gpuCount: 25_000,
+    gpuPowerKw: COLOSSUS_SCALE_ASSUMPTIONS.gpuPowerKw.h100,
+    architecture: 'H100/H200-equivalent',
+    description: 'Point de comparaison: un datacenter IA de 30 MW, déjà conséquent mais dix fois plus petit que le scénario Colossus 1.',
   },
   {
     id: 'colossus-1-300mw',
     label: 'Colossus 1',
     electricalLoadMw: 300,
     gpuCount: 200_000,
-    description: 'Approximation 250–300 MW pour 200 000 H100, incluant serveurs, réseau, stockage, refroidissement et pertes.',
+    gpuPowerKw: COLOSSUS_SCALE_ASSUMPTIONS.gpuPowerKw.h100,
+    architecture: 'H100/H200',
+    description: 'Hypothèse de travail de 300 MW pour 200 000 GPU, incluant serveurs, réseau, stockage, refroidissement et pertes.',
   },
   {
     id: 'colossus-2-1gw',
-    label: 'Colossus 2 — objectif 1 GW',
+    label: 'Campus 1 GW',
     electricalLoadMw: 1_000,
     gpuCount: 1_000_000,
-    description: 'Scénario campus gigawatt: ordre de grandeur d’un gros réacteur nucléaire français.',
+    gpuPowerKw: COLOSSUS_SCALE_ASSUMPTIONS.gpuPowerKw.h100,
+    architecture: 'H100/H200-equivalent',
+    description: 'Scénario gigawatt pour une extension jusqu’à un million de GPU; il exige une stratégie énergétique de niveau infrastructure nationale.',
   },
   {
     id: 'colossus-2-2gw',
-    label: 'Colossus 2 — extension 2 GW',
+    label: 'Extension 2 GW',
     electricalLoadMw: 2_000,
     gpuCount: 1_000_000,
-    description: 'Scénario haut: Blackwell/GB200, PUE plus lourd, refroidissement et auxiliaires très consommateurs.',
+    gpuPowerKw: COLOSSUS_SCALE_ASSUMPTIONS.gpuPowerKw.gb200Equivalent,
+    architecture: 'GB200/Blackwell-equivalent',
+    description: 'Scénario extrême combinant GPU très denses, auxiliaires, refroidissement, redondance et production électrique dédiée.',
   },
 ];
 
+function normalizeNonNegative(value) {
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : 0;
+}
+
 export function calculateEnergyUsage(loadMw) {
-  const dailyGwh = (loadMw * KW_PER_MW * HOURS_PER_DAY) / KWH_PER_GWH;
+  const normalizedLoadMw = normalizeNonNegative(loadMw);
+  const dailyGwh = (normalizedLoadMw * HOURS_PER_DAY) / KW_PER_MW;
   const monthlyGwh = dailyGwh * DAYS_PER_MONTH;
-  const yearlyTwh = (dailyGwh * DAYS_PER_YEAR) / 1000;
+  const yearlyTwh = (dailyGwh * DAYS_PER_YEAR) / GWH_PER_TWH;
 
   return {
     dailyGwh,
@@ -63,29 +82,47 @@ export function calculateEnergyUsage(loadMw) {
 }
 
 export function calculateEnergyCost(loadMw, electricityPriceEurPerKwh = DEFAULT_ELECTRICITY_PRICE_EUR_PER_KWH) {
-  const dailyKwh = loadMw * KW_PER_MW * HOURS_PER_DAY;
-  const dailyEur = dailyKwh * electricityPriceEurPerKwh;
-  const monthlyEur = dailyEur * DAYS_PER_MONTH;
-  const yearlyEur = dailyEur * DAYS_PER_YEAR;
+  const normalizedLoadMw = normalizeNonNegative(loadMw);
+  const normalizedPrice = normalizeNonNegative(electricityPriceEurPerKwh);
+  const dailyKwh = normalizedLoadMw * KW_PER_MW * HOURS_PER_DAY;
+  const dailyEur = dailyKwh * normalizedPrice;
 
   return {
     dailyEur,
-    monthlyEur,
-    yearlyEur,
+    monthlyEur: dailyEur * DAYS_PER_MONTH,
+    yearlyEur: dailyEur * DAYS_PER_YEAR,
   };
 }
 
-export function estimateSiteLoadFromGpuCount(gpuCount, gpuPowerKw, pue = COLOSSUS_SCALE_ASSUMPTIONS.pueRange.realistic) {
-  return (gpuCount * gpuPowerKw * pue) / KW_PER_MW;
+export function estimateSiteLoadFromGpuCount(
+  gpuCount,
+  gpuPowerKw,
+  {
+    pue = COLOSSUS_SCALE_ASSUMPTIONS.pueRange.realistic,
+    serverOverheadFactor = COLOSSUS_SCALE_ASSUMPTIONS.serverOverheadFactor.realistic,
+  } = {},
+) {
+  const gpuPowerMw = (normalizeNonNegative(gpuCount) * normalizeNonNegative(gpuPowerKw)) / KW_PER_MW;
+  return gpuPowerMw * normalizeNonNegative(serverOverheadFactor) * normalizeNonNegative(pue);
+}
+
+export function getColossusScenario(id) {
+  return COLOSSUS_SCENARIOS.find((scenario) => scenario.id === id) ?? COLOSSUS_SCENARIOS[1];
 }
 
 export function buildColossusScenarioSummary(
   scenarios = COLOSSUS_SCENARIOS,
   electricityPriceEurPerKwh = DEFAULT_ELECTRICITY_PRICE_EUR_PER_KWH,
 ) {
-  return scenarios.map((scenario) => ({
-    ...scenario,
-    energy: calculateEnergyUsage(scenario.electricalLoadMw),
-    cost: calculateEnergyCost(scenario.electricalLoadMw, electricityPriceEurPerKwh),
-  }));
+  return scenarios.map((scenario) => {
+    const gpuPowerMw = (scenario.gpuCount * scenario.gpuPowerKw) / KW_PER_MW;
+
+    return {
+      ...scenario,
+      gpuPowerMw,
+      infrastructurePowerMw: Math.max(scenario.electricalLoadMw - gpuPowerMw, 0),
+      energy: calculateEnergyUsage(scenario.electricalLoadMw),
+      cost: calculateEnergyCost(scenario.electricalLoadMw, electricityPriceEurPerKwh),
+    };
+  });
 }
