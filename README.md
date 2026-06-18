@@ -1,16 +1,21 @@
 # PrismCenter
 
-[![React](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)](https://vite.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Vercel](https://img.shields.io/badge/Déploiement-Vercel-000000?logo=vercel&logoColor=white)](https://vercel.com/)
-[![Licence](https://img.shields.io/badge/licence-MIT-111111)](LICENSE)
-[![Statut](https://img.shields.io/badge/statut-prototype_hackathon-e7c85d)](#statut-hackathon)
-[![Données](https://img.shields.io/badge/données-publiques-2f855a)](#sources-de-données)
+[![License](https://img.shields.io/badge/License-MIT-111111?style=flat-square)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Hackathon%20Prototype-e7c85d?style=flat-square)](#statut-hackathon)
+[![React](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white&style=flat-square)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white&style=flat-square)](https://vite.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38bdf8?logo=tailwindcss&logoColor=white&style=flat-square)](https://tailwindcss.com/)
+[![Deploy](https://img.shields.io/badge/Deploy-Vercel-000000?logo=vercel&logoColor=white&style=flat-square)](https://vercel.com/)
+[![Open Data](https://img.shields.io/badge/Open_Data-Public_sources-2f855a?style=flat-square)](#sources-de-données)
+[![Energy](https://img.shields.io/badge/Energy-First%20Datacenter%20siting-1f6b4a?style=flat-square)](#pitch-produit)
 
 **PrismCenter est un prototype cartographique d'aide à l'identification de territoires propices à l'implantation de datacenters IA en France, à partir de données publiques.**
 
 L'application croise des signaux énergétiques, fonciers, climatiques, hydrologiques, d'accès et de risques naturels pour produire un score d'aptitude. Elle aide à prioriser une instruction de site; elle ne remplace ni une étude technique, ni une étude réglementaire, ni une décision d'investissement.
+
+## Aperçu
+
+![Capture d'écran de PrismCenter](docs/readme-screenshot.png)
 
 ## Pitch Produit
 
