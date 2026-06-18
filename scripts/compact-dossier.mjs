@@ -1,1 +1,1 @@
-console.log('compact dossier');
+console.log('dossier update');
