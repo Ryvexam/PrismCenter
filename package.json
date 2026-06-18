@@ -7,7 +7,7 @@
   "scripts": {
     "build:grid": "node scripts/build-grid.mjs",
     "dev": "vite --host 127.0.0.1",
-    "build": "vite build",
+    "build": "node scripts/build-integrated.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --test"
   },
