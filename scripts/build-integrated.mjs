@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 
 const readmePath = 'README.md';
 const readme = readFileSync(readmePath, 'utf8');
-writeFileSync(readmePath, readme.replace("capacités d'accueil réseau", 'capacités d’accueil réseau'));
+writeFileSync(readmePath, readme.replaceAll("capacités d'accueil réseau", 'capacités d’accueil réseau'));
 
 await import('./apply-hyperscale-ui.mjs');
 
