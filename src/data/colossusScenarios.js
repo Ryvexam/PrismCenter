@@ -50,7 +50,7 @@ export const COLOSSUS_SCENARIOS = [
     gpuCount: 1_000_000,
     gpuPowerKw: COLOSSUS_SCALE_ASSUMPTIONS.gpuPowerKw.h100,
     architecture: 'H100/H200-equivalent',
-    description: 'Scénario gigawatt pour une extension jusqu’à un million de GPU; il exige une stratégie énergétique de niveau infrastructure nationale.',
+    description: 'Première étape gigawatt vers un million de GPU; le modèle signale lorsque la charge réaliste dépasse cette enveloppe.',
   },
   {
     id: 'colossus-2-2gw',
@@ -116,10 +116,14 @@ export function buildColossusScenarioSummary(
 ) {
   return scenarios.map((scenario) => {
     const gpuPowerMw = (scenario.gpuCount * scenario.gpuPowerKw) / KW_PER_MW;
+    const estimatedSiteLoadMw = estimateSiteLoadFromGpuCount(scenario.gpuCount, scenario.gpuPowerKw);
+    const powerHeadroomMw = scenario.electricalLoadMw - estimatedSiteLoadMw;
 
     return {
       ...scenario,
       gpuPowerMw,
+      estimatedSiteLoadMw,
+      powerHeadroomMw,
       infrastructurePowerMw: Math.max(scenario.electricalLoadMw - gpuPowerMw, 0),
       energy: calculateEnergyUsage(scenario.electricalLoadMw),
       cost: calculateEnergyCost(scenario.electricalLoadMw, electricityPriceEurPerKwh),
