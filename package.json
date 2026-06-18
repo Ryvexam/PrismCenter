@@ -7,6 +7,7 @@
   "scripts": {
     "build:grid": "node scripts/build-grid.mjs",
     "dev": "vite --host 127.0.0.1",
+    "prebuild": "node scripts/apply-hyperscale-ui.mjs || true",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1"
   },
