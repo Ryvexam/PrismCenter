@@ -1,14 +1,67 @@
-name: Apply hyperscale simulation migration
+name: Apply hyperscale UI migration
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - feat/colossus-scale-simulation
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  noop:
+  migrate:
     runs-on: ubuntu-latest
     steps:
-      - name: Disabled migration
-        run: echo "Temporary migration workflow disabled. Remove this file before merge."
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect staged migration
+        id: migration
+        shell: bash
+        run: |
+          if [[ -f scripts/apply-hyperscale-ui.mjs ]]; then
+            echo "pending=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pending=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node.js
+        if: steps.migration.outputs.pending == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Apply deterministic UI migration
+        if: steps.migration.outputs.pending == 'true'
+        run: |
+          node scripts/apply-hyperscale-ui.mjs
+          rm scripts/apply-hyperscale-ui.mjs
+
+      - name: Install dependencies
+        if: steps.migration.outputs.pending == 'true'
+        run: npm ci
+
+      - name: Run unit tests
+        if: steps.migration.outputs.pending == 'true'
+        run: npm test
+
+      - name: Validate production build
+        if: steps.migration.outputs.pending == 'true'
+        run: npm run build
+
+      - name: Check generated diff
+        if: steps.migration.outputs.pending == 'true'
+        run: git diff --check
+
+      - name: Commit migration result
+        if: steps.migration.outputs.pending == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: add Colossus-scale simulation"
+          git push origin HEAD:feat/colossus-scale-simulation
