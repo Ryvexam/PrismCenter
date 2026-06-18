@@ -1,0 +1,14 @@
+name: Apply hyperscale simulation migration
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disabled migration
+        run: echo "Temporary migration workflow disabled. Remove this file before merge."
