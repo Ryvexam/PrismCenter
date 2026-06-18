@@ -8,7 +8,8 @@
     "build:grid": "node scripts/build-grid.mjs",
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",
