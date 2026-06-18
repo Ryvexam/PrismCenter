@@ -1,0 +1,65 @@
+name: Apply hyperscale simulation migration
+
+on:
+  push:
+    branches:
+      - feat/colossus-scale-simulation
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect staged migration
+        id: migration
+        shell: bash
+        run: |
+          if [[ -f scripts/apply-colossus-scale.mjs.gz ]]; then
+            echo "pending=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pending=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node.js
+        if: steps.migration.outputs.pending == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Apply deterministic source migration
+        if: steps.migration.outputs.pending == 'true'
+        shell: bash
+        run: |
+          gzip -dc scripts/apply-colossus-scale.mjs.gz > /tmp/apply-colossus-scale.mjs
+          node /tmp/apply-colossus-scale.mjs
+          rm scripts/apply-colossus-scale.mjs.gz
+
+      - name: Install dependencies
+        if: steps.migration.outputs.pending == 'true'
+        run: npm ci
+
+      - name: Validate production build
+        if: steps.migration.outputs.pending == 'true'
+        run: npm run build
+
+      - name: Check generated diff
+        if: steps.migration.outputs.pending == 'true'
+        run: git diff --check
+
+      - name: Commit migration result
+        if: steps.migration.outputs.pending == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: simulate colossus-scale data centers"
+          git push origin HEAD:feat/colossus-scale-simulation
