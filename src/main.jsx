@@ -1277,9 +1277,12 @@ function ControlDeck({
         energy={energy}
         mode={mode}
         pointAnalysis={pointAnalysis}
+        score={score}
         selectedCriterionKey={selectedCriterionKey}
         selectedMetric={selectedMetric}
+        selectedProfile={selectedProfile}
         setSelectedCriterionKey={setSelectedCriterionKey}
+        verdict={verdict}
       />
 
       <CriterionModal
@@ -1563,6 +1566,9 @@ function CandidateMemo({ energy, mode, pointAnalysis, score, selectedMetric, sel
   const [copied, setCopied] = useState(false);
   const copyResetRef = useRef(null);
   const confidence = buildConfidence(pointAnalysis, energy);
+  const memoProfile = selectedProfile ?? buildAiScenarioProfile(300);
+  const memoScore = Number.isFinite(score) ? score : selectedMetric?.datacenterScore ?? 0;
+  const memoVerdict = verdict ?? 'Pré-candidat';
   const criteria = pointAnalysis.data?.criteria ?? {
     access: selectedMetric?.accessScore ?? 52,
     cooling: selectedMetric?.coolingScore ?? 0,
@@ -1581,10 +1587,10 @@ function CandidateMemo({ energy, mode, pointAnalysis, score, selectedMetric, sel
     criteria,
     energy,
     pointAnalysis,
-    score,
+    score: memoScore,
     selectedMetric,
-    selectedProfile,
-    verdict,
+    selectedProfile: memoProfile,
+    verdict: memoVerdict,
   });
 
   useEffect(() => () => window.clearTimeout(copyResetRef.current), []);
@@ -1608,7 +1614,7 @@ function CandidateMemo({ energy, mode, pointAnalysis, score, selectedMetric, sel
         <FileText aria-hidden="true" size={17} strokeWidth={1.3} />
       </div>
       <p className="text-sm leading-6 text-graphite">
-        {selectedMetric?.name} est évalué pour un scénario {selectedProfile.label.toLowerCase()}.
+        {selectedMetric?.name} est évalué pour un scénario {memoProfile.label.toLowerCase()}.
         {pointAnalysis.data
           ? ' Le mémo reprend les signaux locaux disponibles maintenant.'
           : ' Le mémo reste départemental tant qu’aucun point n’est cliqué.'}
