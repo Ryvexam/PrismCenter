@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">PrismCenter - Gironde Open Graph preview</title>
+  <desc id="desc">Carte énergétique d'aptitude datacenter IA pour la Gironde, avec une carte de France dorée et un pré-score départemental de 80.</desc>
+  <defs>
+    <pattern id="grid" width="84" height="84" patternUnits="userSpaceOnUse">
+      <path d="M 84 0 L 0 0 0 84" fill="none" stroke="#d8d2bf" stroke-width="1" opacity="0.45"/>
+    </pattern>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#28220f" flood-opacity="0.14"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="#f4f0e6"/>
+  <rect x="36" y="148" width="1128" height="446" fill="url(#grid)" stroke="#d8d2bf"/>
+
+  <text x="36" y="44" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" letter-spacing="7" fill="#8d856f">CARTE ÉNERGÉTIQUE D'APTITUDE DATACENTER IA</text>
+  <text x="36" y="94" font-family="Georgia, 'Times New Roman', serif" font-size="66" fill="#171714">Gironde</text>
+  <text x="36" y="134" font-family="Arial, sans-serif" font-size="15" fill="#36362f">Rang 3 national sur ce scénario.</text>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" letter-spacing="2" fill="#2b2b27">
+    <rect x="988" y="30" width="162" height="45" fill="none" stroke="#b2a55e"/>
+    <text x="1012" y="58">▰▱ DONNÉES LIVE</text>
+    <rect x="36" y="164" width="225" height="56" fill="#f8f6ef" stroke="#d2ccb9"/>
+    <text x="58" y="198">◈ ÉNERGIE BAS CARBONE</text>
+    <rect x="271" y="164" width="172" height="56" fill="#f8f6ef" stroke="#d2ccb9"/>
+    <text x="293" y="198">◈ RACCORDEMENT</text>
+    <rect x="453" y="164" width="142" height="56" fill="#f8f6ef" stroke="#d2ccb9"/>
+    <text x="475" y="198">◈ SCORE IA</text>
+    <rect x="605" y="164" width="126" height="56" fill="#f8f6ef" stroke="#d2ccb9"/>
+    <text x="627" y="198">◈ FONCIER</text>
+    <rect x="741" y="164" width="200" height="56" fill="#f8f6ef" stroke="#d2ccb9"/>
+    <text x="763" y="198">◈ REFROIDISSEMENT</text>
+    <rect x="951" y="164" width="202" height="56" fill="#f8f6ef" stroke="#d2ccb9"/>
+    <text x="973" y="198">◈ ROUTE &amp; ÉQUIPES</text>
+  </g>
+
+  <g transform="translate(370 165) scale(1.08)">
+    <path d="M248 28 L289 17 L321 44 L360 49 L392 79 L449 92 L466 134 L431 178 L456 219 L414 260 L425 318 L376 351 L353 409 L303 390 L265 419 L229 386 L179 401 L146 360 L89 358 L72 309 L29 278 L58 222 L28 182 L75 149 L98 91 L154 86 L189 44 Z" fill="#e7c12d" opacity="0.95"/>
+    <path d="M177 159 L233 123 L275 147 L303 202 L271 249 L214 257 L166 222 Z" fill="#c5aa21" opacity="0.62"/>
+    <path d="M93 188 L151 157 L166 222 L112 246 Z" fill="#b89f1e" opacity="0.52"/>
+    <path d="M304 93 L360 112 L340 169 L286 144 Z" fill="#c9ad22" opacity="0.5"/>
+    <path d="M329 258 L400 273 L370 334 L309 323 Z" fill="#bfa51f" opacity="0.48"/>
+    <path d="M198 52 L252 38 L256 96 L196 112 Z" fill="#b69c1c" opacity="0.42"/>
+    <path d="M457 382 C491 395 514 432 508 472 C470 463 445 437 443 398 Z" fill="#e0b92b" opacity="0.9"/>
+    <path d="M248 28 L289 17 L321 44 L360 49 L392 79 L449 92 L466 134 L431 178 L456 219 L414 260 L425 318 L376 351 L353 409 L303 390 L265 419 L229 386 L179 401 L146 360 L89 358 L72 309 L29 278 L58 222 L28 182 L75 149 L98 91 L154 86 L189 44 Z" fill="none" stroke="#d1b537" stroke-width="1.2"/>
+  </g>
+
+  <g filter="url(#cardShadow)">
+    <rect x="78" y="448" width="520" height="144" fill="#fffdf7" stroke="#d5cdb8"/>
+    <text x="110" y="496" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" letter-spacing="4" fill="#a9a18b">PRÉ-SCORE DÉPARTEMENTAL</text>
+    <text x="110" y="560" font-family="Georgia, 'Times New Roman', serif" font-size="78" fill="#151511">80</text>
+    <text x="328" y="505" font-family="Georgia, 'Times New Roman', serif" font-size="28" fill="#29251d">Pré-candidat fort</text>
+    <text x="328" y="538" font-family="Arial, sans-serif" font-size="15" fill="#403c31">Gironde · Colossus ajusté · 300</text>
+    <text x="328" y="562" font-family="Arial, sans-serif" font-size="15" fill="#403c31">MW · ~200000 GPU</text>
+    <rect x="110" y="576" width="460" height="6" fill="none" stroke="#c9c3ad"/>
+    <rect x="112" y="578" width="360" height="2" fill="#d7bb2a"/>
+  </g>
+</svg>
