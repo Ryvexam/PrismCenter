@@ -1793,12 +1793,12 @@ function buildCriterionDetail(key, value = 0, { energy, pointAnalysis, selectedM
       facts: [
         { label: 'Inondation', value: local?.floodLabel ?? 'Pré-risque départemental' },
         { label: 'Sismicité', value: local?.seismicLabel ?? 'Pré-risque départemental' },
-        { label: 'Mouvements terrain', value: local?.groundMovementLabel ?? 'Non qualifié au point' },
+        { label: 'Mouvements terrain', value: local?.groundMovementLabel ?? 'Donnée Géorisques absente' },
         { label: 'Confiance risque', value: local?.riskConfidenceLabel ?? 'Départemental' },
       ],
       explanation: hasQualifiedRiskSignal
         ? 'Plus le score est haut, moins les signaux de risque naturel semblent contraignants. Le score baisse seulement quand des signaux qualifiés indiquent inondation, sismicité, mouvements de terrain ou retrait-gonflement.'
-        : 'Aucun signal risque qualifié n’a été reçu au point: le score reste volontairement neutre et doit être lu avec une confiance faible, pas comme une pénalité. Plus haut = moins contraint, mais une expertise réglementaire reste nécessaire.'
+        : 'Géorisques n’a renvoyé aucun signal exploitable pour ce point: le score reste volontairement neutre et doit être lu avec une confiance faible, pas comme une pénalité. Plus haut = moins contraint, mais une expertise réglementaire reste nécessaire.'
     },
   };
 
@@ -3096,12 +3096,12 @@ function parseRiskSignals(risk) {
   if (!risk?.risquesNaturels) {
     return {
       confidence: 18,
-      confidenceLabel: 'non qualifié',
-      floodLabel: 'Non qualifié',
+      confidenceLabel: 'Géorisques absent',
+      floodLabel: 'Donnée Géorisques absente',
       floodScore: 60,
-      groundLabel: 'Non qualifié',
+      groundLabel: 'Donnée Géorisques absente',
       groundScore: 60,
-      seismicLabel: 'Non qualifié',
+      seismicLabel: 'Donnée Géorisques absente',
       seismicScore: 60,
     };
   }
@@ -3118,14 +3118,20 @@ function parseRiskSignals(risk) {
 
   return {
     confidence: knownSignals.length >= 3 ? 86 : knownSignals.length === 2 ? 70 : knownSignals.length === 1 ? 52 : 28,
-    confidenceLabel: knownSignals.length >= 2 ? 'qualifié' : 'partiel',
-    floodLabel: floodStatus || 'Non qualifié',
+    confidenceLabel: knownSignals.length >= 2 ? 'qualifié' : knownSignals.length === 1 ? 'partiel' : 'Géorisques sans signal',
+    floodLabel: formatRiskStatusLabel(floodStatus),
     floodScore: scoreFloodText(floodStatus),
-    groundLabel: groundStatus.trim() || 'Non qualifié',
+    groundLabel: formatRiskStatusLabel(groundStatus),
     groundScore: scoreRiskText(groundStatus),
-    seismicLabel: seismicStatus || 'Non qualifié',
+    seismicLabel: formatRiskStatusLabel(seismicStatus),
     seismicScore: scoreRiskText(seismicStatus),
   };
+}
+
+function formatRiskStatusLabel(text) {
+  const value = String(text ?? '').trim();
+  if (!value || isUnknownRiskText(value)) return 'Aucun signal Géorisques exploitable';
+  return value;
 }
 
 function scoreFloodText(text) {
