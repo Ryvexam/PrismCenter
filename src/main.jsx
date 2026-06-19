@@ -687,11 +687,11 @@ function LegalPage({ id, onBack, onHome, onOpenLegal }) {
   );
 }
 
-function Studio({ onBack, onOpenIndice, onOpenLegal }) {
+function Studio({ onBack, onOpenIndice }) {
   const energy = useEnergyData();
   const [selectedCode, setSelectedCode] = useState('33');
   const [activeLayerId, setActiveLayerId] = useState('energy');
-  const [selectedProfileId, setSelectedProfileId] = useState('colossus1');
+  const [scenarioPowerMw, setScenarioPowerMw] = useState(300);
   const [isZoomed, setIsZoomed] = useState(false);
   const [analysisPoint, setAnalysisPoint] = useState(null);
 
@@ -701,8 +701,6 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
     [energy.departments, energy.geojson, selectedProfile, energy.realtime, energy.rteGrid],
   );
   const selectedMetric = model.byCode.get(selectedCode) ?? model.items[0];
-  const selectedLayer = MAP_LAYERS.find((layer) => layer.id === activeLayerId) ?? MAP_LAYERS[0];
-
   const pointAnalysis = usePointAnalysis(analysisPoint, selectedMetric, selectedProfile, energy.realtime);
   const finalScore = pointAnalysis.data?.score ?? selectedMetric?.datacenterScore ?? 0;
   const mode = finalScore >= 76 ? 'optimal' : finalScore < 52 ? 'tension' : 'transition';
@@ -770,20 +768,10 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
           onOpenIndice={onOpenIndice}
         />
         <ControlDeck
-          activeLayerId={activeLayerId}
-          analysisPoint={analysisPoint}
           energy={energy}
           mode={mode}
-          model={model}
           pointAnalysis={pointAnalysis}
-          profiles={PROFILE_PRESETS}
-          selectedLayer={selectedLayer}
           selectedMetric={selectedMetric}
-          selectedProfile={selectedProfile}
-          setActiveLayerId={setActiveLayerId}
-          setSelectedCode={handleDepartmentSelect}
-          onOpenIndice={onOpenIndice}
-          onOpenLegal={onOpenLegal}
         />
       </div>
     </motion.main>
@@ -1071,7 +1059,7 @@ function buildMapStats(activeLayerId, selectedMetric, selectedProfile) {
   }
 
   return [
-    { label: 'Score carte', value: `${Math.round(layerValue(selectedMetric, activeLayerId))}/100` },
+    { label: 'Score départemental', value: `${Math.round(selectedMetric?.datacenterScore ?? layerValue(selectedMetric, activeLayerId))}/100` },
     { label: 'Puissance bas carbone', value: `${formatMw((selectedMetric?.lowCarbonKw ?? 0) / 1000)} MW` },
     { label: 'Scénario', value: selectedProfile.footprint },
   ];
@@ -1111,7 +1099,7 @@ function MapScoreCartouche({ finalScore, mode, pointAnalysis, selectedMetric, se
     isCalculating
       ? 'Calcul du score'
       : hasLocalPoint
-        ? 'Point instruit'
+        ? 'Score local point cliqué'
         : 'Pré-score départemental';
   const verdict =
     isCalculating
@@ -1181,40 +1169,15 @@ function LayerControls({ activeLayerId, mode, setActiveLayerId }) {
 }
 
 function ControlDeck({
-  activeLayerId,
-  analysisPoint,
   energy,
   mode,
-  model,
   pointAnalysis,
-  profiles,
-  selectedLayer,
   selectedMetric,
-  selectedProfile,
-  setActiveLayerId,
-  setSelectedCode,
-  onOpenIndice,
-  onOpenLegal,
 }) {
-  const score = pointAnalysis.data?.score ?? selectedMetric?.datacenterScore ?? 0;
-  const verdict = pointAnalysis.data
-    ? score >= 78
-      ? 'Site à instruire'
-      : score >= 58
-        ? 'À challenger'
-        : 'À écarter'
-    : score >= 78
-      ? 'Pré-candidat fort'
-      : score >= 58
-        ? 'Pré-candidat'
-        : 'Pré-candidat faible';
-  const statusMessage =
-    pointAnalysis.status === 'loading'
-      ? `Analyse locale en cours. ${APP_NAME} interroge les sources publiques autour du point.`
-      : pointAnalysis.data?.summary ??
-        'Cliquez dans le département pour qualifier un site précis avec Géorisques, météo, voirie et distance ville.';
   const [selectedCriterionKey, setSelectedCriterionKey] = useState(null);
+  const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
   const closeCriterionModal = () => setSelectedCriterionKey(null);
+  const closeSourceModal = () => setIsSourceModalOpen(false);
 
   return (
     <aside
@@ -1226,59 +1189,29 @@ function ControlDeck({
             ? 'gap-8 border-[#d9d1be] p-5 sm:p-7 md:p-9'
             : 'gap-6 border-[#ddd6c4] p-5 sm:p-6 md:p-8',
       )}
+      aria-label="Scores par catégorie"
     >
-      <div className={cx('decision-ledger grid transition-[gap] duration-700', mode === 'tension' ? 'gap-3' : 'gap-5')}>
-        <div className="flex items-start justify-between gap-5">
-          <p className="font-mono text-[0.62rem] uppercase tracking-[0.24em]">Dossier d’implantation</p>
-          <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em]">{Math.round(score)}/100</span>
-        </div>
-        <h2
-          className={cx(
-            'font-display font-normal leading-none tracking-normal text-ink transition-all duration-700',
-            mode === 'tension' ? 'text-3xl' : 'text-4xl sm:text-5xl md:text-6xl',
-          )}
-        >
-          {verdict}
-        </h2>
-        <p
-          className={cx(
-            'transition-all duration-700',
-            mode === 'tension' ? 'text-sm leading-6' : 'text-base font-light leading-7 sm:text-lg sm:leading-8',
-          )}
-        >
-          {statusMessage}
-        </p>
-      </div>
-
-      <LiveGridSignal energy={energy} mode={mode} />
-
-      <EnergyPriorityPanel energy={energy} mode={mode} selectedMetric={selectedMetric} />
-
-      <GridConnectionPanel mode={mode} selectedMetric={selectedMetric} selectedProfile={selectedProfile} />
-
-      <ProfileSelector
-        mode={mode}
-        profiles={profiles}
-        selectedProfile={selectedProfile}
-        setSelectedProfileId={setSelectedProfileId}
-      />
-
-      <HyperscaleScalePanel mode={mode} selectedMetric={selectedMetric} selectedProfile={selectedProfile} />
-
-      <ScorePlate isCalculating={pointAnalysis.status === 'loading'} mode={mode} score={score} selectedMetric={selectedMetric} />
-
-      <MethodIndexPanel activeLayerId={activeLayerId} mode={mode} onOpenIndice={onOpenIndice} />
-
-      <ConfidenceNote energy={energy} mode={mode} pointAnalysis={pointAnalysis} />
-
-      <CandidateMemo
-        energy={energy}
+      <CriteriaGrid
         mode={mode}
         pointAnalysis={pointAnalysis}
         selectedCriterionKey={selectedCriterionKey}
         selectedMetric={selectedMetric}
         setSelectedCriterionKey={setSelectedCriterionKey}
       />
+
+      <button
+        type="button"
+        onClick={() => setIsSourceModalOpen(true)}
+        className={cx(
+          'inline-flex min-h-11 items-center justify-center gap-3 border px-4 py-3 font-mono text-[0.62rem] uppercase tracking-[0.16em] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
+          mode === 'tension'
+            ? 'border-black text-black hover:bg-black hover:text-white'
+            : 'border-[#d8d0bd] text-ink hover:border-ink hover:bg-ink hover:text-white',
+        )}
+      >
+        Voir la provenance des données
+        <ExternalLink aria-hidden="true" size={13} strokeWidth={1.4} />
+      </button>
 
       <CriterionModal
         criterionKey={selectedCriterionKey}
@@ -1287,6 +1220,14 @@ function ControlDeck({
         onClose={closeCriterionModal}
         pointAnalysis={pointAnalysis}
         selectedMetric={selectedMetric}
+      />
+
+      <DataProvenanceModal
+        energy={energy}
+        isOpen={isSourceModalOpen}
+        mode={mode}
+        onClose={closeSourceModal}
+        pointAnalysis={pointAnalysis}
       />
     </aside>
   );
@@ -1439,7 +1380,7 @@ function LiveGridSignal({ energy, mode }) {
   );
 }
 
-function ProfileSelector({ mode, profiles, selectedProfile, setSelectedProfileId }) {
+function ProfileSelector({ mode, profiles, selectedProfile, setScenarioPowerMw }) {
   return (
     <div className={cx('grid gap-3 border-t pt-5', mode === 'tension' ? 'border-black' : 'border-[#ddd6c4]')}>
       <div className="flex items-center justify-between gap-4">
@@ -1451,11 +1392,11 @@ function ProfileSelector({ mode, profiles, selectedProfile, setSelectedProfileId
           <button
             key={profile.id}
             type="button"
-            aria-pressed={profile.id === selectedProfile.id}
-            onClick={() => setSelectedProfileId(profile.id)}
+            aria-pressed={profile.powerNeedMw === selectedProfile.powerNeedMw}
+            onClick={() => setScenarioPowerMw(profile.powerNeedMw)}
             className={cx(
               'profile-choice border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
-              profile.id === selectedProfile.id
+              profile.powerNeedMw === selectedProfile.powerNeedMw
                 ? 'border-ink bg-ink text-white'
                 : mode === 'tension'
                   ? 'border-black hover:bg-black hover:text-white'
@@ -1561,6 +1502,9 @@ function CandidateMemo({ energy, mode, pointAnalysis, score, selectedMetric, sel
   const [copied, setCopied] = useState(false);
   const copyResetRef = useRef(null);
   const confidence = buildConfidence(pointAnalysis, energy);
+  const memoProfile = selectedProfile ?? buildAiScenarioProfile(300);
+  const memoScore = Number.isFinite(score) ? score : selectedMetric?.datacenterScore ?? 0;
+  const memoVerdict = verdict ?? 'Pré-candidat';
   const criteria = pointAnalysis.data?.criteria ?? {
     access: selectedMetric?.accessScore ?? 52,
     cooling: selectedMetric?.coolingScore ?? 0,
@@ -1579,10 +1523,10 @@ function CandidateMemo({ energy, mode, pointAnalysis, score, selectedMetric, sel
     criteria,
     energy,
     pointAnalysis,
-    score,
+    score: memoScore,
     selectedMetric,
-    selectedProfile,
-    verdict,
+    selectedProfile: memoProfile,
+    verdict: memoVerdict,
   });
 
   useEffect(() => () => window.clearTimeout(copyResetRef.current), []);
@@ -1606,7 +1550,7 @@ function CandidateMemo({ energy, mode, pointAnalysis, score, selectedMetric, sel
         <FileText aria-hidden="true" size={17} strokeWidth={1.3} />
       </div>
       <p className="text-sm leading-6 text-graphite">
-        {selectedMetric?.name} est évalué pour un scénario {selectedProfile.label.toLowerCase()}.
+        {selectedMetric?.name} est évalué pour un scénario {memoProfile.label.toLowerCase()}.
         {pointAnalysis.data
           ? ' Le mémo reprend les signaux locaux disponibles maintenant.'
           : ' Le mémo reste départemental tant qu’aucun point n’est cliqué.'}
@@ -1793,6 +1737,11 @@ function buildCriterionRows(criteria) {
 function buildCriterionDetail(key, value = 0, { energy, pointAnalysis, selectedMetric }) {
   const rounded = Math.round(value ?? 0);
   const local = pointAnalysis.data;
+  const hasQualifiedRiskSignal =
+    local?.riskConfidenceLabel === 'qualifié' ||
+    [local?.floodLabel, local?.seismicLabel, local?.groundMovementLabel].some(
+      (label) => label && !isUnknownRiskText(label),
+    );
   const details = {
     access: {
       summary: 'Mesure si le point reste exploitable par les équipes et les flux opérationnels.',
@@ -1844,9 +1793,12 @@ function buildCriterionDetail(key, value = 0, { energy, pointAnalysis, selectedM
       facts: [
         { label: 'Inondation', value: local?.floodLabel ?? 'Pré-risque départemental' },
         { label: 'Sismicité', value: local?.seismicLabel ?? 'Pré-risque départemental' },
-        { label: 'Mouvements terrain', value: local?.groundMovementLabel ?? 'Non qualifié au point' },
+        { label: 'Mouvements terrain', value: local?.groundMovementLabel ?? 'Donnée Géorisques absente' },
+        { label: 'Confiance risque', value: local?.riskConfidenceLabel ?? 'Départemental' },
       ],
-      explanation: 'Le score baisse avec les signaux inondation, sismicité, mouvements de terrain et retrait-gonflement. Il sert à éviter les no-go avant expertise réglementaire.'
+      explanation: hasQualifiedRiskSignal
+        ? 'Plus le score est haut, moins les signaux de risque naturel semblent contraignants. Le score baisse seulement quand des signaux qualifiés indiquent inondation, sismicité, mouvements de terrain ou retrait-gonflement.'
+        : 'Géorisques n’a renvoyé aucun signal exploitable pour ce point: le score reste volontairement neutre et doit être lu avec une confiance faible, pas comme une pénalité. Plus haut = moins contraint, mais une expertise réglementaire reste nécessaire.'
     },
   };
 
@@ -2275,6 +2227,99 @@ function SourcePill({ source }) {
       {source === 'live' ? <Radio aria-hidden="true" size={14} /> : <Database aria-hidden="true" size={14} />}
       {source === 'live' ? 'Données live' : 'Mode dégradé'}
     </div>
+  );
+}
+
+function DataProvenanceModal({ energy, isOpen, mode, onClose, pointAnalysis }) {
+  const confidence = buildConfidence(pointAnalysis, energy);
+  const sourceMode = energy.source === 'live' ? 'Données publiques chargées' : 'Mode dégradé avec données embarquées';
+  const localStatus = pointAnalysis.data
+    ? `Point local qualifié autour de ${pointAnalysis.data.commune ?? 'la coordonnée sélectionnée'}`
+    : 'Analyse locale non lancée: cliquez sur la carte pour interroger les sources au point.';
+  const links = [
+    ['ODRÉ parc électrique', ENERGY_DATASET_LINK],
+    ['Caparéseau', CAPARESEAU_LINK],
+    ['Postes RTE', RTE_SUBSTATIONS_LINK],
+    ['Eco2mix temps réel', ECO2MIX_LINK],
+    ['Géorisques', GEORISQUES_LINK],
+    ['Open-Meteo', OPEN_METEO_LINK],
+    ['Hub’Eau', HUBEAU_LINK],
+    ['VigiEau', VIGIEAU_LINK],
+    ['DVF foncier', DVF_LINK],
+    ['API Adresse', API_ADRESSE_LINK],
+    ['OpenStreetMap / Overpass', OVERPASS_LINK],
+    ['GeoJSON France', GEOJSON_LINK],
+  ];
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          key="data-provenance-modal"
+          className="fixed inset-0 z-50 grid place-items-center bg-ink/30 px-4 py-8 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="data-provenance-title"
+          onClick={onClose}
+        >
+          <motion.div
+            className={cx(
+              'max-h-[88vh] w-full max-w-2xl overflow-y-auto border p-6 shadow-2xl',
+              mode === 'tension' ? 'border-black bg-white' : 'border-[#d8d0bd] bg-[#fffaf0]',
+            )}
+            initial={{ opacity: 0, scale: 0.96, y: 18 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: 8 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-5">
+              <div className="grid gap-3">
+                <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-pewter">Provenance des données</p>
+                <h3 id="data-provenance-title" className="font-display text-4xl leading-none text-ink">
+                  Sources publiques & niveau de confiance
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="border border-current px-3 py-2 font-mono text-[0.62rem] uppercase tracking-[0.18em] transition hover:bg-ink hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4"
+              >
+                Fermer
+              </button>
+            </div>
+
+            <div className="mt-8 grid gap-5">
+              <div className="grid gap-3 text-sm leading-6">
+                <FactRow label="Statut global" value={sourceMode} />
+                <FactRow label="Confiance" value={`${confidence.label} · ${confidence.value}/100`} />
+                <FactRow label="Signal live" value={`${energy.realtime.tauxCo2} gCO₂/kWh · ${energy.realtime.date} ${energy.realtime.heure}`} />
+                <FactRow label="Analyse locale" value={localStatus} />
+              </div>
+
+              <p className="border-t border-current/20 pt-5 text-sm leading-6 text-graphite">
+                Les scores sont des estimations de priorisation. Les API publiques peuvent être incomplètes, indisponibles ou
+                agrégées à une maille départementale: chaque point doit être confirmé par études réseau, foncières,
+                environnementales et administratives.
+              </p>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {links.map(([label, href]) => (
+                  <a key={href} className="source-link justify-between" href={href} rel="noreferrer" target="_blank">
+                    {label}
+                    <ExternalLink aria-hidden="true" size={13} strokeWidth={1.4} />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -3014,6 +3059,7 @@ function buildPointAnalysis({
     commune: communeName ?? 'Non identifié',
     criteria,
     floodLabel: riskSignals.floodLabel,
+    groundMovementLabel: riskSignals.groundLabel,
     groundwaterLabel: formatGroundwater(terrain?.groundwater),
     gridAvailableLabel: formatMw(metric.gridAvailableMw ?? 0),
     gridCompatibilityLabel: metric.gridCompatibilityLabel ?? 'Non qualifié',
@@ -3050,12 +3096,13 @@ function parseRiskSignals(risk) {
   if (!risk?.risquesNaturels) {
     return {
       confidence: 18,
-      confidenceLabel: 'non qualifié',
-      floodLabel: 'Non qualifié',
-      floodScore: 34,
-      groundScore: 38,
-      seismicLabel: 'Non qualifié',
-      seismicScore: 38,
+      confidenceLabel: 'Géorisques absent',
+      floodLabel: 'Donnée Géorisques absente',
+      floodScore: 60,
+      groundLabel: 'Donnée Géorisques absente',
+      groundScore: 60,
+      seismicLabel: 'Donnée Géorisques absente',
+      seismicScore: 60,
     };
   }
 
@@ -3071,18 +3118,25 @@ function parseRiskSignals(risk) {
 
   return {
     confidence: knownSignals.length >= 3 ? 86 : knownSignals.length === 2 ? 70 : knownSignals.length === 1 ? 52 : 28,
-    confidenceLabel: knownSignals.length >= 2 ? 'qualifié' : 'partiel',
-    floodLabel: floodStatus || 'Non qualifié',
+    confidenceLabel: knownSignals.length >= 2 ? 'qualifié' : knownSignals.length === 1 ? 'partiel' : 'Géorisques sans signal',
+    floodLabel: formatRiskStatusLabel(floodStatus),
     floodScore: scoreFloodText(floodStatus),
+    groundLabel: formatRiskStatusLabel(groundStatus),
     groundScore: scoreRiskText(groundStatus),
-    seismicLabel: seismicStatus || 'Non qualifié',
+    seismicLabel: formatRiskStatusLabel(seismicStatus),
     seismicScore: scoreRiskText(seismicStatus),
   };
 }
 
+function formatRiskStatusLabel(text) {
+  const value = String(text ?? '').trim();
+  if (!value || isUnknownRiskText(value)) return 'Aucun signal Géorisques exploitable';
+  return value;
+}
+
 function scoreFloodText(text) {
   const value = text.toLowerCase();
-  if (isUnknownRiskText(value)) return 34;
+  if (isUnknownRiskText(value)) return 60;
   if (value.includes('existant') || value.includes('important') || value.includes('moyen') || value.includes('fort')) return 30;
   if (value.includes('modéré') || value.includes('modere')) return 50;
   if (value.includes('faible')) return 74;
@@ -3092,7 +3146,7 @@ function scoreFloodText(text) {
 
 function scoreRiskText(text) {
   const value = text.toLowerCase();
-  if (isUnknownRiskText(value)) return 38;
+  if (isUnknownRiskText(value)) return 60;
   if (value.includes('important') || value.includes('moyen') || value.includes('fort')) return 28;
   if (value.includes('modéré') || value.includes('modere')) return 54;
   if (value.includes('très faible') || value.includes('tres faible')) return 94;
@@ -3328,6 +3382,13 @@ function distanceKm(a, b) {
 
 function degreesToRadians(value) {
   return (value * Math.PI) / 180;
+}
+
+function formatScenarioPower(value) {
+  const numericValue = Number(value ?? 0);
+  const safeValue = Number.isFinite(numericValue) ? numericValue : SCENARIO_POWER_MIN_MW;
+  if (safeValue >= 1_000) return `${formatDecimal(safeValue / 1_000)} GW`;
+  return `${formatNumber(safeValue)} MW`;
 }
 
 function formatNumber(value) {
