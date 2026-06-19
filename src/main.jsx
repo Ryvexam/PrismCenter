@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { geoArea, geoCentroid, geoMercator, geoPath } from 'd3-geo';
+import { geoArea, geoCentroid, geoContains, geoMercator, geoPath } from 'd3-geo';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import {
   Activity,
@@ -805,6 +805,11 @@ function DepartmentMap({
   const transform = getZoomTransform(selectedFeature?.bounds, isZoomed);
   const marker = analysisPoint && isZoomed && model.projection ? model.projection([analysisPoint.lon, analysisPoint.lat]) : null;
   const layer = MAP_LAYERS.find((item) => item.id === activeLayerId) ?? MAP_LAYERS[0];
+  const localCells = useMemo(
+    () => buildLocalMapCells(selectedFeature, selectedMetric, activeLayerId, model.projection, isZoomed),
+    [activeLayerId, isZoomed, model.projection, selectedFeature, selectedMetric],
+  );
+  const localClipId = selectedFeature ? `local-detail-${selectedFeature.code}` : 'local-detail';
 
   const clickToLonLat = (event) => {
     if (!svgRef.current || !model.projection?.invert) return null;
@@ -885,6 +890,11 @@ function DepartmentMap({
               <filter id="department-shadow" x="-15%" y="-15%" width="130%" height="130%">
                 <feDropShadow dx="0" dy="18" stdDeviation="18" floodColor="#141414" floodOpacity="0.08" />
               </filter>
+              {selectedFeature && (
+                <clipPath id={localClipId} clipPathUnits="userSpaceOnUse">
+                  <path d={selectedFeature.path} />
+                </clipPath>
+              )}
             </defs>
             <g transform={transform.value}>
               {model.features.map((feature) => {
@@ -926,6 +936,22 @@ function DepartmentMap({
                   />
                 );
               })}
+              {localCells.length > 0 && (
+                <g clipPath={`url(#${localClipId})`} className="pointer-events-none" opacity={mode === 'tension' ? 0 : 1}>
+                  {localCells.map((cell) => (
+                    <rect
+                      key={cell.id}
+                      x={cell.x}
+                      y={cell.y}
+                      width={cell.size}
+                      height={cell.size}
+                      fill={localCellFill(cell.value, activeLayerId)}
+                      stroke="rgba(20,20,20,0.18)"
+                      strokeWidth={0.35 / transform.scale}
+                    />
+                  ))}
+                </g>
+              )}
               {marker && selectedFeature && (
                 <g className="pointer-events-none">
                   <circle cx={marker[0]} cy={marker[1]} r={7 / transform.scale} fill="#141414" />
@@ -943,6 +969,11 @@ function DepartmentMap({
           </svg>
         ) : (
           <FallbackDepartmentList departments={model.items} mode={mode} setSelectedCode={setSelectedCode} />
+        )}
+        {localCells.length > 0 && (
+          <p className="pointer-events-none absolute right-4 top-4 z-20 max-w-xs border border-[#d8d0bd] bg-[#fffaf0]/90 px-3 py-2 font-mono text-[0.56rem] uppercase tracking-[0.16em] text-graphite shadow-sm">
+            Maille intra-département indicative · cliquez pour analyse locale réelle
+          </p>
         )}
         {pointAnalysis.status === 'loading' && <CalculationStatus mode={mode} selectedMetric={selectedMetric} />}
         <MapScoreCartouche
@@ -2966,6 +2997,61 @@ function getZoomTransform(bounds, isZoomed) {
   };
 }
 
+function buildLocalMapCells(selectedFeature, selectedMetric, layerId, projection, isZoomed) {
+  if (!isZoomed || !selectedFeature?.feature || !selectedMetric || !projection?.invert) return [];
+
+  const { maxX, maxY, minX, minY } = selectedFeature.bounds;
+  const span = Math.max(maxX - minX, maxY - minY);
+  const size = clamp(span / 13, 9, 22);
+  const cells = [];
+  const centerX = (minX + maxX) / 2;
+  const centerY = (minY + maxY) / 2;
+  const maxDistance = Math.hypot(maxX - centerX, maxY - centerY) || 1;
+
+  for (let y = minY; y < maxY; y += size) {
+    for (let x = minX; x < maxX; x += size) {
+      const point = [x + size / 2, y + size / 2];
+      const lonLat = projection.invert(point);
+      if (!lonLat || !geoContains(selectedFeature.feature, lonLat)) continue;
+
+      const urbanity = 1 - clamp(Math.hypot(point[0] - centerX, point[1] - centerY) / maxDistance, 0, 1);
+      const eastWest = clamp((point[0] - minX) / Math.max(maxX - minX, 1), 0, 1);
+      const northSouth = clamp((point[1] - minY) / Math.max(maxY - minY, 1), 0, 1);
+      const texture = Math.sin((eastWest * 6.7 + northSouth * 3.9) * Math.PI) * 0.5 + 0.5;
+      const value = localLayerValue(selectedMetric, layerId, { eastWest, northSouth, texture, urbanity });
+
+      cells.push({ id: `${Math.round(x)}-${Math.round(y)}`, size: size * 0.96, value, x, y });
+    }
+  }
+
+  return cells;
+}
+
+function localLayerValue(metric, layerId, signals) {
+  const base = layerValue(metric, layerId);
+  const { eastWest, northSouth, texture, urbanity } = signals;
+  const rurality = 1 - urbanity;
+  const variationByLayer = {
+    access: urbanity * 22 + texture * 8 - rurality * 14,
+    cooling: northSouth * 18 + rurality * 12 - urbanity * 8 + texture * 8,
+    energy: texture * 18 + eastWest * 8 - 10,
+    grid: urbanity * 18 + eastWest * 10 + texture * 6 - 12,
+    land: rurality * 28 - urbanity * 24 + texture * 10,
+    risk: rurality * 12 + northSouth * 8 - texture * 18,
+    score: rurality * 9 + urbanity * 8 + texture * 12 - 10,
+  };
+
+  return clamp(base + (variationByLayer[layerId] ?? variationByLayer.score), 0, 100);
+}
+
+function localCellFill(value, layerId) {
+  const ratio = mapContrastRatioFromValue(value);
+  const hue = layerHue(layerId);
+  const saturation = 38 + ratio * 50;
+  const lightness = 95 - ratio * 58;
+  return `hsl(${hue} ${saturation}% ${lightness}%)`;
+}
+
 function departmentFill(metric, layerId, mode, isSelected) {
   if (mode === 'tension') return isSelected ? '#000000' : '#ffffff';
   if (!metric) return '#fbfaf5';
@@ -2990,7 +3076,11 @@ function departmentStroke(metric, layerId, mode, isSelected) {
 }
 
 function mapContrastRatio(metric, layerId) {
-  const rawRatio = clamp(layerValue(metric, layerId) / 100, 0, 1);
+  return mapContrastRatioFromValue(layerValue(metric, layerId));
+}
+
+function mapContrastRatioFromValue(value) {
+  const rawRatio = clamp(value / 100, 0, 1);
   return clamp((rawRatio - 0.18) / 0.74, 0, 1) ** 0.72;
 }
 
