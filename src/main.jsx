@@ -58,6 +58,8 @@ const DVF_LINK = 'https://files.data.gouv.fr/geo-dvf/';
 const HUBEAU_LINK = 'https://hubeau.eaufrance.fr/';
 const VIGIEAU_LINK = 'https://vigieau.gouv.fr/';
 const API_ADRESSE_LINK = 'https://adresse.data.gouv.fr/api-doc/adresse';
+const RYVEXAM_LINK = 'https://ryvexam.fr';
+const RYVEWEB_LINK = 'https://ryveweb.fr';
 
 const LOW_CARBON_FILIERES = [
   'Solaire',
@@ -116,25 +118,40 @@ const MAP_LAYERS = [
 
 const PROFILE_PRESETS = [
   {
-    id: 'training',
-    label: 'Cluster entraînement',
-    footprint: '80-200 MW',
-    description: 'Priorité à la puissance bas carbone et à la marge foncière.',
-    weights: { access: 0.05, cooling: 0.1, energy: 0.31, grid: 0.22, land: 0.13, risk: 0.19 },
+    id: 'colossus1',
+    label: 'Colossus 1',
+    footprint: '300 MW · 200k GPU',
+    powerNeedMw: 300,
+    scenarioId: 'colossus-1-300mw',
+    description: 'Scénario par défaut: puissance, raccordement HTB, refroidissement et foncier de campus.',
+    weights: { access: 0.03, cooling: 0.13, energy: 0.32, grid: 0.3, land: 0.12, risk: 0.1 },
   },
   {
-    id: 'sovereign',
-    label: 'Campus souverain',
-    footprint: '30-80 MW',
-    description: 'Équilibre entre énergie, risques naturels et refroidissement.',
-    weights: { access: 0.06, cooling: 0.11, energy: 0.28, grid: 0.18, land: 0.14, risk: 0.23 },
+    id: 'gigawatt',
+    label: 'Campus 1 GW',
+    footprint: '1 GW · jusqu’à 1M GPU',
+    powerNeedMw: 1_000,
+    scenarioId: 'colossus-2-1gw',
+    description: 'Échelle réacteur: priorité absolue au 400 kV, à la production dédiée et au refroidissement.',
+    weights: { access: 0.02, cooling: 0.14, energy: 0.34, grid: 0.34, land: 0.1, risk: 0.06 },
   },
   {
-    id: 'inference',
-    label: 'Inférence régionale',
-    footprint: '5-30 MW',
-    description: 'L’accès aux équipes et aux bassins urbains devient plus important.',
-    weights: { access: 0.24, cooling: 0.09, energy: 0.22, grid: 0.14, land: 0.11, risk: 0.2 },
+    id: 'extreme',
+    label: 'Extension 2 GW',
+    footprint: '2 GW · Blackwell',
+    powerNeedMw: 2_000,
+    scenarioId: 'colossus-2-2gw',
+    description: 'Stress test extrême: plusieurs sources électriques, 400 kV et stratégie énergétique dédiée.',
+    weights: { access: 0.01, cooling: 0.15, energy: 0.35, grid: 0.36, land: 0.09, risk: 0.04 },
+  },
+  {
+    id: 'regional',
+    label: 'Datacenter régional',
+    footprint: '30 MW · référence',
+    powerNeedMw: 30,
+    scenarioId: 'baseline-30mw',
+    description: 'Point de comparaison avec l’échelle initiale de PrismCenter.',
+    weights: { access: 0.19, cooling: 0.1, energy: 0.24, grid: 0.18, land: 0.11, risk: 0.18 },
   },
 ];
 
@@ -351,6 +368,13 @@ function App() {
 }
 
 function Landing({ onStart }) {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 2200);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <motion.main
       className="landing-canvas min-h-screen px-5 py-6 sm:px-8 md:px-16 md:py-12"
@@ -359,8 +383,31 @@ function Landing({ onStart }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
     >
+      <AnimatePresence>
+        {showSplash && (
+          <motion.div
+            key="splash"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-porcelain"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <motion.p
+              className="font-display text-[clamp(2.4rem,8vw,6rem)] leading-none text-ink"
+              initial={{ opacity: 0, scale: 0.92, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 1.04 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            >
+              MERCI OPENAI <span className="text-[#e25555]">❤️</span>
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <Header />
-      <section className="mx-auto grid min-h-[calc(100vh-7rem)] max-w-[94rem] items-center gap-12 xl:grid-cols-[minmax(0,1.05fr)_minmax(24rem,0.62fr)] xl:gap-16">
+      <section className="mx-auto grid min-h-[calc(100svh-12rem)] max-w-[94rem] items-center gap-10 pb-10 sm:gap-12 xl:grid-cols-[minmax(0,1.05fr)_minmax(24rem,0.62fr)] xl:gap-16 xl:pb-0">
         <div className="max-w-6xl">
           <p className="mb-7 font-mono text-[0.68rem] uppercase tracking-[0.24em] text-pewter">
             {APP_TAGLINE}
@@ -368,15 +415,15 @@ function Landing({ onStart }) {
           <p className="mb-5 font-mono text-[0.58rem] uppercase tracking-[0.22em] text-graphite">
             Contexte hackathon Defend Intelligence · prototype indépendant
           </p>
-          <h1 className="max-w-6xl font-display text-[clamp(3.2rem,8.8vw,8.3rem)] font-normal leading-[0.86] tracking-normal text-ink">
+          <h1 className="max-w-6xl font-display text-[clamp(2.85rem,12vw,8.3rem)] font-normal leading-[0.86] tracking-normal text-ink">
             Où poser un datacenter IA,
             <span className="block italic text-graphite">sans aveugler le territoire.</span>
           </h1>
           <div className="mt-10 grid max-w-5xl gap-8 md:grid-cols-[0.82fr_1fr] md:items-end">
             <p className="text-lg font-light leading-8 text-graphite md:text-xl md:leading-9">
-            {APP_NAME} croise la puissance électrique bas carbone, les contraintes naturelles
-            et les signaux d’accès autour d’un point. Cliquez un département, puis un site
-            potentiel pour obtenir un score d’aptitude.
+            {APP_NAME} croise la puissance électrique bas carbone, le raccordement et les contraintes territoriales
+            pour des scénarios de 30 MW à 2 GW. Le scénario par défaut simule un campus de 300 MW
+            proche de l’ordre de grandeur de Colossus 1.
             </p>
             <button
               type="button"
@@ -390,7 +437,27 @@ function Landing({ onStart }) {
         </div>
         <LandingPreview />
       </section>
+      <SiteFooter />
     </motion.main>
+  );
+}
+
+
+function SiteFooter() {
+  return (
+    <footer className="mx-auto flex max-w-[94rem] flex-col gap-3 border-t border-[#ddd6c4] pt-5 font-mono text-[0.62rem] uppercase tracking-[0.2em] text-pewter sm:flex-row sm:items-center sm:justify-between">
+      <span>Créé par Ryvexam</span>
+      <nav className="flex flex-wrap gap-3" aria-label="Sites de Ryvexam">
+        <a className="source-link" href={RYVEXAM_LINK} rel="noreferrer" target="_blank">
+          Ryvexam.fr
+          <ExternalLink aria-hidden="true" size={13} strokeWidth={1.4} />
+        </a>
+        <a className="source-link" href={RYVEWEB_LINK} rel="noreferrer" target="_blank">
+          Ryveweb.fr
+          <ExternalLink aria-hidden="true" size={13} strokeWidth={1.4} />
+        </a>
+      </nav>
+    </footer>
   );
 }
 
@@ -619,7 +686,7 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
   const energy = useEnergyData();
   const [selectedCode, setSelectedCode] = useState('33');
   const [activeLayerId, setActiveLayerId] = useState('energy');
-  const [selectedProfileId, setSelectedProfileId] = useState('training');
+  const [selectedProfileId, setSelectedProfileId] = useState('colossus1');
   const [isZoomed, setIsZoomed] = useState(false);
   const [analysisPoint, setAnalysisPoint] = useState(null);
 
@@ -853,7 +920,7 @@ function DepartmentMap({
                     }}
                     role="button"
                     opacity={isZoomed && !isSelected ? 0.055 : 1}
-                    stroke={isVisuallySelected ? '#141414' : mode === 'tension' ? '#000000' : '#d9d0bd'}
+                    stroke={departmentStroke(metric, activeLayerId, mode, isVisuallySelected)}
                     strokeWidth={isVisuallySelected ? 2.4 / transform.scale : 0.72 / transform.scale}
                     tabIndex={0}
                   />
@@ -1102,6 +1169,8 @@ function ControlDeck({
       ? `Analyse locale en cours. ${APP_NAME} interroge les sources publiques autour du point.`
       : pointAnalysis.data?.summary ??
         'Cliquez dans le département pour qualifier un site précis avec Géorisques, météo, voirie et distance ville.';
+  const [selectedCriterionKey, setSelectedCriterionKey] = useState(null);
+  const closeCriterionModal = () => setSelectedCriterionKey(null);
 
   return (
     <aside
@@ -1137,76 +1206,22 @@ function ControlDeck({
         </p>
       </div>
 
-      <LiveGridSignal energy={energy} mode={mode} />
-
-      <EnergyPriorityPanel energy={energy} mode={mode} selectedMetric={selectedMetric} />
-
-      <GridConnectionPanel mode={mode} selectedMetric={selectedMetric} selectedProfile={selectedProfile} />
-
-      <ProfileSelector
-        mode={mode}
-        profiles={profiles}
-        selectedProfile={selectedProfile}
-        setSelectedProfileId={setSelectedProfileId}
-      />
-
-      <ScorePlate isCalculating={pointAnalysis.status === 'loading'} mode={mode} score={score} selectedMetric={selectedMetric} />
-
-      <MethodIndexPanel activeLayerId={activeLayerId} mode={mode} onOpenIndice={onOpenIndice} />
-
-      <ConfidenceNote energy={energy} mode={mode} pointAnalysis={pointAnalysis} />
-
-      <CandidateMemo
-        energy={energy}
+      <CriteriaGrid
         mode={mode}
         pointAnalysis={pointAnalysis}
-        score={score}
+        selectedCriterionKey={selectedCriterionKey}
         selectedMetric={selectedMetric}
-        selectedProfile={selectedProfile}
-        verdict={verdict}
+        setSelectedCriterionKey={setSelectedCriterionKey}
       />
 
-      <CriteriaGrid mode={mode} pointAnalysis={pointAnalysis} selectedMetric={selectedMetric} />
-
-      <NationalRanking mode={mode} model={model} selectedCode={selectedMetric?.code} setSelectedCode={setSelectedCode} />
-
-      <PointPanel analysisPoint={analysisPoint} mode={mode} pointAnalysis={pointAnalysis} />
-
-      <ActionPlan mode={mode} pointAnalysis={pointAnalysis} selectedMetric={selectedMetric} />
-
-      <DepartmentSearch
-        departments={model.items}
+      <CriterionModal
+        criterionKey={selectedCriterionKey}
+        energy={energy}
         mode={mode}
-        selectedCode={selectedMetric?.code}
-        setSelectedCode={setSelectedCode}
-      />
-
-      <ScenarioPanel
-        activeLayerId={activeLayerId}
-        mode={mode}
-        selectedLayer={selectedLayer}
+        onClose={closeCriterionModal}
+        pointAnalysis={pointAnalysis}
         selectedMetric={selectedMetric}
-        setActiveLayerId={setActiveLayerId}
       />
-
-      <EvidencePanel energy={energy} mode={mode} pointAnalysis={pointAnalysis} selectedMetric={selectedMetric} />
-
-      <div
-        className={cx(
-          'grid gap-4 border-t pt-5 text-sm leading-6 transition-colors duration-700',
-          mode === 'tension' ? 'border-black text-black' : 'border-[#ddd6c4] text-graphite',
-        )}
-      >
-        <FactRow
-          label={energy.source === 'live' ? 'Dernier point Eco2mix' : 'Point Eco2mix de secours'}
-          value={`${energy.realtime.date} · ${energy.realtime.heure}`}
-        />
-        <FactRow label="Consommation nationale" value={`${formatNumber(energy.realtime.consommation)} MW`} />
-        <FactRow label="Solaire national" value={`${formatNumber(energy.realtime.solaire)} MW`} />
-        <FactRow label="Intensité CO₂" value={`${energy.realtime.tauxCo2} g/kWh`} />
-      </div>
-
-      <SourceLinks mode={mode} onOpenLegal={onOpenLegal} />
     </aside>
   );
 }
@@ -1474,7 +1489,7 @@ function CandidateMemo({ energy, mode, pointAnalysis, score, selectedMetric, sel
   return (
     <div className={cx('candidate-memo grid gap-4 border p-4', mode === 'tension' ? 'border-black' : 'border-[#d8d0bd]')}>
       <div className="flex items-center justify-between gap-4">
-        <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Dossier candidat</p>
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Dossier d’implantation</p>
         <FileText aria-hidden="true" size={17} strokeWidth={1.3} />
       </div>
       <p className="text-sm leading-6 text-graphite">
@@ -1559,7 +1574,7 @@ function NationalRanking({ mode, model, selectedCode, setSelectedCode }) {
   );
 }
 
-function CriteriaGrid({ mode, pointAnalysis, selectedMetric }) {
+function CriteriaGrid({ mode, pointAnalysis, selectedCriterionKey, selectedMetric, setSelectedCriterionKey }) {
   const criteria = pointAnalysis.data?.criteria ?? {
     energy: selectedMetric?.energyScore ?? 0,
     grid: selectedMetric?.gridScore ?? 0,
@@ -1568,17 +1583,169 @@ function CriteriaGrid({ mode, pointAnalysis, selectedMetric }) {
     cooling: selectedMetric?.coolingScore ?? 0,
     access: selectedMetric?.accessScore ?? 52,
   };
+  const rows = buildCriterionRows(criteria);
 
   return (
-    <dl className={cx('grid transition-[gap] duration-700', mode === 'tension' ? 'gap-2' : 'gap-3')}>
-      <Signal icon={<Zap size={17} strokeWidth={1.3} />} label="Énergie bas carbone" mode={mode} value={`${Math.round(criteria.energy)}/100`} />
-      <Signal icon={<Activity size={17} strokeWidth={1.3} />} label="Raccordement électrique" mode={mode} value={`${Math.round(criteria.grid)}/100`} />
-      <Signal icon={<Shield size={17} strokeWidth={1.3} />} label="Sismique & inondation" mode={mode} value={`${Math.round(criteria.risk)}/100`} />
-      <Signal icon={<MapPin size={17} strokeWidth={1.3} />} label="Foncier & ville 10-15 km" mode={mode} value={`${Math.round(criteria.land)}/100`} />
-      <Signal icon={<Snowflake size={17} strokeWidth={1.3} />} label="Refroidissement" mode={mode} value={`${Math.round(criteria.cooling)}/100`} />
-      <Signal icon={<Route size={17} strokeWidth={1.3} />} label="Accès travailleurs" mode={mode} value={`${Math.round(criteria.access)}/100`} />
-    </dl>
+    <div className="grid gap-3" aria-label="Scores par catégorie">
+      {rows.map((row) => (
+        <Signal
+          key={row.key}
+          icon={row.icon}
+          isActive={selectedCriterionKey === row.key}
+          label={row.label}
+          mode={mode}
+          onClick={() => setSelectedCriterionKey(row.key)}
+          value={`${Math.round(row.value)}/100`}
+        />
+      ))}
+    </div>
   );
+}
+
+function CriterionModal({ criterionKey, energy, mode, onClose, pointAnalysis, selectedMetric }) {
+  const criteria = pointAnalysis.data?.criteria ?? {
+    energy: selectedMetric?.energyScore ?? 0,
+    grid: selectedMetric?.gridScore ?? 0,
+    risk: selectedMetric?.riskScore ?? 0,
+    land: selectedMetric?.landScore ?? 0,
+    cooling: selectedMetric?.coolingScore ?? 0,
+    access: selectedMetric?.accessScore ?? 52,
+  };
+  const detail = criterionKey ? buildCriterionDetail(criterionKey, criteria[criterionKey], { energy, pointAnalysis, selectedMetric }) : null;
+
+  return (
+    <AnimatePresence>
+      {detail && (
+        <motion.div
+          key="criterion-modal"
+          className="fixed inset-0 z-50 grid place-items-center bg-ink/30 px-4 py-8 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="criterion-modal-title"
+          onClick={onClose}
+        >
+          <motion.div
+            className={cx('w-full max-w-xl border p-6 shadow-2xl', mode === 'tension' ? 'border-black bg-white' : 'border-[#d8d0bd] bg-[#fffaf0]')}
+            initial={{ opacity: 0, scale: 0.96, y: 18 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: 8 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-5">
+              <div className="grid gap-3">
+                <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-pewter">Détail du critère</p>
+                <h3 id="criterion-modal-title" className="font-display text-4xl leading-none text-ink">{detail.label}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="border border-current px-3 py-2 font-mono text-[0.62rem] uppercase tracking-[0.18em] transition hover:bg-ink hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4"
+              >
+                Fermer
+              </button>
+            </div>
+            <div className="mt-8 grid gap-5">
+              <p className="font-display text-6xl leading-none text-ink">{Math.round(detail.value)}/100</p>
+              <p className="text-base leading-7 text-graphite">{detail.summary}</p>
+              <div className="grid gap-3 text-sm leading-6">
+                {detail.facts.map((fact) => (
+                  <FactRow key={fact.label} label={fact.label} value={fact.value} />
+                ))}
+              </div>
+              <p className="border-t border-current/20 pt-4 text-sm leading-6 text-graphite">{detail.explanation}</p>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function buildCriterionRows(criteria) {
+  return [
+    { key: 'energy', icon: <Zap size={17} strokeWidth={1.3} />, label: CRITERIA_LABELS.energy, value: criteria.energy },
+    { key: 'grid', icon: <Activity size={17} strokeWidth={1.3} />, label: CRITERIA_LABELS.grid, value: criteria.grid },
+    { key: 'risk', icon: <Shield size={17} strokeWidth={1.3} />, label: CRITERIA_LABELS.risk, value: criteria.risk },
+    { key: 'land', icon: <MapPin size={17} strokeWidth={1.3} />, label: CRITERIA_LABELS.land, value: criteria.land },
+    { key: 'cooling', icon: <Snowflake size={17} strokeWidth={1.3} />, label: CRITERIA_LABELS.cooling, value: criteria.cooling },
+    { key: 'access', icon: <Route size={17} strokeWidth={1.3} />, label: CRITERIA_LABELS.access, value: criteria.access },
+  ];
+}
+
+function buildCriterionDetail(key, value = 0, { energy, pointAnalysis, selectedMetric }) {
+  const rounded = Math.round(value ?? 0);
+  const local = pointAnalysis.data;
+  const details = {
+    access: {
+      summary: 'Mesure si le point reste exploitable par les équipes et les flux opérationnels.',
+      facts: [
+        { label: 'Route la plus proche', value: local?.nearestRoadKm != null ? formatDistance(local.nearestRoadKm) : 'Non qualifiée au point' },
+        { label: 'Ville cible', value: local?.nearestTownKm != null ? formatDistance(local.nearestTownKm) : 'Signal départemental' },
+        { label: 'Lecture', value: rounded >= 70 ? 'Accès favorable' : rounded >= 50 ? 'Accès à vérifier' : 'Accès contraint' },
+      ],
+      explanation: 'Le score favorise un site proche d’un axe routier sans être collé au tissu urbain, avec une distance ville compatible avec le recrutement et les opérations.'
+    },
+    cooling: {
+      summary: 'Estime le potentiel de refroidissement naturel et la prudence eau/température.',
+      facts: [
+        { label: 'Température locale', value: local?.temperatureC != null ? `${Math.round(local.temperatureC)} °C` : 'Non qualifiée au point' },
+        { label: 'Hydraulique raccordée', value: `${formatMw((selectedMetric?.capacities?.Hydraulique ?? 0) / 1000)} MW` },
+        { label: 'Restriction sécheresse', value: local?.droughtLabel ?? 'Non qualifiée au point' },
+      ],
+      explanation: 'Le score combine latitude, signal hydraulique, température et disponibilité eau connue. Il reste indicatif tant qu’une étude thermique et hydrologique n’est pas produite.'
+    },
+    energy: {
+      summary: 'Mesure la force du socle bas carbone déjà raccordé autour du département.',
+      facts: [
+        { label: 'Puissance bas carbone', value: `${formatMw((selectedMetric?.lowCarbonKw ?? 0) / 1000)} MW` },
+        { label: 'Rang énergie', value: selectedMetric?.ranks?.energyScore ? `${selectedMetric.ranks.energyScore} national` : '—' },
+        { label: 'CO₂ instantané', value: `${energy.realtime.tauxCo2} gCO₂/kWh` },
+      ],
+      explanation: 'Le score augmente avec la puissance bas carbone installée, la diversité des filières et le signal réseau national. Il ne garantit pas une capacité de raccordement disponible.'
+    },
+    grid: {
+      summary: 'Évalue si les capacités Caparéseau et les postes RTE semblent cohérents avec le scénario.',
+      facts: [
+        { label: 'Capacité disponible', value: `${formatMw(selectedMetric?.gridAvailableMw ?? 0)} MW` },
+        { label: 'Tension maximale', value: selectedMetric?.rteMaxVoltageKv ? `${selectedMetric.rteMaxVoltageKv} kV` : '—' },
+        { label: 'Postes RTE', value: selectedMetric?.rteSubstationCount ? `${selectedMetric.rteSubstationCount}` : '—' },
+      ],
+      explanation: 'Le score rapproche capacité réservée disponible, niveau de tension et densité des postes. Il ne remplace pas une réponse de raccordement RTE/Enedis.'
+    },
+    land: {
+      summary: 'Estime la marge foncière et l’écart ville utile pour un site à instruire.',
+      facts: [
+        { label: 'Prix foncier local', value: local?.landPriceLabel ?? formatLandPrice(selectedMetric?.landPricePerM2) },
+        { label: 'Occupation du sol', value: local?.landuseLabel ?? 'Signal départemental' },
+        { label: 'Écart ville cible', value: local?.nearestTownKm != null ? formatDistance(local.nearestTownKm) : '10-15 km visés' },
+      ],
+      explanation: 'Le score favorise les secteurs avec marge spatiale, prix foncier supportable et distance urbaine équilibrée. PLU, servitudes et artificialisation restent à vérifier.'
+    },
+    risk: {
+      summary: 'Pré-filtre les risques naturels qui peuvent bloquer ou renchérir le projet.',
+      facts: [
+        { label: 'Inondation', value: local?.floodLabel ?? 'Pré-risque départemental' },
+        { label: 'Sismicité', value: local?.seismicLabel ?? 'Pré-risque départemental' },
+        { label: 'Mouvements terrain', value: local?.groundMovementLabel ?? 'Non qualifié au point' },
+      ],
+      explanation: 'Le score baisse avec les signaux inondation, sismicité, mouvements de terrain et retrait-gonflement. Il sert à éviter les no-go avant expertise réglementaire.'
+    },
+  };
+
+  return {
+    label: CRITERIA_LABELS[key] ?? key,
+    value: rounded,
+    ...(details[key] ?? {
+      summary: 'Critère à qualifier.',
+      facts: [],
+      explanation: 'Ce critère doit être confirmé par une instruction technique dédiée.',
+    }),
+  };
 }
 
 function ActionPlan({ mode, pointAnalysis, selectedMetric }) {
@@ -1879,27 +2046,31 @@ function ScenarioPanel({ activeLayerId, mode, selectedLayer, selectedMetric, set
   );
 }
 
-function Signal({ icon, label, mode, value }) {
+function Signal({ icon, isActive = false, label, mode, onClick, value }) {
   return (
-    <div
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={isActive}
       className={cx(
-        'signal-row grid grid-cols-[minmax(0,1fr)_auto] items-end border transition-all duration-700',
-        mode === 'tension' ? 'border-black p-3' : 'border-[#ded6c4] bg-[#fffaf0] p-4',
+        'signal-row grid grid-cols-[minmax(0,1fr)_auto] items-center border text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
+        mode === 'tension' ? 'border-black p-3' : 'border-[#ded6c4] bg-[#fffaf0] p-4 hover:border-ink hover:bg-white',
+        isActive && 'border-ink bg-white',
       )}
     >
-      <dt className="flex min-w-0 items-center gap-3 font-mono text-[0.62rem] uppercase tracking-[0.18em]">
-        {mode !== 'tension' && icon}
+      <span className="flex min-w-0 items-center gap-3 font-mono text-[0.62rem] uppercase tracking-[0.18em]">
+        {icon}
         <span className="min-w-0">{label}</span>
-      </dt>
-      <dd
+      </span>
+      <span
         className={cx(
           'font-display leading-none tracking-normal',
           mode === 'tension' ? 'text-2xl font-light' : 'text-3xl font-normal text-ink',
         )}
       >
         {value}
-      </dd>
-    </div>
+      </span>
+    </button>
   );
 }
 
@@ -2496,19 +2667,31 @@ function buildGridFit(rteInfo, profile = PROFILE_PRESETS[0]) {
   const densityBonus = clamp(Math.log1p(totalSites) * 9 + Math.log1p(highVoltageSites) * 13, 0, 38);
   const capacityScore = clamp((availableMw / Math.max(thresholdMw * 1.4, 1)) * 100, 0, 100);
   const profilePenalty =
-    thresholdMw >= 160
+    thresholdMw >= 1_000
       ? maxVoltageKv >= 400
-        ? 0
-        : maxVoltageKv >= 225
-          ? 13
-          : 30
-      : thresholdMw >= 70
-        ? maxVoltageKv >= 225
+        ? thresholdMw >= 2_000
+          ? 18
+          : 5
+        : 58
+      : thresholdMw >= 300
+        ? maxVoltageKv >= 400
           ? 0
-          : 14
-        : maxVoltageKv >= 90
-          ? 0
-          : 10;
+          : maxVoltageKv >= 225
+            ? 22
+            : 48
+        : thresholdMw >= 160
+          ? maxVoltageKv >= 400
+            ? 0
+            : maxVoltageKv >= 225
+              ? 13
+              : 30
+          : thresholdMw >= 70
+            ? maxVoltageKv >= 225
+              ? 0
+              : 14
+            : maxVoltageKv >= 90
+              ? 0
+              : 10;
   const score = clamp(capacityScore * 0.48 + voltageBase * 0.32 + densityBonus * 0.2 - profilePenalty, 0, 100);
 
   return {
@@ -2524,9 +2707,8 @@ function buildGridFit(rteInfo, profile = PROFILE_PRESETS[0]) {
 }
 
 function profileToPowerNeedMw(profile = PROFILE_PRESETS[0]) {
-  if (profile.id === 'training') return 160;
-  if (profile.id === 'sovereign') return 70;
-  return 25;
+  const powerNeedMw = Number(profile?.powerNeedMw ?? PROFILE_PRESETS[0].powerNeedMw);
+  return Number.isFinite(powerNeedMw) && powerNeedMw > 0 ? powerNeedMw : PROFILE_PRESETS[0].powerNeedMw;
 }
 
 function addRanks(items, keys) {
@@ -2788,22 +2970,37 @@ function departmentFill(metric, layerId, mode, isSelected) {
   if (mode === 'tension') return isSelected ? '#000000' : '#ffffff';
   if (!metric) return '#fbfaf5';
 
-  const ratio = clamp(layerValue(metric, layerId) / 100, 0, 1);
-  const hue =
-    layerId === 'risk'
-      ? 92
-      : layerId === 'cooling'
-        ? 192
-        : layerId === 'grid'
-          ? 210
-          : layerId === 'access'
-            ? 28
-            : layerId === 'land'
-              ? 72
-              : 46;
-  const saturation = 42 + ratio * 30;
-  const lightness = 92 - ratio * 34;
+  const ratio = mapContrastRatio(metric, layerId);
+  const hue = layerHue(layerId);
+  const saturation = 34 + ratio * 48;
+  const lightness = 96 - ratio * 54;
   return `hsl(${hue} ${saturation}% ${lightness}%)`;
+}
+
+function departmentStroke(metric, layerId, mode, isSelected) {
+  if (isSelected) return '#141414';
+  if (mode === 'tension') return '#000000';
+  if (!metric) return '#d9d0bd';
+
+  const ratio = mapContrastRatio(metric, layerId);
+  const hue = layerHue(layerId);
+  const saturation = 26 + ratio * 32;
+  const lightness = 78 - ratio * 34;
+  return `hsl(${hue} ${saturation}% ${lightness}%)`;
+}
+
+function mapContrastRatio(metric, layerId) {
+  const rawRatio = clamp(layerValue(metric, layerId) / 100, 0, 1);
+  return clamp((rawRatio - 0.18) / 0.74, 0, 1) ** 0.72;
+}
+
+function layerHue(layerId) {
+  if (layerId === 'risk') return 92;
+  if (layerId === 'cooling') return 192;
+  if (layerId === 'grid') return 210;
+  if (layerId === 'access') return 28;
+  if (layerId === 'land') return 72;
+  return 46;
 }
 
 function layerValue(metric, layerId) {
