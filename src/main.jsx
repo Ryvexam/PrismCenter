@@ -26,6 +26,7 @@ import './styles.css';
 import gridCapacity from './data/gridCapacity.json';
 import landPrices from './data/landPrices.json';
 import { INDICE_PAGE_BY_ID, INDICE_PAGES } from './data/indices.js';
+import { buildColossusScenarioSummary, getColossusScenario } from './data/colossusScenarios.js';
 import {
   coolingScore as scoreTerrainCooling,
   fetchTerrain,
@@ -116,25 +117,40 @@ const MAP_LAYERS = [
 
 const PROFILE_PRESETS = [
   {
-    id: 'training',
-    label: 'Cluster entraînement',
-    footprint: '80-200 MW',
-    description: 'Priorité à la puissance bas carbone et à la marge foncière.',
-    weights: { access: 0.05, cooling: 0.1, energy: 0.31, grid: 0.22, land: 0.13, risk: 0.19 },
+    id: 'colossus1',
+    label: 'Colossus 1',
+    footprint: '300 MW · 200k GPU',
+    powerNeedMw: 300,
+    scenarioId: 'colossus-1-300mw',
+    description: 'Scénario par défaut: puissance, raccordement HTB, refroidissement et foncier de campus.',
+    weights: { access: 0.03, cooling: 0.13, energy: 0.32, grid: 0.3, land: 0.12, risk: 0.1 },
   },
   {
-    id: 'sovereign',
-    label: 'Campus souverain',
-    footprint: '30-80 MW',
-    description: 'Équilibre entre énergie, risques naturels et refroidissement.',
-    weights: { access: 0.06, cooling: 0.11, energy: 0.28, grid: 0.18, land: 0.14, risk: 0.23 },
+    id: 'gigawatt',
+    label: 'Campus 1 GW',
+    footprint: '1 GW · jusqu’à 1M GPU',
+    powerNeedMw: 1_000,
+    scenarioId: 'colossus-2-1gw',
+    description: 'Échelle réacteur: priorité absolue au 400 kV, à la production dédiée et au refroidissement.',
+    weights: { access: 0.02, cooling: 0.14, energy: 0.34, grid: 0.34, land: 0.1, risk: 0.06 },
   },
   {
-    id: 'inference',
-    label: 'Inférence régionale',
-    footprint: '5-30 MW',
-    description: 'L’accès aux équipes et aux bassins urbains devient plus important.',
-    weights: { access: 0.24, cooling: 0.09, energy: 0.22, grid: 0.14, land: 0.11, risk: 0.2 },
+    id: 'extreme',
+    label: 'Extension 2 GW',
+    footprint: '2 GW · Blackwell',
+    powerNeedMw: 2_000,
+    scenarioId: 'colossus-2-2gw',
+    description: 'Stress test extrême: plusieurs sources électriques, 400 kV et stratégie énergétique dédiée.',
+    weights: { access: 0.01, cooling: 0.15, energy: 0.35, grid: 0.36, land: 0.09, risk: 0.04 },
+  },
+  {
+    id: 'regional',
+    label: 'Datacenter régional',
+    footprint: '30 MW · référence',
+    powerNeedMw: 30,
+    scenarioId: 'baseline-30mw',
+    description: 'Point de comparaison avec l’échelle initiale de PrismCenter.',
+    weights: { access: 0.19, cooling: 0.1, energy: 0.24, grid: 0.18, land: 0.11, risk: 0.18 },
   },
 ];
 
@@ -351,6 +367,13 @@ function App() {
 }
 
 function Landing({ onStart }) {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 2200);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <motion.main
       className="landing-canvas min-h-screen px-5 py-6 sm:px-8 md:px-16 md:py-12"
@@ -359,6 +382,29 @@ function Landing({ onStart }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
     >
+      <AnimatePresence>
+        {showSplash && (
+          <motion.div
+            key="splash"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-porcelain"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <motion.p
+              className="font-display text-[clamp(2.4rem,8vw,6rem)] leading-none text-ink"
+              initial={{ opacity: 0, scale: 0.92, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 1.04 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            >
+              MERCI OPENAI <span className="text-[#e25555]">❤️</span>
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <Header />
       <section className="mx-auto grid min-h-[calc(100vh-7rem)] max-w-[94rem] items-center gap-12 xl:grid-cols-[minmax(0,1.05fr)_minmax(24rem,0.62fr)] xl:gap-16">
         <div className="max-w-6xl">
@@ -374,9 +420,9 @@ function Landing({ onStart }) {
           </h1>
           <div className="mt-10 grid max-w-5xl gap-8 md:grid-cols-[0.82fr_1fr] md:items-end">
             <p className="text-lg font-light leading-8 text-graphite md:text-xl md:leading-9">
-            {APP_NAME} croise la puissance électrique bas carbone, les contraintes naturelles
-            et les signaux d’accès autour d’un point. Cliquez un département, puis un site
-            potentiel pour obtenir un score d’aptitude.
+            {APP_NAME} croise la puissance électrique bas carbone, le raccordement et les contraintes territoriales
+            pour des scénarios de 30 MW à 2 GW. Le scénario par défaut simule un campus de 300 MW
+            proche de l’ordre de grandeur de Colossus 1.
             </p>
             <button
               type="button"
@@ -619,7 +665,7 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
   const energy = useEnergyData();
   const [selectedCode, setSelectedCode] = useState('33');
   const [activeLayerId, setActiveLayerId] = useState('energy');
-  const [selectedProfileId, setSelectedProfileId] = useState('training');
+  const [selectedProfileId, setSelectedProfileId] = useState('colossus1');
   const [isZoomed, setIsZoomed] = useState(false);
   const [analysisPoint, setAnalysisPoint] = useState(null);
 
@@ -1150,6 +1196,8 @@ function ControlDeck({
         setSelectedProfileId={setSelectedProfileId}
       />
 
+      <HyperscaleScalePanel mode={mode} selectedMetric={selectedMetric} selectedProfile={selectedProfile} />
+
       <ScorePlate isCalculating={pointAnalysis.status === 'loading'} mode={mode} score={score} selectedMetric={selectedMetric} />
 
       <MethodIndexPanel activeLayerId={activeLayerId} mode={mode} onOpenIndice={onOpenIndice} />
@@ -1276,6 +1324,53 @@ function GridConnectionPanel({ mode, selectedMetric, selectedProfile }) {
           value={topStation ? `${topStation.name} · ${formatMw(topStation.availableMw)} MW` : '—'}
         />
       </div>
+    </div>
+  );
+}
+
+function HyperscaleScalePanel({ mode, selectedMetric, selectedProfile }) {
+  const scenario = getColossusScenario(selectedProfile.scenarioId);
+  const summary = buildColossusScenarioSummary([scenario])[0];
+  const needMw = profileToPowerNeedMw(selectedProfile);
+  const availableMw = selectedMetric?.gridAvailableMw ?? 0;
+  const coverage = clamp((availableMw / Math.max(needMw, 1)) * 100, 0, 100);
+  const maxVoltageKv = selectedMetric?.rteMaxVoltageKv ?? 0;
+  const voltageLabel =
+    maxVoltageKv >= 400
+      ? '400 kV identifié'
+      : maxVoltageKv >= 225
+        ? '225 kV — renforcement probable'
+        : 'Sous 225 kV — incompatible sans infrastructure majeure';
+
+  return (
+    <div className={cx('grid gap-4 border p-4', mode === 'tension' ? 'border-black' : 'border-[#d8d0bd]')}>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Échelle hyperscale</p>
+          <p className="mt-2 font-display text-4xl leading-none text-ink">{formatPowerScale(needMw)}</p>
+        </div>
+        <Zap aria-hidden="true" size={20} strokeWidth={1.25} />
+      </div>
+      <p className="text-sm leading-6 text-graphite">
+        {scenario.description} Les coûts utilisent une hypothèse modifiable de 0,08 €/kWh et restent des ordres de grandeur.
+      </p>
+      <div className="grid gap-2 text-sm leading-6">
+        <FactRow label="GPU" value={`~${formatNumber(summary.gpuCount)} · ${summary.architecture}`} />
+        <FactRow label="Puissance GPU seule" value={`${formatMw(summary.gpuPowerMw)} MW`} />
+        <FactRow label="Infra, refroidissement & pertes" value={`${formatMw(summary.infrastructurePowerMw)} MW`} />
+        <FactRow label="Énergie quotidienne" value={`${formatDecimal(summary.energy.dailyGwh)} GWh`} />
+        <FactRow label="Énergie annuelle" value={`${formatDecimal(summary.energy.yearlyTwh)} TWh`} />
+        <FactRow label="Électricité / jour" value={formatCompactCurrency(summary.cost.dailyEur)} />
+        <FactRow label="Électricité / an" value={formatCompactCurrency(summary.cost.yearlyEur)} />
+        <FactRow label="Couverture Caparéseau" value={`${Math.round(coverage)}% · ${formatMw(availableMw)} MW`} />
+        <FactRow label="Niveau de tension" value={voltageLabel} />
+      </div>
+      {needMw >= 300 && (
+        <p className="border-t border-current/20 pt-3 text-xs leading-5 text-graphite">
+          À cette échelle, un score départemental favorable ne suffit pas: poste 400/225 kV, renforcement RTE, production dédiée,
+          stockage, redondance N+1 et stratégie eau/chaleur doivent être instruits comme un projet énergétique industriel.
+        </p>
+      )}
     </div>
   );
 }
@@ -1474,7 +1569,7 @@ function CandidateMemo({ energy, mode, pointAnalysis, score, selectedMetric, sel
   return (
     <div className={cx('candidate-memo grid gap-4 border p-4', mode === 'tension' ? 'border-black' : 'border-[#d8d0bd]')}>
       <div className="flex items-center justify-between gap-4">
-        <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Dossier candidat</p>
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Dossier d’implantation</p>
         <FileText aria-hidden="true" size={17} strokeWidth={1.3} />
       </div>
       <p className="text-sm leading-6 text-graphite">
@@ -2496,19 +2591,31 @@ function buildGridFit(rteInfo, profile = PROFILE_PRESETS[0]) {
   const densityBonus = clamp(Math.log1p(totalSites) * 9 + Math.log1p(highVoltageSites) * 13, 0, 38);
   const capacityScore = clamp((availableMw / Math.max(thresholdMw * 1.4, 1)) * 100, 0, 100);
   const profilePenalty =
-    thresholdMw >= 160
+    thresholdMw >= 1_000
       ? maxVoltageKv >= 400
-        ? 0
-        : maxVoltageKv >= 225
-          ? 13
-          : 30
-      : thresholdMw >= 70
-        ? maxVoltageKv >= 225
+        ? thresholdMw >= 2_000
+          ? 18
+          : 5
+        : 58
+      : thresholdMw >= 300
+        ? maxVoltageKv >= 400
           ? 0
-          : 14
-        : maxVoltageKv >= 90
-          ? 0
-          : 10;
+          : maxVoltageKv >= 225
+            ? 22
+            : 48
+        : thresholdMw >= 160
+          ? maxVoltageKv >= 400
+            ? 0
+            : maxVoltageKv >= 225
+              ? 13
+              : 30
+          : thresholdMw >= 70
+            ? maxVoltageKv >= 225
+              ? 0
+              : 14
+            : maxVoltageKv >= 90
+              ? 0
+              : 10;
   const score = clamp(capacityScore * 0.48 + voltageBase * 0.32 + densityBonus * 0.2 - profilePenalty, 0, 100);
 
   return {
@@ -2524,9 +2631,8 @@ function buildGridFit(rteInfo, profile = PROFILE_PRESETS[0]) {
 }
 
 function profileToPowerNeedMw(profile = PROFILE_PRESETS[0]) {
-  if (profile.id === 'training') return 160;
-  if (profile.id === 'sovereign') return 70;
-  return 25;
+  const powerNeedMw = Number(profile?.powerNeedMw ?? PROFILE_PRESETS[0].powerNeedMw);
+  return Number.isFinite(powerNeedMw) && powerNeedMw > 0 ? powerNeedMw : PROFILE_PRESETS[0].powerNeedMw;
 }
 
 function addRanks(items, keys) {
@@ -2926,6 +3032,24 @@ function formatLandPrice(value) {
   const numericValue = Number(value ?? 0);
   if (!Number.isFinite(numericValue) || numericValue <= 0) return 'non mesuré';
   return `${formatNumber(numericValue)} €/m²`;
+}
+
+function formatPowerScale(valueMw) {
+  const numericValue = Number(valueMw ?? 0);
+  if (!Number.isFinite(numericValue)) return '0 MW';
+  if (numericValue >= 1_000) return `${formatDecimal(numericValue / 1_000)} GW`;
+  return `${formatMw(numericValue)} MW`;
+}
+
+function formatCompactCurrency(value) {
+  const numericValue = Number(value ?? 0);
+  return new Intl.NumberFormat('fr-FR', {
+    currency: 'EUR',
+    currencyDisplay: 'symbol',
+    maximumFractionDigits: 1,
+    notation: 'compact',
+    style: 'currency',
+  }).format(Number.isFinite(numericValue) ? numericValue : 0);
 }
 
 function formatMw(value) {

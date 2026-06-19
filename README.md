@@ -24,7 +24,7 @@ Les datacenters IA concentrent de fortes contraintes: puissance électrique bas 
 PrismCenter propose une lecture energie-first de ces contraintes:
 
 1. visualiser les départements français par potentiel électrique bas carbone;
-2. mesurer si le raccordement électrique paraît crédible pour 30, 80 ou 200 MW;
+2. mesurer si le raccordement électrique paraît crédible pour 30 MW, 300 MW, 1 GW ou 2 GW;
 3. sélectionner un département pour concentrer l'analyse;
 4. cliquer un point sur la carte pour déclencher une analyse locale du score énergie-site;
 5. comparer les critères qui soutiennent ou fragilisent le site.
@@ -38,7 +38,7 @@ Le produit assume une approche transparente: chaque score est une estimation iss
 - Couche raccordement électrique fondée sur Caparéseau et les postes électriques RTE.
 - Pré-score départemental pour repérer les zones à instruire en priorité.
 - Analyse locale au clic: énergie, raccordement, risques, foncier, refroidissement et accès.
-- Profils de pondération selon le type de datacenter: cluster d'entraînement, campus souverain, inférence régionale.
+- Profils de pondération selon l'échelle datacenter: 30 MW, 300 MW, 1 GW et 2 GW.
 - Pages méthode dédiées aux indices et aux limites de calcul.
 - Fallbacks locaux pour conserver une expérience lisible si une API publique est indisponible.
 - Interface éditoriale en français, orientée démonstration professionnelle.
@@ -61,6 +61,14 @@ PrismCenter s'appuie sur des jeux publics et des API ouvertes. Leur disponibilit
 | [DVF / geo-dvf](https://files.data.gouv.fr/geo-dvf/) | Prix foncier agrégé | Local pré-agrégé | Donnée embarquée, non appelée en live |
 | [API Adresse](https://adresse.data.gouv.fr/api-doc/adresse) | Communes et contexte territorial | Point cliqué | Appel live selon disponibilité |
 | [france-geojson](https://github.com/gregoiredavid/france-geojson) | Contours départementaux | Carte | Chargement de la géométrie publique |
+
+## Simulation Hyperscale
+
+Le scénario par défaut représente désormais un campus de **300 MW et environ 200 000 GPU**, proche de l’ordre de grandeur public attribué à Colossus 1. Trois comparaisons complètent le modèle: 30 MW, 1 GW et 2 GW.
+
+Le panneau hyperscale calcule la consommation quotidienne et annuelle, le coût électrique à 0,08 EUR/kWh, la puissance GPU seule, les auxiliaires estimés et la couverture de capacité Caparéseau. Les hypothèses sont documentées dans [docs/COLOSSUS_SCALE.md](docs/COLOSSUS_SCALE.md).
+
+Ces scénarios sont des ordres de grandeur. Au-dessus de 300 MW, un score territorial ne vaut jamais faisabilité: une instruction RTE, des postes 400/225 kV, une production ou contractualisation dédiée, le stockage, la redondance et le refroidissement deviennent des prérequis.
 
 ## Modèle De Score
 
@@ -184,7 +192,7 @@ Les prochaines extensions doivent ajouter des preuves de décision, pas seulemen
 
 | Priorité | Module | Question traitée | Données publiques candidates | Impact démo |
 | --- | --- | --- | --- | --- |
-| Livré | Raccordement électrique | Où approcher 30, 80 ou 200 MW de manière crédible ? | Caparéseau, capacités d'accueil réseau, postes RTE | Très fort |
+| Livré | Raccordement électrique | Où approcher 30 MW, 300 MW, 1 GW ou 2 GW de manière crédible ? | Caparéseau, capacités d’accueil réseau, postes RTE | Très fort |
 | 2 | Urbanisme / constructibilité | Le terrain est-il au moins plausible au regard du zonage ? | API Carto du Géoportail de l'Urbanisme, PLU, documents GPU | Très fort |
 | 3 | No-go environnemental | Qu'est-ce qui peut tuer le site avant étude technique ? | Natura 2000, ZNIEFF, INPN, ICPE, SEVESO, Géorisques | Très fort |
 | 4 | Chaleur fatale | Peut-on transformer la chaleur du datacenter en bénéfice territorial ? | France Chaleur Urbaine, tracés réseaux de chaleur/froid, besoins Cerema | Élevé |
@@ -206,6 +214,7 @@ Les prochaines extensions doivent ajouter des preuves de décision, pas seulemen
 - [Mentions légales](docs/LEGAL.md)
 - [Conditions d'utilisation](docs/TERMS.md)
 - [Politique de confidentialité](docs/PRIVACY.md)
+- [Hypothèses de simulation hyperscale](docs/COLOSSUS_SCALE.md)
 
 ## Statut Hackathon
 
