@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { geoArea, geoCentroid, geoMercator, geoPath } from 'd3-geo';
+import { geoArea, geoCentroid, geoContains, geoMercator, geoPath } from 'd3-geo';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import {
   Activity,
@@ -59,6 +59,8 @@ const DVF_LINK = 'https://files.data.gouv.fr/geo-dvf/';
 const HUBEAU_LINK = 'https://hubeau.eaufrance.fr/';
 const VIGIEAU_LINK = 'https://vigieau.gouv.fr/';
 const API_ADRESSE_LINK = 'https://adresse.data.gouv.fr/api-doc/adresse';
+const RYVEXAM_LINK = 'https://ryvexam.fr';
+const RYVEWEB_LINK = 'https://ryveweb.fr';
 
 const LOW_CARBON_FILIERES = [
   'Solaire',
@@ -153,6 +155,10 @@ const PROFILE_PRESETS = [
     weights: { access: 0.19, cooling: 0.1, energy: 0.24, grid: 0.18, land: 0.11, risk: 0.18 },
   },
 ];
+
+const SCENARIO_POWER_MIN_MW = 30;
+const SCENARIO_POWER_MAX_MW = 2_000;
+const SCENARIO_POWER_STEP_MW = 10;
 
 const CRITERIA_LABELS = {
   access: 'Accès travailleurs',
@@ -406,7 +412,7 @@ function Landing({ onStart }) {
       </AnimatePresence>
 
       <Header />
-      <section className="mx-auto grid min-h-[calc(100vh-7rem)] max-w-[94rem] items-center gap-12 xl:grid-cols-[minmax(0,1.05fr)_minmax(24rem,0.62fr)] xl:gap-16">
+      <section className="mx-auto grid min-h-[calc(100svh-12rem)] max-w-[94rem] items-center gap-10 pb-10 sm:gap-12 xl:grid-cols-[minmax(0,1.05fr)_minmax(24rem,0.62fr)] xl:gap-16 xl:pb-0">
         <div className="max-w-6xl">
           <p className="mb-7 font-mono text-[0.68rem] uppercase tracking-[0.24em] text-pewter">
             {APP_TAGLINE}
@@ -414,7 +420,7 @@ function Landing({ onStart }) {
           <p className="mb-5 font-mono text-[0.58rem] uppercase tracking-[0.22em] text-graphite">
             Contexte hackathon Defend Intelligence · prototype indépendant
           </p>
-          <h1 className="max-w-6xl font-display text-[clamp(3.2rem,8.8vw,8.3rem)] font-normal leading-[0.86] tracking-normal text-ink">
+          <h1 className="max-w-6xl font-display text-[clamp(2.85rem,12vw,8.3rem)] font-normal leading-[0.86] tracking-normal text-ink">
             Où poser un datacenter IA,
             <span className="block italic text-graphite">sans aveugler le territoire.</span>
           </h1>
@@ -436,7 +442,27 @@ function Landing({ onStart }) {
         </div>
         <LandingPreview />
       </section>
+      <SiteFooter />
     </motion.main>
+  );
+}
+
+
+function SiteFooter() {
+  return (
+    <footer className="mx-auto flex max-w-[94rem] flex-col gap-3 border-t border-[#ddd6c4] pt-5 font-mono text-[0.62rem] uppercase tracking-[0.2em] text-pewter sm:flex-row sm:items-center sm:justify-between">
+      <span>Créé par Ryvexam</span>
+      <nav className="flex flex-wrap gap-3" aria-label="Sites de Ryvexam">
+        <a className="source-link" href={RYVEXAM_LINK} rel="noreferrer" target="_blank">
+          Ryvexam.fr
+          <ExternalLink aria-hidden="true" size={13} strokeWidth={1.4} />
+        </a>
+        <a className="source-link" href={RYVEWEB_LINK} rel="noreferrer" target="_blank">
+          Ryveweb.fr
+          <ExternalLink aria-hidden="true" size={13} strokeWidth={1.4} />
+        </a>
+      </nav>
+    </footer>
   );
 }
 
@@ -669,7 +695,7 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
   const [isZoomed, setIsZoomed] = useState(false);
   const [analysisPoint, setAnalysisPoint] = useState(null);
 
-  const selectedProfile = PROFILE_PRESETS.find((profile) => profile.id === selectedProfileId) ?? PROFILE_PRESETS[0];
+  const selectedProfile = useMemo(() => buildAiScenarioProfile(scenarioPowerMw), [scenarioPowerMw]);
   const model = useMemo(
     () => buildDepartmentModel(energy.departments, energy.geojson, selectedProfile, energy.realtime, energy.rteGrid),
     [energy.departments, energy.geojson, selectedProfile, energy.realtime, energy.rteGrid],
@@ -735,8 +761,10 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
           model={model}
           pointAnalysis={pointAnalysis}
           selectedProfile={selectedProfile}
+          scenarioPowerMw={scenarioPowerMw}
           selectedMetric={selectedMetric}
           setActiveLayerId={setActiveLayerId}
+          setScenarioPowerMw={setScenarioPowerMw}
           resetMapView={resetMapView}
           setSelectedCode={handleDepartmentSelect}
           onOpenIndice={onOpenIndice}
@@ -754,7 +782,6 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
           selectedProfile={selectedProfile}
           setActiveLayerId={setActiveLayerId}
           setSelectedCode={handleDepartmentSelect}
-          setSelectedProfileId={setSelectedProfileId}
           onOpenIndice={onOpenIndice}
           onOpenLegal={onOpenLegal}
         />
@@ -772,9 +799,11 @@ function DepartmentMap({
   mode,
   model,
   pointAnalysis,
+  scenarioPowerMw,
   selectedProfile,
   selectedMetric,
   setActiveLayerId,
+  setScenarioPowerMw,
   resetMapView,
   setSelectedCode,
   onOpenIndice,
@@ -784,6 +813,11 @@ function DepartmentMap({
   const transform = getZoomTransform(selectedFeature?.bounds, isZoomed);
   const marker = analysisPoint && isZoomed && model.projection ? model.projection([analysisPoint.lon, analysisPoint.lat]) : null;
   const layer = MAP_LAYERS.find((item) => item.id === activeLayerId) ?? MAP_LAYERS[0];
+  const localCells = useMemo(
+    () => buildLocalMapCells(selectedFeature, selectedMetric, activeLayerId, model.projection, isZoomed),
+    [activeLayerId, isZoomed, model.projection, selectedFeature, selectedMetric],
+  );
+  const localClipId = selectedFeature ? `local-detail-${selectedFeature.code}` : 'local-detail';
 
   const clickToLonLat = (event) => {
     if (!svgRef.current || !model.projection?.invert) return null;
@@ -864,6 +898,11 @@ function DepartmentMap({
               <filter id="department-shadow" x="-15%" y="-15%" width="130%" height="130%">
                 <feDropShadow dx="0" dy="18" stdDeviation="18" floodColor="#141414" floodOpacity="0.08" />
               </filter>
+              {selectedFeature && (
+                <clipPath id={localClipId} clipPathUnits="userSpaceOnUse">
+                  <path d={selectedFeature.path} />
+                </clipPath>
+              )}
             </defs>
             <g transform={transform.value}>
               {model.features.map((feature) => {
@@ -899,12 +938,28 @@ function DepartmentMap({
                     }}
                     role="button"
                     opacity={isZoomed && !isSelected ? 0.055 : 1}
-                    stroke={isVisuallySelected ? '#141414' : mode === 'tension' ? '#000000' : '#d9d0bd'}
+                    stroke={departmentStroke(metric, activeLayerId, mode, isVisuallySelected)}
                     strokeWidth={isVisuallySelected ? 2.4 / transform.scale : 0.72 / transform.scale}
                     tabIndex={0}
                   />
                 );
               })}
+              {localCells.length > 0 && (
+                <g clipPath={`url(#${localClipId})`} className="pointer-events-none" opacity={mode === 'tension' ? 0 : 1}>
+                  {localCells.map((cell) => (
+                    <rect
+                      key={cell.id}
+                      x={cell.x}
+                      y={cell.y}
+                      width={cell.size}
+                      height={cell.size}
+                      fill={localCellFill(cell.value, activeLayerId)}
+                      stroke="rgba(20,20,20,0.18)"
+                      strokeWidth={0.35 / transform.scale}
+                    />
+                  ))}
+                </g>
+              )}
               {marker && selectedFeature && (
                 <g className="pointer-events-none">
                   <circle cx={marker[0]} cy={marker[1]} r={7 / transform.scale} fill="#141414" />
@@ -923,6 +978,11 @@ function DepartmentMap({
         ) : (
           <FallbackDepartmentList departments={model.items} mode={mode} setSelectedCode={setSelectedCode} />
         )}
+        {localCells.length > 0 && (
+          <p className="pointer-events-none absolute right-4 top-4 z-20 max-w-xs border border-[#d8d0bd] bg-[#fffaf0]/90 px-3 py-2 font-mono text-[0.56rem] uppercase tracking-[0.16em] text-graphite shadow-sm">
+            Maille intra-département indicative · cliquez pour analyse locale réelle
+          </p>
+        )}
         {pointAnalysis.status === 'loading' && <CalculationStatus mode={mode} selectedMetric={selectedMetric} />}
         <MapScoreCartouche
           finalScore={finalScore}
@@ -937,13 +997,19 @@ function DepartmentMap({
       <div
         className={cx(
           'map-stat-strip relative z-10 grid gap-3 border-t pt-5 text-sm',
-          activeLayerId === 'grid' ? 'md:grid-cols-4' : 'md:grid-cols-3',
+          'md:grid-cols-4',
           mode === 'tension' ? 'border-black text-black' : 'border-[#ded6c4] text-graphite',
         )}
       >
         {buildMapStats(activeLayerId, selectedMetric, selectedProfile).map((stat) => (
           <Stat key={stat.label} label={stat.label} value={stat.value} />
         ))}
+        <ScenarioPowerConfigurator
+          mode={mode}
+          powerMw={scenarioPowerMw}
+          selectedProfile={selectedProfile}
+          setPowerMw={setScenarioPowerMw}
+        />
       </div>
 
       <div className="relative z-10 mt-5 flex flex-wrap items-center justify-between gap-4">
@@ -1127,7 +1193,6 @@ function ControlDeck({
   selectedProfile,
   setActiveLayerId,
   setSelectedCode,
-  setSelectedProfileId,
   onOpenIndice,
   onOpenLegal,
 }) {
@@ -1148,6 +1213,8 @@ function ControlDeck({
       ? `Analyse locale en cours. ${APP_NAME} interroge les sources publiques autour du point.`
       : pointAnalysis.data?.summary ??
         'Cliquez dans le département pour qualifier un site précis avec Géorisques, météo, voirie et distance ville.';
+  const [selectedCriterionKey, setSelectedCriterionKey] = useState(null);
+  const closeCriterionModal = () => setSelectedCriterionKey(null);
 
   return (
     <aside
@@ -1208,53 +1275,19 @@ function ControlDeck({
         energy={energy}
         mode={mode}
         pointAnalysis={pointAnalysis}
-        score={score}
+        selectedCriterionKey={selectedCriterionKey}
         selectedMetric={selectedMetric}
-        selectedProfile={selectedProfile}
-        verdict={verdict}
+        setSelectedCriterionKey={setSelectedCriterionKey}
       />
 
-      <CriteriaGrid mode={mode} pointAnalysis={pointAnalysis} selectedMetric={selectedMetric} />
-
-      <NationalRanking mode={mode} model={model} selectedCode={selectedMetric?.code} setSelectedCode={setSelectedCode} />
-
-      <PointPanel analysisPoint={analysisPoint} mode={mode} pointAnalysis={pointAnalysis} />
-
-      <ActionPlan mode={mode} pointAnalysis={pointAnalysis} selectedMetric={selectedMetric} />
-
-      <DepartmentSearch
-        departments={model.items}
+      <CriterionModal
+        criterionKey={selectedCriterionKey}
+        energy={energy}
         mode={mode}
-        selectedCode={selectedMetric?.code}
-        setSelectedCode={setSelectedCode}
-      />
-
-      <ScenarioPanel
-        activeLayerId={activeLayerId}
-        mode={mode}
-        selectedLayer={selectedLayer}
+        onClose={closeCriterionModal}
+        pointAnalysis={pointAnalysis}
         selectedMetric={selectedMetric}
-        setActiveLayerId={setActiveLayerId}
       />
-
-      <EvidencePanel energy={energy} mode={mode} pointAnalysis={pointAnalysis} selectedMetric={selectedMetric} />
-
-      <div
-        className={cx(
-          'grid gap-4 border-t pt-5 text-sm leading-6 transition-colors duration-700',
-          mode === 'tension' ? 'border-black text-black' : 'border-[#ddd6c4] text-graphite',
-        )}
-      >
-        <FactRow
-          label={energy.source === 'live' ? 'Dernier point Eco2mix' : 'Point Eco2mix de secours'}
-          value={`${energy.realtime.date} · ${energy.realtime.heure}`}
-        />
-        <FactRow label="Consommation nationale" value={`${formatNumber(energy.realtime.consommation)} MW`} />
-        <FactRow label="Solaire national" value={`${formatNumber(energy.realtime.solaire)} MW`} />
-        <FactRow label="Intensité CO₂" value={`${energy.realtime.tauxCo2} g/kWh`} />
-      </div>
-
-      <SourceLinks mode={mode} onOpenLegal={onOpenLegal} />
     </aside>
   );
 }
@@ -1654,7 +1687,7 @@ function NationalRanking({ mode, model, selectedCode, setSelectedCode }) {
   );
 }
 
-function CriteriaGrid({ mode, pointAnalysis, selectedMetric }) {
+function CriteriaGrid({ mode, pointAnalysis, selectedCriterionKey, selectedMetric, setSelectedCriterionKey }) {
   const criteria = pointAnalysis.data?.criteria ?? {
     energy: selectedMetric?.energyScore ?? 0,
     grid: selectedMetric?.gridScore ?? 0,
@@ -1663,17 +1696,169 @@ function CriteriaGrid({ mode, pointAnalysis, selectedMetric }) {
     cooling: selectedMetric?.coolingScore ?? 0,
     access: selectedMetric?.accessScore ?? 52,
   };
+  const rows = buildCriterionRows(criteria);
 
   return (
-    <dl className={cx('grid transition-[gap] duration-700', mode === 'tension' ? 'gap-2' : 'gap-3')}>
-      <Signal icon={<Zap size={17} strokeWidth={1.3} />} label="Énergie bas carbone" mode={mode} value={`${Math.round(criteria.energy)}/100`} />
-      <Signal icon={<Activity size={17} strokeWidth={1.3} />} label="Raccordement électrique" mode={mode} value={`${Math.round(criteria.grid)}/100`} />
-      <Signal icon={<Shield size={17} strokeWidth={1.3} />} label="Sismique & inondation" mode={mode} value={`${Math.round(criteria.risk)}/100`} />
-      <Signal icon={<MapPin size={17} strokeWidth={1.3} />} label="Foncier & ville 10-15 km" mode={mode} value={`${Math.round(criteria.land)}/100`} />
-      <Signal icon={<Snowflake size={17} strokeWidth={1.3} />} label="Refroidissement" mode={mode} value={`${Math.round(criteria.cooling)}/100`} />
-      <Signal icon={<Route size={17} strokeWidth={1.3} />} label="Accès travailleurs" mode={mode} value={`${Math.round(criteria.access)}/100`} />
-    </dl>
+    <div className="grid gap-3" aria-label="Scores par catégorie">
+      {rows.map((row) => (
+        <Signal
+          key={row.key}
+          icon={row.icon}
+          isActive={selectedCriterionKey === row.key}
+          label={row.label}
+          mode={mode}
+          onClick={() => setSelectedCriterionKey(row.key)}
+          value={`${Math.round(row.value)}/100`}
+        />
+      ))}
+    </div>
   );
+}
+
+function CriterionModal({ criterionKey, energy, mode, onClose, pointAnalysis, selectedMetric }) {
+  const criteria = pointAnalysis.data?.criteria ?? {
+    energy: selectedMetric?.energyScore ?? 0,
+    grid: selectedMetric?.gridScore ?? 0,
+    risk: selectedMetric?.riskScore ?? 0,
+    land: selectedMetric?.landScore ?? 0,
+    cooling: selectedMetric?.coolingScore ?? 0,
+    access: selectedMetric?.accessScore ?? 52,
+  };
+  const detail = criterionKey ? buildCriterionDetail(criterionKey, criteria[criterionKey], { energy, pointAnalysis, selectedMetric }) : null;
+
+  return (
+    <AnimatePresence>
+      {detail && (
+        <motion.div
+          key="criterion-modal"
+          className="fixed inset-0 z-50 grid place-items-center bg-ink/30 px-4 py-8 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="criterion-modal-title"
+          onClick={onClose}
+        >
+          <motion.div
+            className={cx('w-full max-w-xl border p-6 shadow-2xl', mode === 'tension' ? 'border-black bg-white' : 'border-[#d8d0bd] bg-[#fffaf0]')}
+            initial={{ opacity: 0, scale: 0.96, y: 18 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: 8 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-5">
+              <div className="grid gap-3">
+                <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-pewter">Détail du critère</p>
+                <h3 id="criterion-modal-title" className="font-display text-4xl leading-none text-ink">{detail.label}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="border border-current px-3 py-2 font-mono text-[0.62rem] uppercase tracking-[0.18em] transition hover:bg-ink hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4"
+              >
+                Fermer
+              </button>
+            </div>
+            <div className="mt-8 grid gap-5">
+              <p className="font-display text-6xl leading-none text-ink">{Math.round(detail.value)}/100</p>
+              <p className="text-base leading-7 text-graphite">{detail.summary}</p>
+              <div className="grid gap-3 text-sm leading-6">
+                {detail.facts.map((fact) => (
+                  <FactRow key={fact.label} label={fact.label} value={fact.value} />
+                ))}
+              </div>
+              <p className="border-t border-current/20 pt-4 text-sm leading-6 text-graphite">{detail.explanation}</p>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function buildCriterionRows(criteria) {
+  return [
+    { key: 'energy', icon: <Zap size={17} strokeWidth={1.3} />, label: CRITERIA_LABELS.energy, value: criteria.energy },
+    { key: 'grid', icon: <Activity size={17} strokeWidth={1.3} />, label: CRITERIA_LABELS.grid, value: criteria.grid },
+    { key: 'risk', icon: <Shield size={17} strokeWidth={1.3} />, label: CRITERIA_LABELS.risk, value: criteria.risk },
+    { key: 'land', icon: <MapPin size={17} strokeWidth={1.3} />, label: CRITERIA_LABELS.land, value: criteria.land },
+    { key: 'cooling', icon: <Snowflake size={17} strokeWidth={1.3} />, label: CRITERIA_LABELS.cooling, value: criteria.cooling },
+    { key: 'access', icon: <Route size={17} strokeWidth={1.3} />, label: CRITERIA_LABELS.access, value: criteria.access },
+  ];
+}
+
+function buildCriterionDetail(key, value = 0, { energy, pointAnalysis, selectedMetric }) {
+  const rounded = Math.round(value ?? 0);
+  const local = pointAnalysis.data;
+  const details = {
+    access: {
+      summary: 'Mesure si le point reste exploitable par les équipes et les flux opérationnels.',
+      facts: [
+        { label: 'Route la plus proche', value: local?.nearestRoadKm != null ? formatDistance(local.nearestRoadKm) : 'Non qualifiée au point' },
+        { label: 'Ville cible', value: local?.nearestTownKm != null ? formatDistance(local.nearestTownKm) : 'Signal départemental' },
+        { label: 'Lecture', value: rounded >= 70 ? 'Accès favorable' : rounded >= 50 ? 'Accès à vérifier' : 'Accès contraint' },
+      ],
+      explanation: 'Le score favorise un site proche d’un axe routier sans être collé au tissu urbain, avec une distance ville compatible avec le recrutement et les opérations.'
+    },
+    cooling: {
+      summary: 'Estime le potentiel de refroidissement naturel et la prudence eau/température.',
+      facts: [
+        { label: 'Température locale', value: local?.temperatureC != null ? `${Math.round(local.temperatureC)} °C` : 'Non qualifiée au point' },
+        { label: 'Hydraulique raccordée', value: `${formatMw((selectedMetric?.capacities?.Hydraulique ?? 0) / 1000)} MW` },
+        { label: 'Restriction sécheresse', value: local?.droughtLabel ?? 'Non qualifiée au point' },
+      ],
+      explanation: 'Le score combine latitude, signal hydraulique, température et disponibilité eau connue. Il reste indicatif tant qu’une étude thermique et hydrologique n’est pas produite.'
+    },
+    energy: {
+      summary: 'Mesure la force du socle bas carbone déjà raccordé autour du département.',
+      facts: [
+        { label: 'Puissance bas carbone', value: `${formatMw((selectedMetric?.lowCarbonKw ?? 0) / 1000)} MW` },
+        { label: 'Rang énergie', value: selectedMetric?.ranks?.energyScore ? `${selectedMetric.ranks.energyScore} national` : '—' },
+        { label: 'CO₂ instantané', value: `${energy.realtime.tauxCo2} gCO₂/kWh` },
+      ],
+      explanation: 'Le score augmente avec la puissance bas carbone installée, la diversité des filières et le signal réseau national. Il ne garantit pas une capacité de raccordement disponible.'
+    },
+    grid: {
+      summary: 'Évalue si les capacités Caparéseau et les postes RTE semblent cohérents avec le scénario.',
+      facts: [
+        { label: 'Capacité disponible', value: `${formatMw(selectedMetric?.gridAvailableMw ?? 0)} MW` },
+        { label: 'Tension maximale', value: selectedMetric?.rteMaxVoltageKv ? `${selectedMetric.rteMaxVoltageKv} kV` : '—' },
+        { label: 'Postes RTE', value: selectedMetric?.rteSubstationCount ? `${selectedMetric.rteSubstationCount}` : '—' },
+      ],
+      explanation: 'Le score rapproche capacité réservée disponible, niveau de tension et densité des postes. Il ne remplace pas une réponse de raccordement RTE/Enedis.'
+    },
+    land: {
+      summary: 'Estime la marge foncière et l’écart ville utile pour un site à instruire.',
+      facts: [
+        { label: 'Prix foncier local', value: local?.landPriceLabel ?? formatLandPrice(selectedMetric?.landPricePerM2) },
+        { label: 'Occupation du sol', value: local?.landuseLabel ?? 'Signal départemental' },
+        { label: 'Écart ville cible', value: local?.nearestTownKm != null ? formatDistance(local.nearestTownKm) : '10-15 km visés' },
+      ],
+      explanation: 'Le score favorise les secteurs avec marge spatiale, prix foncier supportable et distance urbaine équilibrée. PLU, servitudes et artificialisation restent à vérifier.'
+    },
+    risk: {
+      summary: 'Pré-filtre les risques naturels qui peuvent bloquer ou renchérir le projet.',
+      facts: [
+        { label: 'Inondation', value: local?.floodLabel ?? 'Pré-risque départemental' },
+        { label: 'Sismicité', value: local?.seismicLabel ?? 'Pré-risque départemental' },
+        { label: 'Mouvements terrain', value: local?.groundMovementLabel ?? 'Non qualifié au point' },
+      ],
+      explanation: 'Le score baisse avec les signaux inondation, sismicité, mouvements de terrain et retrait-gonflement. Il sert à éviter les no-go avant expertise réglementaire.'
+    },
+  };
+
+  return {
+    label: CRITERIA_LABELS[key] ?? key,
+    value: rounded,
+    ...(details[key] ?? {
+      summary: 'Critère à qualifier.',
+      facts: [],
+      explanation: 'Ce critère doit être confirmé par une instruction technique dédiée.',
+    }),
+  };
 }
 
 function ActionPlan({ mode, pointAnalysis, selectedMetric }) {
@@ -1974,27 +2159,31 @@ function ScenarioPanel({ activeLayerId, mode, selectedLayer, selectedMetric, set
   );
 }
 
-function Signal({ icon, label, mode, value }) {
+function Signal({ icon, isActive = false, label, mode, onClick, value }) {
   return (
-    <div
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={isActive}
       className={cx(
-        'signal-row grid grid-cols-[minmax(0,1fr)_auto] items-end border transition-all duration-700',
-        mode === 'tension' ? 'border-black p-3' : 'border-[#ded6c4] bg-[#fffaf0] p-4',
+        'signal-row grid grid-cols-[minmax(0,1fr)_auto] items-center border text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
+        mode === 'tension' ? 'border-black p-3' : 'border-[#ded6c4] bg-[#fffaf0] p-4 hover:border-ink hover:bg-white',
+        isActive && 'border-ink bg-white',
       )}
     >
-      <dt className="flex min-w-0 items-center gap-3 font-mono text-[0.62rem] uppercase tracking-[0.18em]">
-        {mode !== 'tension' && icon}
+      <span className="flex min-w-0 items-center gap-3 font-mono text-[0.62rem] uppercase tracking-[0.18em]">
+        {icon}
         <span className="min-w-0">{label}</span>
-      </dt>
-      <dd
+      </span>
+      <span
         className={cx(
           'font-display leading-none tracking-normal',
           mode === 'tension' ? 'text-2xl font-light' : 'text-3xl font-normal text-ink',
         )}
       >
         {value}
-      </dd>
-    </div>
+      </span>
+    </button>
   );
 }
 
@@ -2036,6 +2225,41 @@ function Stat({ label, value }) {
     <div>
       <p className="font-mono text-[0.58rem] uppercase tracking-[0.2em] text-pewter">{label}</p>
       <p className="mt-2 font-display text-4xl leading-none text-ink">{value}</p>
+    </div>
+  );
+}
+
+function ScenarioPowerConfigurator({ mode, powerMw, selectedProfile, setPowerMw }) {
+  const handleChange = (event) => {
+    setPowerMw(Number(event.target.value));
+  };
+
+  return (
+    <div className={cx('grid gap-3', mode === 'tension' ? 'text-black' : 'text-graphite')}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="font-mono text-[0.58rem] uppercase tracking-[0.2em] text-pewter">Configurateur IA</p>
+          <p className="mt-2 font-display text-4xl leading-none text-ink">{formatScenarioPower(powerMw)}</p>
+        </div>
+        <span className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-pewter">{selectedProfile.label}</span>
+      </div>
+      <label className="grid gap-2">
+        <span className="sr-only">Puissance du datacenter IA</span>
+        <input
+          type="range"
+          min={SCENARIO_POWER_MIN_MW}
+          max={SCENARIO_POWER_MAX_MW}
+          step={SCENARIO_POWER_STEP_MW}
+          value={powerMw}
+          onChange={handleChange}
+          className="w-full accent-[#bfa245]"
+        />
+      </label>
+      <div className="flex items-center justify-between font-mono text-[0.56rem] uppercase tracking-[0.14em] text-pewter">
+        <span>{formatScenarioPower(SCENARIO_POWER_MIN_MW)}</span>
+        <span>{formatNumber(estimateGpuCount(powerMw))} GPU approx.</span>
+        <span>{formatScenarioPower(SCENARIO_POWER_MAX_MW)}</span>
+      </div>
     </div>
   );
 }
@@ -2630,6 +2854,46 @@ function buildGridFit(rteInfo, profile = PROFILE_PRESETS[0]) {
   };
 }
 
+function buildAiScenarioProfile(powerMw = 300) {
+  const powerNeedMw = clamp(Number(powerMw) || 300, SCENARIO_POWER_MIN_MW, SCENARIO_POWER_MAX_MW);
+  const scale = clamp(Math.log(powerNeedMw / SCENARIO_POWER_MIN_MW) / Math.log(SCENARIO_POWER_MAX_MW / SCENARIO_POWER_MIN_MW), 0, 1);
+  const rawWeights = {
+    access: 0.19 - scale * 0.18,
+    cooling: 0.1 + scale * 0.05,
+    energy: 0.24 + scale * 0.11,
+    grid: 0.18 + scale * 0.18,
+    land: 0.11 - scale * 0.02,
+    risk: 0.18 - scale * 0.14,
+  };
+  const weightTotal = Object.values(rawWeights).reduce((sum, value) => sum + Math.max(value, 0.01), 0);
+  const weights = Object.fromEntries(
+    Object.entries(rawWeights).map(([key, value]) => [key, Math.max(value, 0.01) / weightTotal]),
+  );
+  const gpuCount = estimateGpuCount(powerNeedMw);
+  const label =
+    powerNeedMw >= 1_500
+      ? 'Extension 2 GW'
+      : powerNeedMw >= 700
+        ? 'Campus 1 GW'
+        : powerNeedMw >= 160
+          ? 'Colossus ajusté'
+          : 'Datacenter régional';
+
+  return {
+    description: 'Scénario ajustable par puissance: plus la puissance augmente, plus raccordement, énergie et refroidissement pèsent dans le score.',
+    footprint: `${formatScenarioPower(powerNeedMw)} · ~${formatNumber(gpuCount)} GPU`,
+    id: 'custom-ai-power',
+    label,
+    powerNeedMw,
+    scenarioId: powerNeedMw >= 1_500 ? 'colossus-2-2gw' : powerNeedMw >= 700 ? 'colossus-2-1gw' : powerNeedMw >= 160 ? 'colossus-1-300mw' : 'baseline-30mw',
+    weights,
+  };
+}
+
+function estimateGpuCount(powerMw) {
+  return Math.round((Number(powerMw ?? 0) * 667) / 1_000) * 1_000;
+}
+
 function profileToPowerNeedMw(profile = PROFILE_PRESETS[0]) {
   const powerNeedMw = Number(profile?.powerNeedMw ?? PROFILE_PRESETS[0].powerNeedMw);
   return Number.isFinite(powerNeedMw) && powerNeedMw > 0 ? powerNeedMw : PROFILE_PRESETS[0].powerNeedMw;
@@ -2890,26 +3154,100 @@ function getZoomTransform(bounds, isZoomed) {
   };
 }
 
+function buildLocalMapCells(selectedFeature, selectedMetric, layerId, projection, isZoomed) {
+  if (!isZoomed || !selectedFeature?.feature || !selectedMetric || !projection?.invert) return [];
+
+  const { maxX, maxY, minX, minY } = selectedFeature.bounds;
+  const span = Math.max(maxX - minX, maxY - minY);
+  const size = clamp(span / 13, 9, 22);
+  const cells = [];
+  const centerX = (minX + maxX) / 2;
+  const centerY = (minY + maxY) / 2;
+  const maxDistance = Math.hypot(maxX - centerX, maxY - centerY) || 1;
+
+  for (let y = minY; y < maxY; y += size) {
+    for (let x = minX; x < maxX; x += size) {
+      const point = [x + size / 2, y + size / 2];
+      const lonLat = projection.invert(point);
+      if (!lonLat || !geoContains(selectedFeature.feature, lonLat)) continue;
+
+      const urbanity = 1 - clamp(Math.hypot(point[0] - centerX, point[1] - centerY) / maxDistance, 0, 1);
+      const eastWest = clamp((point[0] - minX) / Math.max(maxX - minX, 1), 0, 1);
+      const northSouth = clamp((point[1] - minY) / Math.max(maxY - minY, 1), 0, 1);
+      const texture = Math.sin((eastWest * 6.7 + northSouth * 3.9) * Math.PI) * 0.5 + 0.5;
+      const value = localLayerValue(selectedMetric, layerId, { eastWest, northSouth, texture, urbanity });
+
+      cells.push({ id: `${Math.round(x)}-${Math.round(y)}`, size: size * 0.96, value, x, y });
+    }
+  }
+
+  return cells;
+}
+
+function localLayerValue(metric, layerId, signals) {
+  const base = layerValue(metric, layerId);
+  const { eastWest, northSouth, texture, urbanity } = signals;
+  const rurality = 1 - urbanity;
+  const variationByLayer = {
+    access: urbanity * 22 + texture * 8 - rurality * 14,
+    cooling: northSouth * 18 + rurality * 12 - urbanity * 8 + texture * 8,
+    energy: texture * 18 + eastWest * 8 - 10,
+    grid: urbanity * 18 + eastWest * 10 + texture * 6 - 12,
+    land: rurality * 28 - urbanity * 24 + texture * 10,
+    risk: rurality * 12 + northSouth * 8 - texture * 18,
+    score: rurality * 9 + urbanity * 8 + texture * 12 - 10,
+  };
+
+  return clamp(base + (variationByLayer[layerId] ?? variationByLayer.score), 0, 100);
+}
+
+function localCellFill(value, layerId) {
+  const ratio = mapContrastRatioFromValue(value);
+  const hue = layerHue(layerId);
+  const saturation = 38 + ratio * 50;
+  const lightness = 95 - ratio * 58;
+  return `hsl(${hue} ${saturation}% ${lightness}%)`;
+}
+
 function departmentFill(metric, layerId, mode, isSelected) {
   if (mode === 'tension') return isSelected ? '#000000' : '#ffffff';
   if (!metric) return '#fbfaf5';
 
-  const ratio = clamp(layerValue(metric, layerId) / 100, 0, 1);
-  const hue =
-    layerId === 'risk'
-      ? 92
-      : layerId === 'cooling'
-        ? 192
-        : layerId === 'grid'
-          ? 210
-          : layerId === 'access'
-            ? 28
-            : layerId === 'land'
-              ? 72
-              : 46;
-  const saturation = 42 + ratio * 30;
-  const lightness = 92 - ratio * 34;
+  const ratio = mapContrastRatio(metric, layerId);
+  const hue = layerHue(layerId);
+  const saturation = 34 + ratio * 48;
+  const lightness = 96 - ratio * 54;
   return `hsl(${hue} ${saturation}% ${lightness}%)`;
+}
+
+function departmentStroke(metric, layerId, mode, isSelected) {
+  if (isSelected) return '#141414';
+  if (mode === 'tension') return '#000000';
+  if (!metric) return '#d9d0bd';
+
+  const ratio = mapContrastRatio(metric, layerId);
+  const hue = layerHue(layerId);
+  const saturation = 26 + ratio * 32;
+  const lightness = 78 - ratio * 34;
+  return `hsl(${hue} ${saturation}% ${lightness}%)`;
+}
+
+function mapContrastRatio(metric, layerId) {
+  return mapContrastRatioFromValue(layerValue(metric, layerId));
+}
+
+function mapContrastRatioFromValue(value) {
+  const rawRatio = clamp(value / 100, 0, 1);
+  return clamp((rawRatio - 0.18) / 0.74, 0, 1) ** 0.72;
+}
+
+function layerHue(layerId) {
+  if (layerId === 'risk') return 92;
+  if (layerId === 'cooling') return 192;
+  if (layerId === 'grid') return 210;
+  if (layerId === 'access') return 28;
+  if (layerId === 'land') return 72;
+  return 46;
 }
 
 function layerValue(metric, layerId) {

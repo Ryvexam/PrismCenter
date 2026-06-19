@@ -59,8 +59,14 @@ body {
 }
 
 .landing-preview {
-  justify-self: end;
+  justify-self: stretch;
   width: min(100%, 28rem);
+}
+
+@media (min-width: 1280px) {
+  .landing-preview {
+    justify-self: end;
+  }
 }
 
 .landing-preview__plate {
