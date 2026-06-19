@@ -26,6 +26,7 @@ import './styles.css';
 import gridCapacity from './data/gridCapacity.json';
 import landPrices from './data/landPrices.json';
 import { INDICE_PAGE_BY_ID, INDICE_PAGES } from './data/indices.js';
+import { buildColossusScenarioSummary, getColossusScenario } from './data/colossusScenarios.js';
 import {
   coolingScore as scoreTerrainCooling,
   fetchTerrain,
@@ -690,7 +691,7 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
   const energy = useEnergyData();
   const [selectedCode, setSelectedCode] = useState('33');
   const [activeLayerId, setActiveLayerId] = useState('energy');
-  const [scenarioPowerMw, setScenarioPowerMw] = useState(300);
+  const [selectedProfileId, setSelectedProfileId] = useState('colossus1');
   const [isZoomed, setIsZoomed] = useState(false);
   const [analysisPoint, setAnalysisPoint] = useState(null);
 
@@ -1249,7 +1250,29 @@ function ControlDeck({
         </p>
       </div>
 
-      <CriteriaGrid
+      <LiveGridSignal energy={energy} mode={mode} />
+
+      <EnergyPriorityPanel energy={energy} mode={mode} selectedMetric={selectedMetric} />
+
+      <GridConnectionPanel mode={mode} selectedMetric={selectedMetric} selectedProfile={selectedProfile} />
+
+      <ProfileSelector
+        mode={mode}
+        profiles={profiles}
+        selectedProfile={selectedProfile}
+        setSelectedProfileId={setSelectedProfileId}
+      />
+
+      <HyperscaleScalePanel mode={mode} selectedMetric={selectedMetric} selectedProfile={selectedProfile} />
+
+      <ScorePlate isCalculating={pointAnalysis.status === 'loading'} mode={mode} score={score} selectedMetric={selectedMetric} />
+
+      <MethodIndexPanel activeLayerId={activeLayerId} mode={mode} onOpenIndice={onOpenIndice} />
+
+      <ConfidenceNote energy={energy} mode={mode} pointAnalysis={pointAnalysis} />
+
+      <CandidateMemo
+        energy={energy}
         mode={mode}
         pointAnalysis={pointAnalysis}
         selectedCriterionKey={selectedCriterionKey}
@@ -1334,6 +1357,53 @@ function GridConnectionPanel({ mode, selectedMetric, selectedProfile }) {
           value={topStation ? `${topStation.name} · ${formatMw(topStation.availableMw)} MW` : '—'}
         />
       </div>
+    </div>
+  );
+}
+
+function HyperscaleScalePanel({ mode, selectedMetric, selectedProfile }) {
+  const scenario = getColossusScenario(selectedProfile.scenarioId);
+  const summary = buildColossusScenarioSummary([scenario])[0];
+  const needMw = profileToPowerNeedMw(selectedProfile);
+  const availableMw = selectedMetric?.gridAvailableMw ?? 0;
+  const coverage = clamp((availableMw / Math.max(needMw, 1)) * 100, 0, 100);
+  const maxVoltageKv = selectedMetric?.rteMaxVoltageKv ?? 0;
+  const voltageLabel =
+    maxVoltageKv >= 400
+      ? '400 kV identifié'
+      : maxVoltageKv >= 225
+        ? '225 kV — renforcement probable'
+        : 'Sous 225 kV — incompatible sans infrastructure majeure';
+
+  return (
+    <div className={cx('grid gap-4 border p-4', mode === 'tension' ? 'border-black' : 'border-[#d8d0bd]')}>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">Échelle hyperscale</p>
+          <p className="mt-2 font-display text-4xl leading-none text-ink">{formatPowerScale(needMw)}</p>
+        </div>
+        <Zap aria-hidden="true" size={20} strokeWidth={1.25} />
+      </div>
+      <p className="text-sm leading-6 text-graphite">
+        {scenario.description} Les coûts utilisent une hypothèse modifiable de 0,08 €/kWh et restent des ordres de grandeur.
+      </p>
+      <div className="grid gap-2 text-sm leading-6">
+        <FactRow label="GPU" value={`~${formatNumber(summary.gpuCount)} · ${summary.architecture}`} />
+        <FactRow label="Puissance GPU seule" value={`${formatMw(summary.gpuPowerMw)} MW`} />
+        <FactRow label="Infra, refroidissement & pertes" value={`${formatMw(summary.infrastructurePowerMw)} MW`} />
+        <FactRow label="Énergie quotidienne" value={`${formatDecimal(summary.energy.dailyGwh)} GWh`} />
+        <FactRow label="Énergie annuelle" value={`${formatDecimal(summary.energy.yearlyTwh)} TWh`} />
+        <FactRow label="Électricité / jour" value={formatCompactCurrency(summary.cost.dailyEur)} />
+        <FactRow label="Électricité / an" value={formatCompactCurrency(summary.cost.yearlyEur)} />
+        <FactRow label="Couverture Caparéseau" value={`${Math.round(coverage)}% · ${formatMw(availableMw)} MW`} />
+        <FactRow label="Niveau de tension" value={voltageLabel} />
+      </div>
+      {needMw >= 300 && (
+        <p className="border-t border-current/20 pt-3 text-xs leading-5 text-graphite">
+          À cette échelle, un score départemental favorable ne suffit pas: poste 400/225 kV, renforcement RTE, production dédiée,
+          stockage, redondance N+1 et stratégie eau/chaleur doivent être instruits comme un projet énergétique industriel.
+        </p>
+      )}
     </div>
   );
 }
@@ -3302,11 +3372,22 @@ function formatLandPrice(value) {
   return `${formatNumber(numericValue)} €/m²`;
 }
 
-function formatScenarioPower(valueMw) {
+function formatPowerScale(valueMw) {
   const numericValue = Number(valueMw ?? 0);
   if (!Number.isFinite(numericValue)) return '0 MW';
   if (numericValue >= 1_000) return `${formatDecimal(numericValue / 1_000)} GW`;
   return `${formatMw(numericValue)} MW`;
+}
+
+function formatCompactCurrency(value) {
+  const numericValue = Number(value ?? 0);
+  return new Intl.NumberFormat('fr-FR', {
+    currency: 'EUR',
+    currencyDisplay: 'symbol',
+    maximumFractionDigits: 1,
+    notation: 'compact',
+    style: 'currency',
+  }).format(Number.isFinite(numericValue) ? numericValue : 0);
 }
 
 function formatMw(value) {
