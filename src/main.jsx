@@ -687,7 +687,7 @@ function LegalPage({ id, onBack, onHome, onOpenLegal }) {
   );
 }
 
-function Studio({ onBack, onOpenIndice, onOpenLegal }) {
+function Studio({ onBack, onOpenIndice }) {
   const energy = useEnergyData();
   const [selectedCode, setSelectedCode] = useState('33');
   const [activeLayerId, setActiveLayerId] = useState('energy');
@@ -701,8 +701,6 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
     [energy.departments, energy.geojson, selectedProfile, energy.realtime, energy.rteGrid],
   );
   const selectedMetric = model.byCode.get(selectedCode) ?? model.items[0];
-  const selectedLayer = MAP_LAYERS.find((layer) => layer.id === activeLayerId) ?? MAP_LAYERS[0];
-
   const pointAnalysis = usePointAnalysis(analysisPoint, selectedMetric, selectedProfile, energy.realtime);
   const finalScore = pointAnalysis.data?.score ?? selectedMetric?.datacenterScore ?? 0;
   const mode = finalScore >= 76 ? 'optimal' : finalScore < 52 ? 'tension' : 'transition';
@@ -770,21 +768,10 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
           onOpenIndice={onOpenIndice}
         />
         <ControlDeck
-          activeLayerId={activeLayerId}
-          analysisPoint={analysisPoint}
           energy={energy}
           mode={mode}
-          model={model}
           pointAnalysis={pointAnalysis}
-          profiles={PROFILE_PRESETS}
-          selectedLayer={selectedLayer}
           selectedMetric={selectedMetric}
-          selectedProfile={selectedProfile}
-          setActiveLayerId={setActiveLayerId}
-          setScenarioPowerMw={setScenarioPowerMw}
-          setSelectedCode={handleDepartmentSelect}
-          onOpenIndice={onOpenIndice}
-          onOpenLegal={onOpenLegal}
         />
       </div>
     </motion.main>
@@ -1182,21 +1169,10 @@ function LayerControls({ activeLayerId, mode, setActiveLayerId }) {
 }
 
 function ControlDeck({
-  activeLayerId,
-  analysisPoint,
   energy,
   mode,
-  model,
   pointAnalysis,
-  profiles,
-  selectedLayer,
   selectedMetric,
-  selectedProfile,
-  setActiveLayerId,
-  setScenarioPowerMw,
-  setSelectedCode,
-  onOpenIndice,
-  onOpenLegal,
 }) {
   const score = pointAnalysis.data?.score ?? selectedMetric?.datacenterScore ?? 0;
   const verdict = pointAnalysis.data
@@ -1216,7 +1192,9 @@ function ControlDeck({
       : pointAnalysis.data?.summary ??
         'Cliquez dans le département pour qualifier un site précis avec Géorisques, météo, voirie et distance ville.';
   const [selectedCriterionKey, setSelectedCriterionKey] = useState(null);
+  const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
   const closeCriterionModal = () => setSelectedCriterionKey(null);
+  const closeSourceModal = () => setIsSourceModalOpen(false);
 
   return (
     <aside
@@ -1252,38 +1230,27 @@ function ControlDeck({
         </p>
       </div>
 
-      <LiveGridSignal energy={energy} mode={mode} />
-
-      <EnergyPriorityPanel energy={energy} mode={mode} selectedMetric={selectedMetric} />
-
-      <GridConnectionPanel mode={mode} selectedMetric={selectedMetric} selectedProfile={selectedProfile} />
-
-      <ProfileSelector
-        mode={mode}
-        profiles={profiles}
-        selectedProfile={selectedProfile}
-        setScenarioPowerMw={setScenarioPowerMw}
-      />
-
-      <HyperscaleScalePanel mode={mode} selectedMetric={selectedMetric} selectedProfile={selectedProfile} />
-
-      <ScorePlate isCalculating={pointAnalysis.status === 'loading'} mode={mode} score={score} selectedMetric={selectedMetric} />
-
-      <MethodIndexPanel activeLayerId={activeLayerId} mode={mode} onOpenIndice={onOpenIndice} />
-
-      <ConfidenceNote energy={energy} mode={mode} pointAnalysis={pointAnalysis} />
-
-      <CandidateMemo
-        energy={energy}
+      <CriteriaGrid
         mode={mode}
         pointAnalysis={pointAnalysis}
-        score={score}
         selectedCriterionKey={selectedCriterionKey}
         selectedMetric={selectedMetric}
-        selectedProfile={selectedProfile}
         setSelectedCriterionKey={setSelectedCriterionKey}
-        verdict={verdict}
       />
+
+      <button
+        type="button"
+        onClick={() => setIsSourceModalOpen(true)}
+        className={cx(
+          'inline-flex min-h-11 items-center justify-center gap-3 border px-4 py-3 font-mono text-[0.62rem] uppercase tracking-[0.16em] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
+          mode === 'tension'
+            ? 'border-black text-black hover:bg-black hover:text-white'
+            : 'border-[#d8d0bd] text-ink hover:border-ink hover:bg-ink hover:text-white',
+        )}
+      >
+        Voir la provenance des données
+        <ExternalLink aria-hidden="true" size={13} strokeWidth={1.4} />
+      </button>
 
       <CriterionModal
         criterionKey={selectedCriterionKey}
@@ -1292,6 +1259,14 @@ function ControlDeck({
         onClose={closeCriterionModal}
         pointAnalysis={pointAnalysis}
         selectedMetric={selectedMetric}
+      />
+
+      <DataProvenanceModal
+        energy={energy}
+        isOpen={isSourceModalOpen}
+        mode={mode}
+        onClose={closeSourceModal}
+        pointAnalysis={pointAnalysis}
       />
     </aside>
   );
@@ -2283,6 +2258,99 @@ function SourcePill({ source }) {
       {source === 'live' ? <Radio aria-hidden="true" size={14} /> : <Database aria-hidden="true" size={14} />}
       {source === 'live' ? 'Données live' : 'Mode dégradé'}
     </div>
+  );
+}
+
+function DataProvenanceModal({ energy, isOpen, mode, onClose, pointAnalysis }) {
+  const confidence = buildConfidence(pointAnalysis, energy);
+  const sourceMode = energy.source === 'live' ? 'Données publiques chargées' : 'Mode dégradé avec données embarquées';
+  const localStatus = pointAnalysis.data
+    ? `Point local qualifié autour de ${pointAnalysis.data.commune ?? 'la coordonnée sélectionnée'}`
+    : 'Analyse locale non lancée: cliquez sur la carte pour interroger les sources au point.';
+  const links = [
+    ['ODRÉ parc électrique', ENERGY_DATASET_LINK],
+    ['Caparéseau', CAPARESEAU_LINK],
+    ['Postes RTE', RTE_SUBSTATIONS_LINK],
+    ['Eco2mix temps réel', ECO2MIX_LINK],
+    ['Géorisques', GEORISQUES_LINK],
+    ['Open-Meteo', OPEN_METEO_LINK],
+    ['Hub’Eau', HUBEAU_LINK],
+    ['VigiEau', VIGIEAU_LINK],
+    ['DVF foncier', DVF_LINK],
+    ['API Adresse', API_ADRESSE_LINK],
+    ['OpenStreetMap / Overpass', OVERPASS_LINK],
+    ['GeoJSON France', GEOJSON_LINK],
+  ];
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          key="data-provenance-modal"
+          className="fixed inset-0 z-50 grid place-items-center bg-ink/30 px-4 py-8 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="data-provenance-title"
+          onClick={onClose}
+        >
+          <motion.div
+            className={cx(
+              'max-h-[88vh] w-full max-w-2xl overflow-y-auto border p-6 shadow-2xl',
+              mode === 'tension' ? 'border-black bg-white' : 'border-[#d8d0bd] bg-[#fffaf0]',
+            )}
+            initial={{ opacity: 0, scale: 0.96, y: 18 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: 8 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-5">
+              <div className="grid gap-3">
+                <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-pewter">Provenance des données</p>
+                <h3 id="data-provenance-title" className="font-display text-4xl leading-none text-ink">
+                  Sources publiques & niveau de confiance
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="border border-current px-3 py-2 font-mono text-[0.62rem] uppercase tracking-[0.18em] transition hover:bg-ink hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4"
+              >
+                Fermer
+              </button>
+            </div>
+
+            <div className="mt-8 grid gap-5">
+              <div className="grid gap-3 text-sm leading-6">
+                <FactRow label="Statut global" value={sourceMode} />
+                <FactRow label="Confiance" value={`${confidence.label} · ${confidence.value}/100`} />
+                <FactRow label="Signal live" value={`${energy.realtime.tauxCo2} gCO₂/kWh · ${energy.realtime.date} ${energy.realtime.heure}`} />
+                <FactRow label="Analyse locale" value={localStatus} />
+              </div>
+
+              <p className="border-t border-current/20 pt-5 text-sm leading-6 text-graphite">
+                Les scores sont des estimations de priorisation. Les API publiques peuvent être incomplètes, indisponibles ou
+                agrégées à une maille départementale: chaque point doit être confirmé par études réseau, foncières,
+                environnementales et administratives.
+              </p>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {links.map(([label, href]) => (
+                  <a key={href} className="source-link justify-between" href={href} rel="noreferrer" target="_blank">
+                    {label}
+                    <ExternalLink aria-hidden="true" size={13} strokeWidth={1.4} />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
