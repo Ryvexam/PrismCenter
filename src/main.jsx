@@ -3332,6 +3332,13 @@ function degreesToRadians(value) {
   return (value * Math.PI) / 180;
 }
 
+function formatScenarioPower(value) {
+  const numericValue = Number(value ?? 0);
+  const safeValue = Number.isFinite(numericValue) ? numericValue : SCENARIO_POWER_MIN_MW;
+  if (safeValue >= 1_000) return `${formatDecimal(safeValue / 1_000)} GW`;
+  return `${formatNumber(safeValue)} MW`;
+}
+
 function formatNumber(value) {
   const numericValue = Number(value ?? 0);
   return new Intl.NumberFormat('fr-FR').format(Math.round(Number.isFinite(numericValue) ? numericValue : 0));
