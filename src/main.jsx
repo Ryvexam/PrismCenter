@@ -691,7 +691,7 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
   const energy = useEnergyData();
   const [selectedCode, setSelectedCode] = useState('33');
   const [activeLayerId, setActiveLayerId] = useState('energy');
-  const [selectedProfileId, setSelectedProfileId] = useState('colossus1');
+  const [scenarioPowerMw, setScenarioPowerMw] = useState(300);
   const [isZoomed, setIsZoomed] = useState(false);
   const [analysisPoint, setAnalysisPoint] = useState(null);
 
@@ -781,6 +781,7 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
           selectedMetric={selectedMetric}
           selectedProfile={selectedProfile}
           setActiveLayerId={setActiveLayerId}
+          setScenarioPowerMw={setScenarioPowerMw}
           setSelectedCode={handleDepartmentSelect}
           onOpenIndice={onOpenIndice}
           onOpenLegal={onOpenLegal}
@@ -1192,6 +1193,7 @@ function ControlDeck({
   selectedMetric,
   selectedProfile,
   setActiveLayerId,
+  setScenarioPowerMw,
   setSelectedCode,
   onOpenIndice,
   onOpenLegal,
@@ -1260,7 +1262,7 @@ function ControlDeck({
         mode={mode}
         profiles={profiles}
         selectedProfile={selectedProfile}
-        setSelectedProfileId={setSelectedProfileId}
+        setScenarioPowerMw={setScenarioPowerMw}
       />
 
       <HyperscaleScalePanel mode={mode} selectedMetric={selectedMetric} selectedProfile={selectedProfile} />
@@ -1439,7 +1441,7 @@ function LiveGridSignal({ energy, mode }) {
   );
 }
 
-function ProfileSelector({ mode, profiles, selectedProfile, setSelectedProfileId }) {
+function ProfileSelector({ mode, profiles, selectedProfile, setScenarioPowerMw }) {
   return (
     <div className={cx('grid gap-3 border-t pt-5', mode === 'tension' ? 'border-black' : 'border-[#ddd6c4]')}>
       <div className="flex items-center justify-between gap-4">
@@ -1451,11 +1453,11 @@ function ProfileSelector({ mode, profiles, selectedProfile, setSelectedProfileId
           <button
             key={profile.id}
             type="button"
-            aria-pressed={profile.id === selectedProfile.id}
-            onClick={() => setSelectedProfileId(profile.id)}
+            aria-pressed={profile.powerNeedMw === selectedProfile.powerNeedMw}
+            onClick={() => setScenarioPowerMw(profile.powerNeedMw)}
             className={cx(
               'profile-choice border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-4',
-              profile.id === selectedProfile.id
+              profile.powerNeedMw === selectedProfile.powerNeedMw
                 ? 'border-ink bg-ink text-white'
                 : mode === 'tension'
                   ? 'border-black hover:bg-black hover:text-white'
