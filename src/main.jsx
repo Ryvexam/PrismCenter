@@ -1174,23 +1174,6 @@ function ControlDeck({
   pointAnalysis,
   selectedMetric,
 }) {
-  const score = pointAnalysis.data?.score ?? selectedMetric?.datacenterScore ?? 0;
-  const verdict = pointAnalysis.data
-    ? score >= 78
-      ? 'Site à instruire'
-      : score >= 58
-        ? 'À challenger'
-        : 'À écarter'
-    : score >= 78
-      ? 'Pré-candidat fort'
-      : score >= 58
-        ? 'Pré-candidat'
-        : 'Pré-candidat faible';
-  const statusMessage =
-    pointAnalysis.status === 'loading'
-      ? `Analyse locale en cours. ${APP_NAME} interroge les sources publiques autour du point.`
-      : pointAnalysis.data?.summary ??
-        'Cliquez dans le département pour qualifier un site précis avec Géorisques, météo, voirie et distance ville.';
   const [selectedCriterionKey, setSelectedCriterionKey] = useState(null);
   const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
   const closeCriterionModal = () => setSelectedCriterionKey(null);
@@ -1206,30 +1189,8 @@ function ControlDeck({
             ? 'gap-8 border-[#d9d1be] p-5 sm:p-7 md:p-9'
             : 'gap-6 border-[#ddd6c4] p-5 sm:p-6 md:p-8',
       )}
+      aria-label="Scores par catégorie"
     >
-      <div className={cx('decision-ledger grid transition-[gap] duration-700', mode === 'tension' ? 'gap-3' : 'gap-5')}>
-        <div className="flex items-start justify-between gap-5">
-          <p className="font-mono text-[0.62rem] uppercase tracking-[0.24em]">Dossier d’implantation</p>
-          <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em]">{Math.round(score)}/100</span>
-        </div>
-        <h2
-          className={cx(
-            'font-display font-normal leading-none tracking-normal text-ink transition-all duration-700',
-            mode === 'tension' ? 'text-3xl' : 'text-4xl sm:text-5xl md:text-6xl',
-          )}
-        >
-          {verdict}
-        </h2>
-        <p
-          className={cx(
-            'transition-all duration-700',
-            mode === 'tension' ? 'text-sm leading-6' : 'text-base font-light leading-7 sm:text-lg sm:leading-8',
-          )}
-        >
-          {statusMessage}
-        </p>
-      </div>
-
       <CriteriaGrid
         mode={mode}
         pointAnalysis={pointAnalysis}
