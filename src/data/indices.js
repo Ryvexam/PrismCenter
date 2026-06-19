@@ -33,7 +33,7 @@ export const INDICE_PAGES = [
       'Le score global agrège les six indices opérationnels pour produire une priorité d’instruction. Il ne décide pas qu’un site est constructible: il hiérarchise les territoires et les points qui méritent une étude technique.',
     formulaSteps: [
       'Calculer les six indices: énergie bas carbone, raccordement électrique, risques naturels, foncier, refroidissement et accès travailleurs.',
-      'Appliquer les pondérations du scénario choisi: cluster entraînement, campus souverain ou inférence régionale.',
+      'Appliquer les pondérations du scénario choisi: Colossus 1 à 300 MW, campus 1 GW, extension 2 GW ou référence régionale 30 MW.',
       'Sur la carte, utiliser les signaux départementaux disponibles au chargement.',
       'Au point cliqué, remplacer ou ajuster les indices par les signaux locaux disponibles: Géorisques, météo, eau, sécheresse, route, ville, foncier local.',
       'Afficher séparément le niveau de confiance pour ne pas confondre score élevé et décision juridiquement qualifiée.',
@@ -102,7 +102,7 @@ export const INDICE_PAGES = [
     label: 'Raccordement électrique',
     title: 'Indice raccordement électrique',
     shortLabel: 'Raccord.',
-    question: 'Où l’accès réseau est-il crédible pour 30, 80 ou 200 MW ?',
+    question: 'Où l’accès réseau est-il crédible pour 30 MW, 300 MW, 1 GW ou 2 GW ?',
     scoreMeaning:
       'Un score élevé indique un département où les capacités réservées disponibles Caparéseau, les postes RTE rapprochés et les niveaux de tension sont plus compatibles avec le profil datacenter sélectionné. Il ne vaut pas réponse de raccordement.',
     formulaSteps: [
@@ -110,7 +110,7 @@ export const INDICE_PAGES = [
       'Rapprocher les postes par code poste pour rattacher les capacités Caparéseau aux départements RTE.',
       'Additionner la capacité réservée disponible, la file d’attente S3REnR, les services système et les capacités de transformation.',
       'Identifier le niveau de tension maximal et le nombre de postes HTB significatifs par département.',
-      'Comparer la capacité disponible avec le besoin indicatif du scénario: 160 MW pour entraînement, 70 MW pour campus souverain, 25 MW pour inférence.',
+      'Comparer la capacité disponible avec le besoin du scénario: 30 MW pour la référence régionale, 300 MW pour Colossus 1, 1 000 MW pour le campus gigawatt et 2 000 MW pour le stress test.',
       'Composer le score: disponibilité de capacité, niveau de tension, densité de postes et cohérence avec le score énergie bas carbone.',
     ],
     dataSources: [
