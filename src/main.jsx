@@ -1059,7 +1059,7 @@ function buildMapStats(activeLayerId, selectedMetric, selectedProfile) {
   }
 
   return [
-    { label: 'Score carte', value: `${Math.round(layerValue(selectedMetric, activeLayerId))}/100` },
+    { label: 'Score départemental', value: `${Math.round(selectedMetric?.datacenterScore ?? layerValue(selectedMetric, activeLayerId))}/100` },
     { label: 'Puissance bas carbone', value: `${formatMw((selectedMetric?.lowCarbonKw ?? 0) / 1000)} MW` },
     { label: 'Scénario', value: selectedProfile.footprint },
   ];
@@ -1099,7 +1099,7 @@ function MapScoreCartouche({ finalScore, mode, pointAnalysis, selectedMetric, se
     isCalculating
       ? 'Calcul du score'
       : hasLocalPoint
-        ? 'Point instruit'
+        ? 'Score local point cliqué'
         : 'Pré-score départemental';
   const verdict =
     isCalculating
