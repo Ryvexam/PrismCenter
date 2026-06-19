@@ -1737,6 +1737,11 @@ function buildCriterionRows(criteria) {
 function buildCriterionDetail(key, value = 0, { energy, pointAnalysis, selectedMetric }) {
   const rounded = Math.round(value ?? 0);
   const local = pointAnalysis.data;
+  const hasQualifiedRiskSignal =
+    local?.riskConfidenceLabel === 'qualifié' ||
+    [local?.floodLabel, local?.seismicLabel, local?.groundMovementLabel].some(
+      (label) => label && !isUnknownRiskText(label),
+    );
   const details = {
     access: {
       summary: 'Mesure si le point reste exploitable par les équipes et les flux opérationnels.',
@@ -1789,8 +1794,11 @@ function buildCriterionDetail(key, value = 0, { energy, pointAnalysis, selectedM
         { label: 'Inondation', value: local?.floodLabel ?? 'Pré-risque départemental' },
         { label: 'Sismicité', value: local?.seismicLabel ?? 'Pré-risque départemental' },
         { label: 'Mouvements terrain', value: local?.groundMovementLabel ?? 'Non qualifié au point' },
+        { label: 'Confiance risque', value: local?.riskConfidenceLabel ?? 'Départemental' },
       ],
-      explanation: 'Le score baisse avec les signaux inondation, sismicité, mouvements de terrain et retrait-gonflement. Il sert à éviter les no-go avant expertise réglementaire.'
+      explanation: hasQualifiedRiskSignal
+        ? 'Plus le score est haut, moins les signaux de risque naturel semblent contraignants. Le score baisse seulement quand des signaux qualifiés indiquent inondation, sismicité, mouvements de terrain ou retrait-gonflement.'
+        : 'Aucun signal risque qualifié n’a été reçu au point: le score reste volontairement neutre et doit être lu avec une confiance faible, pas comme une pénalité. Plus haut = moins contraint, mais une expertise réglementaire reste nécessaire.'
     },
   };
 
@@ -3051,6 +3059,7 @@ function buildPointAnalysis({
     commune: communeName ?? 'Non identifié',
     criteria,
     floodLabel: riskSignals.floodLabel,
+    groundMovementLabel: riskSignals.groundLabel,
     groundwaterLabel: formatGroundwater(terrain?.groundwater),
     gridAvailableLabel: formatMw(metric.gridAvailableMw ?? 0),
     gridCompatibilityLabel: metric.gridCompatibilityLabel ?? 'Non qualifié',
@@ -3089,10 +3098,11 @@ function parseRiskSignals(risk) {
       confidence: 18,
       confidenceLabel: 'non qualifié',
       floodLabel: 'Non qualifié',
-      floodScore: 34,
-      groundScore: 38,
+      floodScore: 60,
+      groundLabel: 'Non qualifié',
+      groundScore: 60,
       seismicLabel: 'Non qualifié',
-      seismicScore: 38,
+      seismicScore: 60,
     };
   }
 
@@ -3111,6 +3121,7 @@ function parseRiskSignals(risk) {
     confidenceLabel: knownSignals.length >= 2 ? 'qualifié' : 'partiel',
     floodLabel: floodStatus || 'Non qualifié',
     floodScore: scoreFloodText(floodStatus),
+    groundLabel: groundStatus.trim() || 'Non qualifié',
     groundScore: scoreRiskText(groundStatus),
     seismicLabel: seismicStatus || 'Non qualifié',
     seismicScore: scoreRiskText(seismicStatus),
@@ -3119,7 +3130,7 @@ function parseRiskSignals(risk) {
 
 function scoreFloodText(text) {
   const value = text.toLowerCase();
-  if (isUnknownRiskText(value)) return 34;
+  if (isUnknownRiskText(value)) return 60;
   if (value.includes('existant') || value.includes('important') || value.includes('moyen') || value.includes('fort')) return 30;
   if (value.includes('modéré') || value.includes('modere')) return 50;
   if (value.includes('faible')) return 74;
@@ -3129,7 +3140,7 @@ function scoreFloodText(text) {
 
 function scoreRiskText(text) {
   const value = text.toLowerCase();
-  if (isUnknownRiskText(value)) return 38;
+  if (isUnknownRiskText(value)) return 60;
   if (value.includes('important') || value.includes('moyen') || value.includes('fort')) return 28;
   if (value.includes('modéré') || value.includes('modere')) return 54;
   if (value.includes('très faible') || value.includes('tres faible')) return 94;
