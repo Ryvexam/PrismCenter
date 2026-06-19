@@ -155,6 +155,10 @@ const PROFILE_PRESETS = [
   },
 ];
 
+const SCENARIO_POWER_MIN_MW = 30;
+const SCENARIO_POWER_MAX_MW = 2_000;
+const SCENARIO_POWER_STEP_MW = 10;
+
 const CRITERIA_LABELS = {
   access: 'Accès travailleurs',
   cooling: 'Refroidissement',
@@ -686,11 +690,11 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
   const energy = useEnergyData();
   const [selectedCode, setSelectedCode] = useState('33');
   const [activeLayerId, setActiveLayerId] = useState('energy');
-  const [selectedProfileId, setSelectedProfileId] = useState('colossus1');
+  const [scenarioPowerMw, setScenarioPowerMw] = useState(300);
   const [isZoomed, setIsZoomed] = useState(false);
   const [analysisPoint, setAnalysisPoint] = useState(null);
 
-  const selectedProfile = PROFILE_PRESETS.find((profile) => profile.id === selectedProfileId) ?? PROFILE_PRESETS[0];
+  const selectedProfile = useMemo(() => buildAiScenarioProfile(scenarioPowerMw), [scenarioPowerMw]);
   const model = useMemo(
     () => buildDepartmentModel(energy.departments, energy.geojson, selectedProfile, energy.realtime, energy.rteGrid),
     [energy.departments, energy.geojson, selectedProfile, energy.realtime, energy.rteGrid],
@@ -756,8 +760,10 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
           model={model}
           pointAnalysis={pointAnalysis}
           selectedProfile={selectedProfile}
+          scenarioPowerMw={scenarioPowerMw}
           selectedMetric={selectedMetric}
           setActiveLayerId={setActiveLayerId}
+          setScenarioPowerMw={setScenarioPowerMw}
           resetMapView={resetMapView}
           setSelectedCode={handleDepartmentSelect}
           onOpenIndice={onOpenIndice}
@@ -775,7 +781,6 @@ function Studio({ onBack, onOpenIndice, onOpenLegal }) {
           selectedProfile={selectedProfile}
           setActiveLayerId={setActiveLayerId}
           setSelectedCode={handleDepartmentSelect}
-          setSelectedProfileId={setSelectedProfileId}
           onOpenIndice={onOpenIndice}
           onOpenLegal={onOpenLegal}
         />
@@ -793,9 +798,11 @@ function DepartmentMap({
   mode,
   model,
   pointAnalysis,
+  scenarioPowerMw,
   selectedProfile,
   selectedMetric,
   setActiveLayerId,
+  setScenarioPowerMw,
   resetMapView,
   setSelectedCode,
   onOpenIndice,
@@ -989,13 +996,19 @@ function DepartmentMap({
       <div
         className={cx(
           'map-stat-strip relative z-10 grid gap-3 border-t pt-5 text-sm',
-          activeLayerId === 'grid' ? 'md:grid-cols-4' : 'md:grid-cols-3',
+          'md:grid-cols-4',
           mode === 'tension' ? 'border-black text-black' : 'border-[#ded6c4] text-graphite',
         )}
       >
         {buildMapStats(activeLayerId, selectedMetric, selectedProfile).map((stat) => (
           <Stat key={stat.label} label={stat.label} value={stat.value} />
         ))}
+        <ScenarioPowerConfigurator
+          mode={mode}
+          powerMw={scenarioPowerMw}
+          selectedProfile={selectedProfile}
+          setPowerMw={setScenarioPowerMw}
+        />
       </div>
 
       <div className="relative z-10 mt-5 flex flex-wrap items-center justify-between gap-4">
@@ -1179,7 +1192,6 @@ function ControlDeck({
   selectedProfile,
   setActiveLayerId,
   setSelectedCode,
-  setSelectedProfileId,
   onOpenIndice,
   onOpenLegal,
 }) {
@@ -2147,6 +2159,41 @@ function Stat({ label, value }) {
   );
 }
 
+function ScenarioPowerConfigurator({ mode, powerMw, selectedProfile, setPowerMw }) {
+  const handleChange = (event) => {
+    setPowerMw(Number(event.target.value));
+  };
+
+  return (
+    <div className={cx('grid gap-3', mode === 'tension' ? 'text-black' : 'text-graphite')}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="font-mono text-[0.58rem] uppercase tracking-[0.2em] text-pewter">Configurateur IA</p>
+          <p className="mt-2 font-display text-4xl leading-none text-ink">{formatScenarioPower(powerMw)}</p>
+        </div>
+        <span className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-pewter">{selectedProfile.label}</span>
+      </div>
+      <label className="grid gap-2">
+        <span className="sr-only">Puissance du datacenter IA</span>
+        <input
+          type="range"
+          min={SCENARIO_POWER_MIN_MW}
+          max={SCENARIO_POWER_MAX_MW}
+          step={SCENARIO_POWER_STEP_MW}
+          value={powerMw}
+          onChange={handleChange}
+          className="w-full accent-[#bfa245]"
+        />
+      </label>
+      <div className="flex items-center justify-between font-mono text-[0.56rem] uppercase tracking-[0.14em] text-pewter">
+        <span>{formatScenarioPower(SCENARIO_POWER_MIN_MW)}</span>
+        <span>{formatNumber(estimateGpuCount(powerMw))} GPU approx.</span>
+        <span>{formatScenarioPower(SCENARIO_POWER_MAX_MW)}</span>
+      </div>
+    </div>
+  );
+}
+
 function SourcePill({ source }) {
   return (
     <div
@@ -2737,6 +2784,46 @@ function buildGridFit(rteInfo, profile = PROFILE_PRESETS[0]) {
   };
 }
 
+function buildAiScenarioProfile(powerMw = 300) {
+  const powerNeedMw = clamp(Number(powerMw) || 300, SCENARIO_POWER_MIN_MW, SCENARIO_POWER_MAX_MW);
+  const scale = clamp(Math.log(powerNeedMw / SCENARIO_POWER_MIN_MW) / Math.log(SCENARIO_POWER_MAX_MW / SCENARIO_POWER_MIN_MW), 0, 1);
+  const rawWeights = {
+    access: 0.19 - scale * 0.18,
+    cooling: 0.1 + scale * 0.05,
+    energy: 0.24 + scale * 0.11,
+    grid: 0.18 + scale * 0.18,
+    land: 0.11 - scale * 0.02,
+    risk: 0.18 - scale * 0.14,
+  };
+  const weightTotal = Object.values(rawWeights).reduce((sum, value) => sum + Math.max(value, 0.01), 0);
+  const weights = Object.fromEntries(
+    Object.entries(rawWeights).map(([key, value]) => [key, Math.max(value, 0.01) / weightTotal]),
+  );
+  const gpuCount = estimateGpuCount(powerNeedMw);
+  const label =
+    powerNeedMw >= 1_500
+      ? 'Extension 2 GW'
+      : powerNeedMw >= 700
+        ? 'Campus 1 GW'
+        : powerNeedMw >= 160
+          ? 'Colossus ajusté'
+          : 'Datacenter régional';
+
+  return {
+    description: 'Scénario ajustable par puissance: plus la puissance augmente, plus raccordement, énergie et refroidissement pèsent dans le score.',
+    footprint: `${formatScenarioPower(powerNeedMw)} · ~${formatNumber(gpuCount)} GPU`,
+    id: 'custom-ai-power',
+    label,
+    powerNeedMw,
+    scenarioId: powerNeedMw >= 1_500 ? 'colossus-2-2gw' : powerNeedMw >= 700 ? 'colossus-2-1gw' : powerNeedMw >= 160 ? 'colossus-1-300mw' : 'baseline-30mw',
+    weights,
+  };
+}
+
+function estimateGpuCount(powerMw) {
+  return Math.round((Number(powerMw ?? 0) * 667) / 1_000) * 1_000;
+}
+
 function profileToPowerNeedMw(profile = PROFILE_PRESETS[0]) {
   const powerNeedMw = Number(profile?.powerNeedMw ?? PROFILE_PRESETS[0].powerNeedMw);
   return Number.isFinite(powerNeedMw) && powerNeedMw > 0 ? powerNeedMw : PROFILE_PRESETS[0].powerNeedMw;
@@ -3213,6 +3300,13 @@ function formatLandPrice(value) {
   const numericValue = Number(value ?? 0);
   if (!Number.isFinite(numericValue) || numericValue <= 0) return 'non mesuré';
   return `${formatNumber(numericValue)} €/m²`;
+}
+
+function formatScenarioPower(valueMw) {
+  const numericValue = Number(valueMw ?? 0);
+  if (!Number.isFinite(numericValue)) return '0 MW';
+  if (numericValue >= 1_000) return `${formatDecimal(numericValue / 1_000)} GW`;
+  return `${formatMw(numericValue)} MW`;
 }
 
 function formatMw(value) {
